@@ -23,10 +23,12 @@ import {
   Wifi,
   WifiOff,
   Info,
+  Bug,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
 import { createTheme } from '@/constants/theme';
 import type { AISettings } from '@/types/world';
+import CrashLogsViewer from '@/components/CrashLogsViewer';
 
 const AI_PROVIDERS = [
   { key: 'openai', name: 'OpenAI', description: 'GPT models for text generation' },
@@ -50,6 +52,7 @@ export default function SettingsScreen() {
   const theme = createTheme(settings.theme);
   const [showAIModal, setShowAIModal] = useState(false);
   const [showProviderModal, setShowProviderModal] = useState(false);
+  const [showCrashLogs, setShowCrashLogs] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<keyof AISettings['providers'] | null>(null);
   const [tempApiKey, setTempApiKey] = useState('');
   const [tempAISettings, setTempAISettings] = useState<AISettings>(settings.ai);
@@ -645,6 +648,30 @@ export default function SettingsScreen() {
             </View>
           </View>
 
+          {/* Developer Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Developer</Text>
+            
+            <View style={styles.settingCard}>
+              <View style={styles.settingRow}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Crash Logs</Text>
+                  <Text style={styles.settingDescription}>
+                    View and manage app crash reports for debugging
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.aiButton}
+                  onPress={() => setShowCrashLogs(true)}
+                >
+                  <Bug size={16} color={theme.colors.primary} />
+                  <Text style={styles.aiButtonText}>View Logs</Text>
+                  <ChevronRight size={16} color={theme.colors.primary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
           {/* Reset Section */}
           <TouchableOpacity style={styles.resetButton} onPress={handleResetSettings}>
             <RotateCcw size={20} color={theme.colors.error} />
@@ -787,6 +814,16 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
+      </Modal>
+
+      {/* Crash Logs Modal */}
+      <Modal
+        visible={showCrashLogs}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setShowCrashLogs(false)}
+      >
+        <CrashLogsViewer onClose={() => setShowCrashLogs(false)} />
       </Modal>
     </View>
   );

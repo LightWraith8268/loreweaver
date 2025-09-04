@@ -9,6 +9,8 @@ import { WorldProvider } from "@/hooks/world-context";
 import { AIProvider } from "@/hooks/ai-context";
 import { SettingsProvider } from "@/hooks/settings-context";
 import { theme } from "@/constants/theme";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { crashLogger } from "@/utils/crash-logger";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -107,6 +109,9 @@ export default function RootLayout() {
       StatusBar.setBarStyle('light-content', true);
     }
     
+    // Initialize crash logger with app info
+    crashLogger.setUserInfo('anonymous', '1.0.0', '1');
+    
     SplashScreen.hideAsync();
   }, []);
 
@@ -119,13 +124,15 @@ export default function RootLayout() {
             backgroundColor={theme.colors.surface}
             translucent={Platform.OS === 'android'}
           />
-          <SettingsProvider>
-            <WorldProvider>
-              <AIProvider>
-                <RootLayoutNav />
-              </AIProvider>
-            </WorldProvider>
-          </SettingsProvider>
+          <ErrorBoundary>
+            <SettingsProvider>
+              <WorldProvider>
+                <AIProvider>
+                  <RootLayoutNav />
+                </AIProvider>
+              </WorldProvider>
+            </SettingsProvider>
+          </ErrorBoundary>
         </GestureHandlerRootView>
       </QueryClientProvider>
     </SafeAreaProvider>
