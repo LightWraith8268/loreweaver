@@ -1,5 +1,11 @@
-import { Platform } from 'react-native';
+import { Platform, Dimensions } from 'react-native';
 
+// Get device dimensions for responsive design
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const isTablet = screenWidth >= 768;
+const isSmallScreen = screenWidth < 375;
+
+// Update theme with device-aware values
 export const theme = {
   colors: {
     background: '#0A0E1A',
@@ -66,6 +72,26 @@ export const theme = {
       ios: 20, // Default, will be overridden by safe area
       android: 24, // Default, will be overridden by safe area
     },
+    // Enhanced mobile touch and interaction constants
+    cardMinHeight: Platform.OS === 'android' ? 56 : 52,
+    buttonMinHeight: Platform.OS === 'android' ? 48 : 44,
+    inputMinHeight: Platform.OS === 'android' ? 48 : 44,
+    fabSize: 56,
+    iconButtonSize: Platform.OS === 'android' ? 48 : 44,
+    // Responsive design constants
+    isTablet,
+    isSmallScreen,
+    screenWidth,
+    screenHeight,
+    // Adaptive spacing based on screen size
+    adaptiveSpacing: {
+      xs: isSmallScreen ? 2 : 4,
+      sm: isSmallScreen ? 6 : 8,
+      md: isSmallScreen ? 12 : 16,
+      lg: isSmallScreen ? 18 : 24,
+      xl: isSmallScreen ? 24 : 32,
+      xxl: isSmallScreen ? 36 : 48,
+    },
   },
   // Platform-specific shadows
   shadows: {
@@ -119,4 +145,68 @@ export const getTabBarHeight = (bottomInset: number) => {
 export const getHeaderHeight = (topInset: number) => {
   const baseHeight = Platform.OS === 'ios' ? theme.mobile.headerHeight.ios : theme.mobile.headerHeight.android;
   return baseHeight + topInset;
+};
+
+// Helper function to get safe content padding
+export const getSafeContentPadding = (insets: { top: number; bottom: number; left: number; right: number }) => {
+  return {
+    paddingTop: Math.max(insets.top, Platform.OS === 'ios' ? 8 : 4),
+    paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 8 : 4),
+    paddingLeft: Math.max(insets.left, 0),
+    paddingRight: Math.max(insets.right, 0),
+  };
+};
+
+// Helper function for responsive font sizes
+export const getResponsiveFontSize = (baseSize: number) => {
+  return Platform.OS === 'ios' ? baseSize : Math.max(baseSize - 1, 10);
+};
+
+// Helper function for touch target sizing
+export const getTouchableStyle = (minSize?: number) => {
+  const size = minSize || theme.mobile.minTouchTarget;
+  return {
+    minWidth: size,
+    minHeight: size,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
+};
+
+// Helper function for responsive spacing
+export const getAdaptiveSpacing = (size: keyof typeof theme.mobile.adaptiveSpacing) => {
+  return theme.mobile.adaptiveSpacing[size];
+};
+
+// Helper function for responsive font scaling
+export const getScaledFontSize = (size: number) => {
+  const scale = isSmallScreen ? 0.9 : isTablet ? 1.1 : 1;
+  return Math.round(size * scale);
+};
+
+// Helper function for keyboard-aware padding
+export const getKeyboardAwarePadding = (baseInset: number) => {
+  return {
+    paddingBottom: Math.max(baseInset, Platform.OS === 'ios' ? 16 : 8),
+  };
+};
+
+// Helper function for modal sizing
+export const getModalDimensions = () => {
+  return {
+    width: isTablet ? '70%' : '90%',
+    maxWidth: isTablet ? 600 : 400,
+    maxHeight: '85%',
+  };
+};
+
+// Export device info for components
+export const deviceInfo = {
+  isTablet,
+  isSmallScreen,
+  screenWidth,
+  screenHeight,
+  isIOS: Platform.OS === 'ios',
+  isAndroid: Platform.OS === 'android',
+  isWeb: Platform.OS === 'web',
 };

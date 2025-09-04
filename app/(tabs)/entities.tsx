@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
 import { Stack, router } from 'expo-router';
 import { Users, Package, Shield, Plus, Search, Upload, Download } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { theme } from '@/constants/theme';
+import { theme, getTouchableStyle } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { parseDocxFile } from '@/utils/docx-parser';
 import { parseJsonFile, createFileInput } from '@/utils/export';
@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: theme.spacing.sm,
+    ...getTouchableStyle(),
   },
   searchContainer: {
     marginBottom: theme.spacing.md,
@@ -361,6 +362,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    minHeight: theme.mobile.buttonMinHeight * 0.8,
   },
   actionButtonText: {
     fontSize: theme.fontSize.sm,
@@ -390,6 +392,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    minHeight: theme.mobile.cardMinHeight,
   },
   resultItemName: {
     fontSize: theme.fontSize.md,
@@ -404,6 +407,7 @@ const styles = StyleSheet.create({
   viewAllButton: {
     padding: theme.spacing.sm,
     alignItems: 'center',
+    minHeight: theme.mobile.buttonMinHeight * 0.8,
   },
   viewAllText: {
     fontSize: theme.fontSize.sm,

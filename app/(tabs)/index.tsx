@@ -10,13 +10,14 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme, getTabBarHeight } from '@/constants/theme';
+import { theme, getTabBarHeight, getTouchableStyle, getSafeContentPadding, getModalDimensions, deviceInfo } from '@/constants/theme';
 
 import NameGenerator from '@/components/NameGenerator';
 import type { World } from '@/types/world';
@@ -419,8 +420,11 @@ export default function DashboardScreen() {
         transparent={true}
         onRequestClose={() => setShowCreateModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <KeyboardAvoidingView 
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={[styles.modalContent, getModalDimensions()]}>
             <Text style={styles.modalTitle}>Create New World</Text>
             
             <TextInput
@@ -483,7 +487,7 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
       
       {/* Export Modal */}
@@ -494,7 +498,7 @@ export default function DashboardScreen() {
         onRequestClose={() => setShowExportModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, getModalDimensions()]}>
             <Text style={styles.modalTitle}>Export World</Text>
             
             <Text style={styles.modalDescription}>
@@ -549,9 +553,16 @@ export default function DashboardScreen() {
           setImportData('');
         }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Import World</Text>
+        <KeyboardAvoidingView 
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView 
+            contentContainerStyle={styles.modalScrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={[styles.modalContent, getModalDimensions()]}>
+              <Text style={styles.modalTitle}>Import World</Text>
             
             <Text style={styles.modalDescription}>
               Paste the JSON world data below:
@@ -590,8 +601,9 @@ export default function DashboardScreen() {
                 )}
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </Modal>
       
       {/* Name Generator Modal */}
@@ -658,12 +670,9 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
   },
   iconButton: {
-    padding: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.sm + 2,
-    minWidth: Platform.OS === 'android' ? 44 : 40,
-    minHeight: Platform.OS === 'android' ? 44 : 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.sm,
+    ...getTouchableStyle(),
   },
   searchContainer: {
     flexDirection: 'row',
@@ -764,11 +773,10 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: Platform.OS === 'android' ? 2 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
-    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 2 } : { width: 0, height: 0 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
-    shadowRadius: Platform.OS === 'ios' ? 4 : 0,
+    // Ensure proper touch target
+    minWidth: theme.mobile.minTouchTarget * 2.5,
+    minHeight: theme.mobile.minTouchTarget * 2.5,
+    ...theme.shadows.medium,
   },
   actionText: {
     fontSize: theme.fontSize.sm,
@@ -838,16 +846,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: theme.colors.primary,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: Platform.OS === 'ios' ? theme.spacing.md : theme.spacing.md + 2,
+    paddingVertical: theme.spacing.md,
     borderRadius: theme.borderRadius.full,
     marginTop: theme.spacing.lg,
     alignItems: 'center',
-    minHeight: Platform.OS === 'android' ? 48 : 44,
-    elevation: Platform.OS === 'android' ? 4 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
-    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 2 } : { width: 0, height: 0 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.2 : 0,
-    shadowRadius: Platform.OS === 'ios' ? 4 : 0,
+    minHeight: theme.mobile.buttonMinHeight,
+    ...theme.shadows.large,
   },
   createButtonText: {
     fontSize: theme.fontSize.md,
@@ -864,15 +868,14 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: Platform.OS === 'ios' ? '90%' : '92%',
-    maxWidth: Platform.OS === 'ios' ? 400 : 420,
-    maxHeight: '80%',
-    elevation: Platform.OS === 'android' ? 8 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
-    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 8 } : { width: 0, height: 0 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
-    shadowRadius: Platform.OS === 'ios' ? 16 : 0,
+    padding: deviceInfo.isSmallScreen ? theme.spacing.md : theme.spacing.lg,
+    margin: theme.spacing.md,
+    ...theme.shadows.large,
+  },
+  modalScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalTitle: {
     fontSize: theme.fontSize.xl,
@@ -926,7 +929,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     alignItems: 'center',
-    minHeight: Platform.OS === 'android' ? 48 : 44,
+    minHeight: theme.mobile.buttonMinHeight,
     justifyContent: 'center',
     backgroundColor: Platform.OS === 'android' ? theme.colors.surfaceLight : 'transparent',
   },
@@ -940,13 +943,9 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     alignItems: 'center',
-    minHeight: Platform.OS === 'android' ? 48 : 44,
+    minHeight: theme.mobile.buttonMinHeight,
     justifyContent: 'center',
-    elevation: Platform.OS === 'android' ? 2 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
-    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 1 } : { width: 0, height: 0 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
-    shadowRadius: Platform.OS === 'ios' ? 2 : 0,
+    ...theme.shadows.medium,
   },
   confirmButtonText: {
     fontSize: theme.fontSize.md,
@@ -1015,16 +1014,12 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: theme.spacing.lg,
-    width: Platform.OS === 'ios' ? 56 : 56,
-    height: Platform.OS === 'ios' ? 56 : 56,
+    width: theme.mobile.fabSize,
+    height: theme.mobile.fabSize,
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: Platform.OS === 'android' ? 8 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
-    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 4 } : { width: 0, height: 0 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
-    shadowRadius: Platform.OS === 'ios' ? 8 : 0,
+    ...theme.shadows.large,
   },
 });

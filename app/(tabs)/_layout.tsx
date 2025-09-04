@@ -3,7 +3,7 @@ import { Home, Users, MapPin, Sparkles, ScrollText, Settings } from "lucide-reac
 import React from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { theme, getTabBarHeight, getHeaderHeight } from "@/constants/theme";
+import { theme, getTabBarHeight, getHeaderHeight, getTouchableStyle } from "@/constants/theme";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -24,6 +24,8 @@ export default function TabLayout() {
           bottom: 0,
           left: 0,
           right: 0,
+          // Ensure tab bar is above content
+          zIndex: 1000,
           ...theme.shadows.large,
         },
         tabBarLabelStyle: {
@@ -47,8 +49,26 @@ export default function TabLayout() {
         },
         tabBarItemStyle: {
           paddingVertical: Platform.OS === 'ios' ? 4 : 2,
+          // Ensure proper touch target size
+          minHeight: theme.mobile.minTouchTarget,
         },
         tabBarAllowFontScaling: false, // Prevent font scaling issues
+        // Optimize for mobile performance
+        tabBarHideOnKeyboard: Platform.OS === 'android',
+        tabBarVisibilityAnimationConfig: {
+          show: {
+            animation: 'timing',
+            config: {
+              duration: 200,
+            },
+          },
+          hide: {
+            animation: 'timing',
+            config: {
+              duration: 200,
+            },
+          },
+        },
       }}
     >
       <Tabs.Screen
