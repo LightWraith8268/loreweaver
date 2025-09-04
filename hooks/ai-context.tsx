@@ -1,10 +1,18 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useState } from 'react';
 import { useWorld } from '@/hooks/world-context';
-import type { Character, Location, Item, Faction, LoreNote, EntityType, MagicSystem, Mythology } from '@/types/world';
+import type { Character, Location, Item, Faction, LoreNote, EntityType, MagicSystem, Mythology, ConsistencyWarning, PlotHook, VoiceCapture } from '@/types/world';
+import { Platform } from 'react-native';
+
+type CoreMessage = 
+  | { role: 'system'; content: string; }
+  | { role: 'user'; content: string | Array<{ type: 'text'; text: string; } | { type: 'image'; image: string; }>; }
+  | { role: 'assistant'; content: string; };
 
 interface AIContextType {
   isGenerating: boolean;
+  isRecording: boolean;
+  setIsRecording: (recording: boolean) => void;
   expandCharacter: (character: Character) => Promise<Partial<Character>>;
   expandLocation: (location: Location) => Promise<Partial<Location>>;
   expandItem: (item: Item) => Promise<Partial<Item>>;
@@ -16,6 +24,14 @@ interface AIContextType {
   generateContent: (prompt: string, world?: any) => Promise<string>;
   expandMagicSystem: (magicSystem: MagicSystem) => Promise<Partial<MagicSystem>>;
   expandMythology: (mythology: Mythology) => Promise<Partial<Mythology>>;
+  analyzeWorldConsistency: () => Promise<ConsistencyWarning[]>;
+  generatePlotHooks: (count?: number) => Promise<PlotHook[]>;
+  generateCharacterDialogue: (character: Character, context: string) => Promise<string>;
+  suggestWorldExpansions: () => Promise<string[]>;
+  generateCharacterPortrait: (character: Character) => Promise<string>;
+  generateLocationArt: (location: Location) => Promise<string>;
+  transcribeAudio: (audioFile: File | { uri: string; name: string; type: string }, language?: string) => Promise<{ text: string; language: string }>;
+  editImage: (prompt: string, images: string[]) => Promise<string>;
 }
 
 export const [AIProvider, useAI] = createContextHook<AIContextType>(() => {
@@ -298,6 +314,62 @@ Return only the name, nothing else.`;
       setIsGenerating(false);
     }
   };
+
+  const editImage = async (prompt: string, images: string[]): Promise<string> => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('https://toolkit.rork.com/images/edit/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          images: images.map(image => ({ type: 'image', image: image.replace(/^data:image\/[^;]+;base64,/, '') })),
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to edit image');
+      const data = await response.json();
+      return `data:${data.image.mimeType};base64,${data.image.base64Data}`;
+    } catch (error) {
+      console.error('Error editing image:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const transcribeAudio = async (audioFile: File | { uri: string; name: string; type: string }, language?: string): Promise<{ text: string; language: string }> => {
+    setIsGenerating(true);
+    try {
+      const formData = new FormData();
+      
+      if (Platform.OS === 'web') {
+        formData.append('audio', audioFile as File);
+      } else {
+        formData.append('audio', audioFile as any);
+      }
+      
+      if (language) {
+        formData.append('language', language);
+      }
+
+      const response = await fetch('https://toolkit.rork.com/stt/transcribe/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to transcribe audio');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error transcribing audio:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   const generateContent = async (prompt: string, world?: any): Promise<string> => {
     setIsGenerating(true);
@@ -388,8 +460,113 @@ Return as JSON with fields: beliefs (array), rituals (array), followers (array),
     }
   };
 
+  const [isRecording, setIsRecording] = useState(false);
+
+  const analyzeWorldConsistency = async (): Promise<ConsistencyWarning[]> => {
+    const worldData = {
+      world: currentWorld,
+      characters,
+      locations,
+      items,
+      factions,
+      loreNotes,
+      magicSystems,
+      mythologies
+    };
+    
+    const systemPrompt = `You are a world-building consistency checker. Analyze the provided world data and identify potential contradictions, missing references, timeline conflicts, and relationship mismatches. Return a JSON array of consistency warnings.`;
+    
+    const prompt = `Analyze this world data for consistency issues:\n\n${JSON.stringify(worldData, null, 2)}\n\nIdentify contradictions, missing references, timeline conflicts, and relationship mismatches. Return only a JSON array of warnings with id, type, severity, description, affectedEntities, and suggestions fields.`;
+    
+    try {
+      const result = await makeAIRequest([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ]);
+      return JSON.parse(result);
+    } catch (error) {
+      console.error('Error analyzing world consistency:', error);
+      return [];
+    }
+  };
+
+  const generatePlotHooks = async (count = 5): Promise<PlotHook[]> => {
+    const worldData = {
+      world: currentWorld,
+      characters: characters.slice(0, 10),
+      locations: locations.slice(0, 10),
+      factions: factions.slice(0, 5)
+    };
+    
+    const systemPrompt = `You are a creative plot hook generator for tabletop RPGs and storytelling. Generate engaging plot hooks based on the world data provided.`;
+    
+    const prompt = `Based on this world data, generate ${count} creative plot hooks:\n\n${JSON.stringify(worldData, null, 2)}\n\nReturn only a JSON array of plot hooks with id, title, description, involvedEntities, difficulty, genre, and tags fields.`;
+    
+    try {
+      const result = await makeAIRequest([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ]);
+      return JSON.parse(result);
+    } catch (error) {
+      console.error('Error generating plot hooks:', error);
+      return [];
+    }
+  };
+
+  const generateCharacterDialogue = async (character: Character, context: string): Promise<string> => {
+    const systemPrompt = `You are a character dialogue generator. Create authentic dialogue that matches the character's personality, background, and speech patterns.`;
+    
+    const prompt = `Generate dialogue for this character in the given context:\n\nCharacter: ${JSON.stringify(character, null, 2)}\n\nContext: ${context}\n\nReturn only the dialogue text, staying true to the character's voice and personality.`;
+    
+    return await makeAIRequest([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt }
+    ]);
+  };
+
+  const suggestWorldExpansions = async (): Promise<string[]> => {
+    const worldData = {
+      world: currentWorld,
+      characters: characters.length,
+      locations: locations.length,
+      factions: factions.length,
+      magicSystems: magicSystems.length,
+      mythologies: mythologies.length
+    };
+    
+    const systemPrompt = `You are a world-building advisor. Analyze the provided world and suggest missing elements, cultures, conflicts, and other expansions that would enrich the setting.`;
+    
+    const prompt = `Analyze this world and suggest expansions:\n\n${JSON.stringify(worldData, null, 2)}\n\nSuggest missing elements like cultures, conflicts, locations, factions, or other world-building elements. Return a JSON array of suggestion strings.`;
+    
+    try {
+      const result = await makeAIRequest([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ]);
+      return JSON.parse(result);
+    } catch (error) {
+      console.error('Error suggesting world expansions:', error);
+      return [];
+    }
+  };
+
+  const generateCharacterPortrait = async (character: Character): Promise<string> => {
+    const prompt = `A detailed portrait of ${character.name}, ${character.appearance || 'a fantasy character'}. ${character.role ? `They are a ${character.role}.` : ''} High quality digital art, fantasy style, detailed facial features, professional character portrait.`;
+    
+    return await generateImage(prompt);
+  };
+
+  const generateLocationArt = async (location: Location): Promise<string> => {
+    const prompt = `A beautiful landscape artwork of ${location.name}, ${location.description || 'a fantasy location'}. ${location.type ? `This is a ${location.type}.` : ''} High quality digital art, detailed environment, atmospheric lighting, fantasy/sci-fi style.`;
+    
+    return await generateImage(prompt);
+  };
+
   return {
     isGenerating,
+    isRecording,
+    setIsRecording,
     expandCharacter,
     expandLocation,
     expandItem,
@@ -401,5 +578,13 @@ Return as JSON with fields: beliefs (array), rituals (array), followers (array),
     generateContent,
     expandMagicSystem,
     expandMythology,
+    analyzeWorldConsistency,
+    generatePlotHooks,
+    generateCharacterDialogue,
+    suggestWorldExpansions,
+    generateCharacterPortrait,
+    generateLocationArt,
+    transcribeAudio,
+    editImage,
   };
 });
