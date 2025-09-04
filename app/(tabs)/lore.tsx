@@ -10,16 +10,19 @@ import {
   Alert,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Sparkles, ScrollText, Search, Tag } from 'lucide-react-native';
+import { Plus, Sparkles, ScrollText, Search, Tag, Clock, Users } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
+import { AdvancedTimeline } from '@/components/AdvancedTimeline';
+import { RelationshipNetworkVisualization } from '@/components/RelationshipNetworkVisualization';
 
 export default function LoreScreen() {
   const { currentWorld, loreNotes, createLoreNote } = useWorld();
   const { isGenerating, generateLoreNote } = useAI();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [activeTab, setActiveTab] = useState<'lore' | 'timeline' | 'relationships'>('lore');
   
   const filteredNotes = loreNotes.filter(note => 
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -83,86 +86,127 @@ export default function LoreScreen() {
   
   return (
     <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Search size={20} color={theme.colors.textTertiary} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search lore notes..."
-          placeholderTextColor={theme.colors.textTertiary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
-      
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {filteredNotes.length > 0 ? (
-          <View style={styles.noteList}>
-            {filteredNotes.map((note) => (
-              <TouchableOpacity
-                key={note.id}
-                style={styles.noteCard}
-                onPress={() => router.push({
-                  pathname: '/lore-edit',
-                  params: { id: note.id }
-                })}
-              >
-                <View style={styles.noteHeader}>
-                  <ScrollText size={20} color={theme.colors.success} />
-                  <Text style={styles.noteCategory}>{note.category}</Text>
-                </View>
-                <Text style={styles.noteTitle}>{note.title}</Text>
-                <Text style={styles.noteContent} numberOfLines={3}>
-                  {note.content}
-                </Text>
-                {note.tags.length > 0 && (
-                  <View style={styles.noteTags}>
-                    {note.tags.slice(0, 3).map((tag, index) => (
-                      <View key={index} style={styles.tagBadge}>
-                        <Tag size={10} color={theme.colors.success} />
-                        <Text style={styles.tagText}>{tag}</Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        ) : (
-          <View style={styles.emptyState}>
-            <ScrollText size={48} color={theme.colors.textTertiary} />
-            <Text style={styles.emptyStateTitle}>No Lore Notes Yet</Text>
-            <Text style={styles.emptyStateDescription}>
-              Document the history, myths, and secrets of your world
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-      
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        <TouchableOpacity 
-          style={[styles.fab, styles.secondaryFab]}
-          onPress={handleQuickCreate}
-          disabled={isCreating || isGenerating}
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'lore' && styles.activeTab]}
+          onPress={() => setActiveTab('lore')}
         >
-          {isCreating || isGenerating ? (
-            <ActivityIndicator color={theme.colors.text} />
-          ) : (
-            <Sparkles size={24} color={theme.colors.text} />
-          )}
+          <ScrollText size={20} color={activeTab === 'lore' ? theme.colors.primary : theme.colors.textSecondary} />
+          <Text style={[styles.tabText, activeTab === 'lore' && styles.activeTabText]}>Lore</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity 
-          style={styles.fab}
-          onPress={() => router.push({
-            pathname: '/lore-edit',
-            params: { id: 'new' }
-          })}
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'timeline' && styles.activeTab]}
+          onPress={() => setActiveTab('timeline')}
         >
-          <Plus size={28} color={theme.colors.background} />
+          <Clock size={20} color={activeTab === 'timeline' ? theme.colors.primary : theme.colors.textSecondary} />
+          <Text style={[styles.tabText, activeTab === 'timeline' && styles.activeTabText]}>Timeline</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'relationships' && styles.activeTab]}
+          onPress={() => setActiveTab('relationships')}
+        >
+          <Users size={20} color={activeTab === 'relationships' ? theme.colors.primary : theme.colors.textSecondary} />
+          <Text style={[styles.tabText, activeTab === 'relationships' && styles.activeTabText]}>Relations</Text>
         </TouchableOpacity>
       </View>
+
+      {activeTab === 'lore' && (
+        <>
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <Search size={20} color={theme.colors.textTertiary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search lore notes..."
+              placeholderTextColor={theme.colors.textTertiary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+      
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {filteredNotes.length > 0 ? (
+              <View style={styles.noteList}>
+                {filteredNotes.map((note) => (
+                  <TouchableOpacity
+                    key={note.id}
+                    style={styles.noteCard}
+                    onPress={() => router.push({
+                      pathname: '/lore-edit',
+                      params: { id: note.id }
+                    })}
+                  >
+                    <View style={styles.noteHeader}>
+                      <ScrollText size={20} color={theme.colors.success} />
+                      <Text style={styles.noteCategory}>{note.category}</Text>
+                    </View>
+                    <Text style={styles.noteTitle}>{note.title}</Text>
+                    <Text style={styles.noteContent} numberOfLines={3}>
+                      {note.content}
+                    </Text>
+                    {note.tags.length > 0 && (
+                      <View style={styles.noteTags}>
+                        {note.tags.slice(0, 3).map((tag, index) => (
+                          <View key={index} style={styles.tagBadge}>
+                            <Tag size={10} color={theme.colors.success} />
+                            <Text style={styles.tagText}>{tag}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <ScrollText size={48} color={theme.colors.textTertiary} />
+                <Text style={styles.emptyStateTitle}>No Lore Notes Yet</Text>
+                <Text style={styles.emptyStateDescription}>
+                  Document the history, myths, and secrets of your world
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </>
+      )}
+
+      {activeTab === 'timeline' && (
+        <AdvancedTimeline />
+      )}
+
+      {activeTab === 'relationships' && (
+        <RelationshipNetworkVisualization />
+      )}
+      
+      {/* Action Buttons - Only show for lore tab */}
+      {activeTab === 'lore' && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={[styles.fab, styles.secondaryFab]}
+            onPress={handleQuickCreate}
+            disabled={isCreating || isGenerating}
+          >
+            {isCreating || isGenerating ? (
+              <ActivityIndicator color={theme.colors.text} />
+            ) : (
+              <Sparkles size={24} color={theme.colors.text} />
+            )}
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.fab}
+            onPress={() => router.push({
+              pathname: '/lore-edit',
+              params: { id: 'new' }
+            })}
+          >
+            <Plus size={28} color={theme.colors.background} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -309,5 +353,32 @@ const styles = StyleSheet.create({
   secondaryFab: {
     backgroundColor: theme.colors.success,
     marginBottom: theme.spacing.md,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.sm,
+    gap: theme.spacing.xs,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.primary,
+  },
+  tabText: {
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.medium,
+    color: theme.colors.textSecondary,
+  },
+  activeTabText: {
+    color: theme.colors.primary,
   },
 });

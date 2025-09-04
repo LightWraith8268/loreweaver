@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { 
-  Download, 
   Upload, 
   Search, 
   Shuffle, 
@@ -10,13 +9,18 @@ import {
   FileText, 
   Database,
   Settings,
-  Sparkles
+  Mic
 } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { exportWorldData, exportToJSON, exportToMarkdown, shareData, parseJsonFile, createFileInput } from '@/utils/export';
 import { parseDocxFile } from '@/utils/docx-parser';
+import NameGenerator from '@/components/NameGenerator';
+import AdvancedSearch from '@/components/AdvancedSearch';
+import { VoiceCaptureComponent } from '@/components/VoiceCaptureComponent';
+import { EnhancedExportSystem } from '@/components/EnhancedExportSystem';
+import type { EntityType, VoiceCapture } from '@/types/world';
 
 interface ToolCardProps {
   title: string;
@@ -49,6 +53,17 @@ export default function ToolsScreen() {
   const { checkConsistency, isGenerating } = useAI();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [showNameGenerator, setShowNameGenerator] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showVoiceCapture, setShowVoiceCapture] = useState(false);
+  const [showEnhancedExport, setShowEnhancedExport] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilters, setSearchFilters] = useState({
+    entityTypes: [] as EntityType[],
+    genres: [] as string[],
+    tags: [] as string[],
+    dateRange: {}
+  });
 
   const handleExportJSON = async () => {
     if (!currentWorld) {
@@ -305,9 +320,7 @@ export default function ToolsScreen() {
                 title="Name Generator"
                 description="Generate names for characters, places, and more"
                 icon={<Shuffle size={24} color={theme.colors.primary} />}
-                onPress={() => {
-                  Alert.alert('Coming Soon', 'Name generator will be available in a future update');
-                }}
+                onPress={() => setShowNameGenerator(true)}
               />
             </View>
           </View>
@@ -319,9 +332,23 @@ export default function ToolsScreen() {
                 title="Advanced Search"
                 description="Search across all world elements"
                 icon={<Search size={24} color={theme.colors.primary} />}
-                onPress={() => {
-                  Alert.alert('Coming Soon', 'Advanced search will be available in a future update');
-                }}
+                onPress={() => setShowAdvancedSearch(true)}
+                disabled={!currentWorld}
+              />
+              
+              <ToolCard
+                title="Voice Capture"
+                description="Record and transcribe voice notes"
+                icon={<Mic size={24} color={theme.colors.primary} />}
+                onPress={() => setShowVoiceCapture(true)}
+                disabled={!currentWorld}
+              />
+              
+              <ToolCard
+                title="Enhanced Export"
+                description="Professional export for multiple platforms"
+                icon={<FileText size={24} color={theme.colors.primary} />}
+                onPress={() => setShowEnhancedExport(true)}
                 disabled={!currentWorld}
               />
               
@@ -345,6 +372,45 @@ export default function ToolsScreen() {
           )}
         </View>
       </ScrollView>
+
+      <NameGenerator
+        visible={showNameGenerator}
+        onClose={() => setShowNameGenerator(false)}
+        onSelectName={(name) => {
+          console.log('Selected name:', name);
+          setShowNameGenerator(false);
+        }}
+        entityType="character"
+        genre={currentWorld?.genre || 'fantasy'}
+      />
+
+      {showAdvancedSearch && (
+        <AdvancedSearch
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          filters={searchFilters}
+          onFiltersChange={setSearchFilters}
+          placeholder="Search across all world elements..."
+        />
+      )}
+
+      {showVoiceCapture && (
+        <VoiceCaptureComponent
+          onCaptureComplete={(capture: VoiceCapture) => {
+            console.log('Voice capture completed:', capture);
+            setShowVoiceCapture(false);
+          }}
+        />
+      )}
+
+      {showEnhancedExport && (
+        <EnhancedExportSystem
+          onExportComplete={(format: string, data: string) => {
+            console.log('Export completed:', format, data.length);
+            setShowEnhancedExport(false);
+          }}
+        />
+      )}
     </View>
   );
 }
