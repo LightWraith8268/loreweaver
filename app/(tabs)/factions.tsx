@@ -8,18 +8,35 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Modal,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Sparkles, Shield, Search } from 'lucide-react-native';
+import { Plus, Sparkles, Shield, Search, X, Wand2 } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
 
 export default function FactionsScreen() {
   const { currentWorld, factions, createFaction } = useWorld();
-  const { isGenerating, generateName } = useAI();
+  const { isGenerating, generateName, generateContent } = useAI();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [selectedFactionType, setSelectedFactionType] = useState<string>('guild');
+  const [customPrompt, setCustomPrompt] = useState('');
+  
+  const factionTypes = [
+    { id: 'guild', label: 'Guild', description: 'Professional or trade organization' },
+    { id: 'kingdom', label: 'Kingdom', description: 'Ruling political entity' },
+    { id: 'cult', label: 'Cult', description: 'Religious or mystical group' },
+    { id: 'mercenary', label: 'Mercenary Company', description: 'Professional soldiers for hire' },
+    { id: 'noble-house', label: 'Noble House', description: 'Aristocratic family or bloodline' },
+    { id: 'criminal', label: 'Criminal Organization', description: 'Thieves guild or crime syndicate' },
+    { id: 'military', label: 'Military Order', description: 'Organized fighting force' },
+    { id: 'scholarly', label: 'Scholarly Society', description: 'Academic or research institution' },
+    { id: 'rebel', label: 'Rebel Group', description: 'Revolutionary or resistance movement' },
+    { id: 'secret', label: 'Secret Society', description: 'Hidden organization with agenda' },
+  ];
   
   const filteredFactions = factions.filter(faction => 
     faction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,6 +67,61 @@ export default function FactionsScreen() {
       Alert.alert('Success', `Created faction: ${name}`);
     } catch (error) {
       Alert.alert('Error', 'Failed to create faction');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+  
+  const handleAIGenerate = async () => {
+    if (!currentWorld) {
+      Alert.alert('Error', 'Please select a world first');
+      return;
+    }
+    
+    setIsCreating(true);
+    try {
+      const selectedType = factionTypes.find(t => t.id === selectedFactionType);
+      const typeDescription = selectedType?.description || 'faction';
+      
+      const prompt = `Generate a detailed ${selectedFactionType.replace('-', ' ')} faction for a ${currentWorld.genre} world.
+      
+World Context: ${currentWorld.name} - ${currentWorld.description}
+      
+Faction Type: ${typeDescription}
+      ${customPrompt ? `\nAdditional Requirements: ${customPrompt}` : ''}
+      
+Generate:
+      1. Name (appropriate for the world's genre and faction type)
+      2. Core ideology and beliefs
+      3. 3-5 primary goals or objectives
+      4. Key leaders and their roles
+      5. Organizational structure
+      6. Resources and influence
+      
+      Return as JSON with fields: name, ideology, goals (array), leaders (array), notes`;
+      
+      const generated = await generateContent(prompt);
+      const factionData = JSON.parse(generated);
+      
+      await createFaction({
+        worldId: currentWorld.id,
+        name: factionData.name || 'Generated Faction',
+        type: selectedType?.label || 'Guild',
+        ideology: factionData.ideology || '',
+        goals: factionData.goals || [],
+        leaders: factionData.leaders || [],
+        memberIds: [],
+        allies: [],
+        enemies: [],
+        notes: factionData.notes || '',
+      });
+      
+      setShowAIModal(false);
+      setCustomPrompt('');
+      Alert.alert('Success', `Created faction: ${factionData.name}`);
+    } catch (error) {
+      console.error('AI generation error:', error);
+      Alert.alert('Error', 'Failed to generate faction');
     } finally {
       setIsCreating(false);
     }
@@ -145,6 +217,14 @@ export default function FactionsScreen() {
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
         <TouchableOpacity 
+          style={[styles.fab, styles.tertiaryFab]}
+          onPress={() => setShowAIModal(true)}
+          disabled={isCreating || isGenerating}
+        >
+          <Wand2 size={24} color={theme.colors.text} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
           style={[styles.fab, styles.secondaryFab]}
           onPress={handleQuickCreate}
           disabled={isCreating || isGenerating}
@@ -166,6 +246,82 @@ export default function FactionsScreen() {
           <Plus size={28} color={theme.colors.background} />
         </TouchableOpacity>
       </View>
+      
+      {/* AI Generation Modal */}
+      <Modal
+        visible={showAIModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAIModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>AI Faction Generator</Text>
+              <TouchableOpacity onPress={() => setShowAIModal(false)}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.sectionLabel}>Faction Type</Text>
+            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+              {factionTypes.map((type) => (
+                <TouchableOpacity
+                  key={type.id}
+                  style={[
+                    styles.typeOption,
+                    selectedFactionType === type.id && styles.selectedTypeOption
+                  ]}
+                  onPress={() => setSelectedFactionType(type.id)}
+                >
+                  <Text style={[
+                    styles.typeLabel,
+                    selectedFactionType === type.id && styles.selectedTypeLabel
+                  ]}>
+                    {type.label}
+                  </Text>
+                  <Text style={styles.typeDescription}>{type.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+            <TextInput
+              style={styles.promptInput}
+              placeholder="e.g., controls the docks, worships ancient gods, seeks to overthrow the king..."
+              placeholderTextColor={theme.colors.textTertiary}
+              value={customPrompt}
+              onChangeText={setCustomPrompt}
+              multiline
+              numberOfLines={3}
+            />
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => setShowAIModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.generateButton}
+                onPress={handleAIGenerate}
+                disabled={isCreating || isGenerating}
+              >
+                {isCreating || isGenerating ? (
+                  <ActivityIndicator color={theme.colors.background} />
+                ) : (
+                  <>
+                    <Wand2 size={16} color={theme.colors.background} />
+                    <Text style={styles.generateButtonText}>Generate</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -322,5 +478,109 @@ const styles = StyleSheet.create({
   secondaryFab: {
     backgroundColor: theme.colors.warning,
     marginBottom: theme.spacing.md,
+  },
+  tertiaryFab: {
+    backgroundColor: theme.colors.secondary,
+    marginBottom: theme.spacing.md,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.lg,
+  },
+  modalTitle: {
+    fontSize: theme.fontSize.xl,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.text,
+  },
+  sectionLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  typeSelector: {
+    maxHeight: 200,
+    marginBottom: theme.spacing.lg,
+  },
+  typeOption: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: theme.spacing.sm,
+  },
+  selectedTypeOption: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '10',
+  },
+  typeLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+  },
+  selectedTypeLabel: {
+    color: theme.colors.primary,
+  },
+  typeDescription: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+  },
+  promptInput: {
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.lg,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  cancelButton: {
+    flex: 1,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+  },
+  generateButton: {
+    flex: 1,
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+  },
+  generateButtonText: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.background,
   },
 });

@@ -1,16 +1,33 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { Stack, router } from 'expo-router';
-import { Plus, Sparkles, Wand2, BookOpen, Users } from 'lucide-react-native';
+import { Plus, Sparkles, Wand2, BookOpen, Users, X } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import type { MagicSystem } from '@/types/world';
 
 export default function MagicSystemsScreen() {
-  const { currentWorld, magicSystems, deleteMagicSystem } = useWorld();
-  const { generateContent } = useAI();
+  const { currentWorld, magicSystems, deleteMagicSystem, createMagicSystem } = useWorld();
+  const { generateContent, isGenerating } = useAI();
   const [expandingId, setExpandingId] = useState<string | null>(null);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [selectedMagicType, setSelectedMagicType] = useState<string>('elemental');
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  
+  const magicTypes = [
+    { id: 'elemental', label: 'Elemental Magic', description: 'Control over fire, water, earth, air' },
+    { id: 'divine', label: 'Divine Magic', description: 'Power granted by gods or deities' },
+    { id: 'arcane', label: 'Arcane Magic', description: 'Scholarly study of magical forces' },
+    { id: 'nature', label: 'Nature Magic', description: 'Harmony with natural world and life' },
+    { id: 'blood', label: 'Blood Magic', description: 'Power through sacrifice and life force' },
+    { id: 'shadow', label: 'Shadow Magic', description: 'Manipulation of darkness and void' },
+    { id: 'time', label: 'Time Magic', description: 'Control over temporal forces' },
+    { id: 'mind', label: 'Mind Magic', description: 'Telepathy, illusion, and mental control' },
+    { id: 'necromancy', label: 'Necromancy', description: 'Magic dealing with death and undeath' },
+    { id: 'alchemy', label: 'Alchemy', description: 'Transformation through magical chemistry' },
+  ];
 
   if (!currentWorld) {
     return (
@@ -64,6 +81,62 @@ export default function MagicSystemsScreen() {
       Alert.alert('Error', 'Failed to expand magic system');
     } finally {
       setExpandingId(null);
+    }
+  };
+  
+  const handleAIGenerate = async () => {
+    if (!currentWorld) {
+      Alert.alert('Error', 'Please select a world first');
+      return;
+    }
+    
+    setIsCreating(true);
+    try {
+      const selectedType = magicTypes.find(t => t.id === selectedMagicType);
+      const typeDescription = selectedType?.description || 'magic system';
+      
+      const prompt = `Generate a detailed ${selectedMagicType.replace('-', ' ')} magic system for a ${currentWorld.genre} world.
+      
+World Context: ${currentWorld.name} - ${currentWorld.description}
+      
+Magic Type: ${typeDescription}
+      ${customPrompt ? `\nAdditional Requirements: ${customPrompt}` : ''}
+      
+Generate:
+      1. Name (appropriate for the world's genre and magic type)
+      2. Source of magical power
+      3. 5-8 fundamental rules and mechanics
+      4. Limitations and costs
+      5. Notable practitioners or schools
+      6. Artifacts or focuses used
+      
+      Return as JSON with fields: name, type, source, rules (array), limitations (array), practitioners (array), schools (array), artifacts (array), notes`;
+      
+      const generated = await generateContent(prompt);
+      const magicData = JSON.parse(generated);
+      
+      await createMagicSystem({
+        worldId: currentWorld.id,
+        name: magicData.name || 'Generated Magic System',
+        type: selectedType?.label || 'Arcane',
+        source: magicData.source || 'Unknown',
+        rules: magicData.rules || [],
+        limitations: magicData.limitations || [],
+        practitioners: magicData.practitioners || [],
+        schools: magicData.schools || [],
+        artifacts: magicData.artifacts || [],
+        history: magicData.history || '',
+        notes: magicData.notes || '',
+      });
+      
+      setShowAIModal(false);
+      setCustomPrompt('');
+      Alert.alert('Success', `Created magic system: ${magicData.name}`);
+    } catch (error) {
+      console.error('AI generation error:', error);
+      Alert.alert('Error', 'Failed to generate magic system');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -171,13 +244,23 @@ export default function MagicSystemsScreen() {
           <Sparkles size={64} color={theme.colors.textTertiary} />
           <Text style={styles.emptyTitle}>No Magic Systems</Text>
           <Text style={styles.emptyDescription}>Create your first magic system to get started</Text>
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => router.push('/magic-edit')}
-          >
-            <Plus size={20} color={theme.colors.background} />
-            <Text style={styles.createButtonText}>Create Magic System</Text>
-          </TouchableOpacity>
+          <View style={styles.emptyActions}>
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={() => setShowAIModal(true)}
+            >
+              <Wand2 size={20} color={theme.colors.background} />
+              <Text style={styles.createButtonText}>Generate Magic System</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.createButton, styles.manualButton]}
+              onPress={() => router.push('/magic-edit')}
+            >
+              <Plus size={20} color={theme.colors.primary} />
+              <Text style={[styles.createButtonText, styles.manualButtonText]}>Create Manually</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -186,6 +269,82 @@ export default function MagicSystemsScreen() {
           </View>
         </ScrollView>
       )}
+      
+      {/* AI Generation Modal */}
+      <Modal
+        visible={showAIModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAIModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>AI Magic System Generator</Text>
+              <TouchableOpacity onPress={() => setShowAIModal(false)}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.sectionLabel}>Magic Type</Text>
+            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+              {magicTypes.map((type) => (
+                <TouchableOpacity
+                  key={type.id}
+                  style={[
+                    styles.typeOption,
+                    selectedMagicType === type.id && styles.selectedTypeOption
+                  ]}
+                  onPress={() => setSelectedMagicType(type.id)}
+                >
+                  <Text style={[
+                    styles.typeLabel,
+                    selectedMagicType === type.id && styles.selectedTypeLabel
+                  ]}>
+                    {type.label}
+                  </Text>
+                  <Text style={styles.typeDescription}>{type.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+            <TextInput
+              style={styles.promptInput}
+              placeholder="e.g., requires rare crystals, has dangerous side effects, limited by moon phases..."
+              placeholderTextColor={theme.colors.textTertiary}
+              value={customPrompt}
+              onChangeText={setCustomPrompt}
+              multiline
+              numberOfLines={3}
+            />
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => setShowAIModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.generateButton}
+                onPress={handleAIGenerate}
+                disabled={isCreating || isGenerating}
+              >
+                {isCreating || isGenerating ? (
+                  <ActivityIndicator color={theme.colors.background} />
+                ) : (
+                  <>
+                    <Wand2 size={16} color={theme.colors.background} />
+                    <Text style={styles.generateButtonText}>Generate</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -339,5 +498,117 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
     lineHeight: 20,
+  },
+  emptyActions: {
+    gap: theme.spacing.md,
+    alignItems: 'center',
+  },
+  manualButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  manualButtonText: {
+    color: theme.colors.primary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.lg,
+  },
+  modalTitle: {
+    fontSize: theme.fontSize.xl,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.text,
+  },
+  sectionLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  typeSelector: {
+    maxHeight: 200,
+    marginBottom: theme.spacing.lg,
+  },
+  typeOption: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: theme.spacing.sm,
+  },
+  selectedTypeOption: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '10',
+  },
+  typeLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+  },
+  selectedTypeLabel: {
+    color: theme.colors.primary,
+  },
+  typeDescription: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+  },
+  promptInput: {
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.lg,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  cancelButton: {
+    flex: 1,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+  },
+  generateButton: {
+    flex: 1,
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+  },
+  generateButtonText: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.background,
   },
 });
