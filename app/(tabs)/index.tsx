@@ -673,8 +673,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: 2,
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
+    fontSize: Platform.OS === 'ios' ? theme.fontSize.lg : (theme.fontSize.lg + 1 as number),
+    fontWeight: theme.fontWeight.semibold,
     color: theme.colors.textSecondary,
   },
   headerActions: {
