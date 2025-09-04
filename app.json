@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LoreWeaver - AI Worldbuilding Hub",
-    "slug": "loreweaver-ai-worldbuilding-hub",
+    "slug": "loreweaver",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.loreweaver-ai-worldbuilding-hub"
+      "bundleIdentifier": "app.lightwraith8268.loreweaver"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.loreweaver-ai-worldbuilding-hub"
+      "package": "app.lightwraith8268.loreweaver"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
