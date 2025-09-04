@@ -21,7 +21,7 @@ import { theme, getTabBarHeight, getTouchableStyle, getSafeContentPadding, devic
 import { useResponsiveLayout, useResponsiveGrid, useResponsiveModal } from '@/hooks/responsive-layout';
 
 import NameGenerator from '@/components/NameGenerator';
-import type { World } from '@/types/world';
+import type { World, WorldGenre } from '@/types/world';
 
 export default function DashboardScreen() {
   const { 
@@ -188,7 +188,7 @@ export default function DashboardScreen() {
   
   const { columns } = useResponsiveGrid(stats.length);
   
-  const genreColors: Record<string, string> = {
+  const genreColors: Record<WorldGenre, string> = {
     fantasy: theme.colors.fantasy,
     'high-fantasy': theme.colors.fantasy,
     'dark-fantasy': '#4c1d95',
@@ -241,7 +241,7 @@ export default function DashboardScreen() {
     custom: theme.colors.primary,
   };
   
-  const getGenreColor = (genre: string): string => {
+  const getGenreColor = (genre: WorldGenre): string => {
     return genreColors[genre] || theme.colors.primary;
   };
   
