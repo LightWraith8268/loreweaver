@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Platform } from 'react-native';
-import type { World, Character, Location, Item, Faction, Timeline, LoreNote, WorldSnapshot } from '@/types/world';
+import type { World, Character, Location, Item, Faction, Timeline, LoreNote, WorldSnapshot, MagicSystem, Mythology, ImportedData } from '@/types/world';
 
 export interface WorldExportData {
   world: World;
@@ -11,8 +11,17 @@ export interface WorldExportData {
   timelines: Timeline[];
   loreNotes: LoreNote[];
   snapshots: WorldSnapshot[];
+  magicSystems: MagicSystem[];
+  mythologies: Mythology[];
   exportedAt: string;
   version: string;
+}
+
+export interface JsonParseResult {
+  success: boolean;
+  data?: ImportedData;
+  world?: World;
+  error?: string;
 }
 
 export const exportWorldData = async (worldId: string): Promise<WorldExportData | null> => {
@@ -25,7 +34,7 @@ export const exportWorldData = async (worldId: string): Promise<WorldExportData 
       throw new Error('World not found');
     }
     
-    const [characters, locations, items, factions, timelines, loreNotes, snapshots] = await Promise.all([
+    const [characters, locations, items, factions, timelines, loreNotes, snapshots, magicSystems, mythologies] = await Promise.all([
       AsyncStorage.getItem(`characters_${worldId}`).then(data => data ? JSON.parse(data) : []),
       AsyncStorage.getItem(`locations_${worldId}`).then(data => data ? JSON.parse(data) : []),
       AsyncStorage.getItem(`items_${worldId}`).then(data => data ? JSON.parse(data) : []),
@@ -33,6 +42,8 @@ export const exportWorldData = async (worldId: string): Promise<WorldExportData 
       AsyncStorage.getItem(`timelines_${worldId}`).then(data => data ? JSON.parse(data) : []),
       AsyncStorage.getItem(`loreNotes_${worldId}`).then(data => data ? JSON.parse(data) : []),
       AsyncStorage.getItem(`snapshots_${worldId}`).then(data => data ? JSON.parse(data) : []),
+      AsyncStorage.getItem(`magicSystems_${worldId}`).then(data => data ? JSON.parse(data) : []),
+      AsyncStorage.getItem(`mythologies_${worldId}`).then(data => data ? JSON.parse(data) : []),
     ]);
     
     return {
@@ -44,6 +55,8 @@ export const exportWorldData = async (worldId: string): Promise<WorldExportData 
       timelines,
       loreNotes,
       snapshots,
+      magicSystems,
+      mythologies,
       exportedAt: new Date().toISOString(),
       version: '1.0.0',
     };
@@ -73,6 +86,8 @@ export const importWorldData = async (data: WorldExportData): Promise<boolean> =
     const timelines = data.timelines.map(t => ({ ...t, worldId: newWorldId }));
     const loreNotes = data.loreNotes.map(n => ({ ...n, worldId: newWorldId }));
     const snapshots = data.snapshots.map(s => ({ ...s, worldId: newWorldId }));
+    const magicSystems = data.magicSystems.map(m => ({ ...m, worldId: newWorldId }));
+    const mythologies = data.mythologies.map(m => ({ ...m, worldId: newWorldId }));
     
     // Add world to worlds list
     const worldsData = await AsyncStorage.getItem('worlds');
@@ -89,6 +104,8 @@ export const importWorldData = async (data: WorldExportData): Promise<boolean> =
       AsyncStorage.setItem(`timelines_${newWorldId}`, JSON.stringify(timelines)),
       AsyncStorage.setItem(`loreNotes_${newWorldId}`, JSON.stringify(loreNotes)),
       AsyncStorage.setItem(`snapshots_${newWorldId}`, JSON.stringify(snapshots)),
+      AsyncStorage.setItem(`magicSystems_${newWorldId}`, JSON.stringify(magicSystems)),
+      AsyncStorage.setItem(`mythologies_${newWorldId}`, JSON.stringify(mythologies)),
     ]);
     
     return true;
@@ -230,8 +247,146 @@ export const exportToMarkdown = (data: WorldExportData): string => {
   
   markdown += `\n---\n*Exported from LoreWeaver on ${new Date(data.exportedAt).toLocaleDateString()}*\n`;
   
+  if (data.magicSystems.length > 0) {
+    markdown += `## Magic Systems (${data.magicSystems.length})\n\n`;
+    data.magicSystems.forEach(magic => {
+      markdown += `### ${magic.name}\n`;
+      markdown += `**Type:** ${magic.type}\n`;
+      if (magic.source) {
+        markdown += `**Source:** ${magic.source}\n`;
+      }
+      if (magic.rules.length > 0) {
+        markdown += `**Rules:**\n${magic.rules.map(r => `- ${r}`).join('\n')}\n`;
+      }
+      if (magic.limitations.length > 0) {
+        markdown += `**Limitations:**\n${magic.limitations.map(l => `- ${l}`).join('\n')}\n`;
+      }
+      if (magic.practitioners.length > 0) {
+        markdown += `**Practitioners:** ${magic.practitioners.join(', ')}\n`;
+      }
+      if (magic.history) {
+        markdown += `**History:** ${magic.history}\n`;
+      }
+      if (magic.notes) {
+        markdown += `**Notes:** ${magic.notes}\n`;
+      }
+      markdown += '\n';
+    });
+  }
+  
+  if (data.mythologies.length > 0) {
+    markdown += `## Mythologies (${data.mythologies.length})\n\n`;
+    data.mythologies.forEach(myth => {
+      markdown += `### ${myth.name}\n`;
+      markdown += `**Type:** ${myth.type}\n`;
+      if (myth.origin) {
+        markdown += `**Origin:** ${myth.origin}\n`;
+      }
+      if (myth.beliefs.length > 0) {
+        markdown += `**Beliefs:**\n${myth.beliefs.map(b => `- ${b}`).join('\n')}\n`;
+      }
+      if (myth.deities.length > 0) {
+        markdown += `**Deities:**\n${myth.deities.map(d => `- ${d.name}: ${d.description}`).join('\n')}\n`;
+      }
+      if (myth.rituals.length > 0) {
+        markdown += `**Rituals:** ${myth.rituals.join(', ')}\n`;
+      }
+      if (myth.followers.length > 0) {
+        markdown += `**Followers:** ${myth.followers.join(', ')}\n`;
+      }
+      if (myth.history) {
+        markdown += `**History:** ${myth.history}\n`;
+      }
+      if (myth.notes) {
+        markdown += `**Notes:** ${myth.notes}\n`;
+      }
+      markdown += '\n';
+    });
+  }
+  
   return markdown;
 };
+
+export async function parseJsonFile(file: File): Promise<JsonParseResult> {
+  try {
+    const text = await file.text();
+    const jsonData = JSON.parse(text);
+
+    // Check if it's a full world export
+    if (jsonData.world && jsonData.version) {
+      return {
+        success: true,
+        world: jsonData.world,
+        data: {
+          characters: jsonData.characters || [],
+          locations: jsonData.locations || [],
+          items: jsonData.items || [],
+          factions: jsonData.factions || [],
+          loreNotes: jsonData.loreNotes || [],
+          magicSystems: jsonData.magicSystems || [],
+          mythologies: jsonData.mythologies || [],
+        },
+      };
+    }
+
+    // Otherwise, try to parse as component data
+    const importedData: ImportedData = {};
+
+    if (jsonData.characters) importedData.characters = jsonData.characters;
+    if (jsonData.locations) importedData.locations = jsonData.locations;
+    if (jsonData.items) importedData.items = jsonData.items;
+    if (jsonData.factions) importedData.factions = jsonData.factions;
+    if (jsonData.loreNotes) importedData.loreNotes = jsonData.loreNotes;
+    if (jsonData.magicSystems) importedData.magicSystems = jsonData.magicSystems;
+    if (jsonData.mythologies) importedData.mythologies = jsonData.mythologies;
+
+    // Handle single component arrays
+    if (Array.isArray(jsonData)) {
+      // Try to determine type from first item
+      if (jsonData.length > 0) {
+        const firstItem = jsonData[0];
+        if (firstItem.role !== undefined) importedData.characters = jsonData;
+        else if (firstItem.type !== undefined && firstItem.description !== undefined) importedData.locations = jsonData;
+        else if (firstItem.powers !== undefined) importedData.items = jsonData;
+        else if (firstItem.ideology !== undefined) importedData.factions = jsonData;
+        else if (firstItem.rules !== undefined) importedData.magicSystems = jsonData;
+        else if (firstItem.deities !== undefined) importedData.mythologies = jsonData;
+        else if (firstItem.content !== undefined) importedData.loreNotes = jsonData;
+      }
+    }
+
+    return {
+      success: true,
+      data: importedData,
+    };
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to parse JSON file',
+    };
+  }
+}
+
+export function createFileInput(accept: string, onFileSelect: (file: File) => void) {
+  if (typeof document === 'undefined') return; // Not in web environment
+  
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = accept;
+  input.style.display = 'none';
+  
+  input.addEventListener('change', (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      onFileSelect(file);
+    }
+  });
+  
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
 
 export const shareData = async (content: string, filename: string, mimeType: string) => {
   try {

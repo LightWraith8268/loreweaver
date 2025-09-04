@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Home, Users, MapPin, Package, Shield, ScrollText, Clock, Network, Sparkles, Crown } from "lucide-react-native";
+import { Home, Users, MapPin, Sparkles, ScrollText, Settings } from "lucide-react-native";
 import React from "react";
 import { theme } from "@/constants/theme";
 
@@ -31,31 +31,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="characters"
+        name="entities"
         options={{
-          title: "Characters",
+          title: "Entities",
           tabBarIcon: ({ color }) => <Users size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="locations"
+        name="world"
         options={{
-          title: "Locations",
+          title: "World",
           tabBarIcon: ({ color }) => <MapPin size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="items"
+        name="systems"
         options={{
-          title: "Items",
-          tabBarIcon: ({ color }) => <Package size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="factions"
-        options={{
-          title: "Factions",
-          tabBarIcon: ({ color }) => <Shield size={24} color={color} />,
+          title: "Systems",
+          tabBarIcon: ({ color }) => <Sparkles size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -66,31 +59,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="timeline"
+        name="tools"
         options={{
-          title: "Timeline",
-          tabBarIcon: ({ color }) => <Clock size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="relationships"
-        options={{
-          title: "Relations",
-          tabBarIcon: ({ color }) => <Network size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="magic"
-        options={{
-          title: "Magic",
-          tabBarIcon: ({ color }) => <Sparkles size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="mythology"
-        options={{
-          title: "Mythology",
-          tabBarIcon: ({ color }) => <Crown size={24} color={color} />,
+          title: "Tools",
+          tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
         }}
       />
     </Tabs>

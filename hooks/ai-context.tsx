@@ -1,7 +1,7 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useState } from 'react';
 import { useWorld } from '@/hooks/world-context';
-import type { Character, Location, Item, Faction, LoreNote, EntityType } from '@/types/world';
+import type { Character, Location, Item, Faction, LoreNote, EntityType, MagicSystem, Mythology } from '@/types/world';
 
 interface AIContextType {
   isGenerating: boolean;
@@ -14,11 +14,13 @@ interface AIContextType {
   generateName: (type: EntityType) => Promise<string>;
   generateImage: (prompt: string) => Promise<string>;
   generateContent: (prompt: string, world?: any) => Promise<string>;
+  expandMagicSystem: (magicSystem: MagicSystem) => Promise<Partial<MagicSystem>>;
+  expandMythology: (mythology: Mythology) => Promise<Partial<Mythology>>;
 }
 
 export const [AIProvider, useAI] = createContextHook<AIContextType>(() => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const { currentWorld, characters, locations, items, factions, loreNotes } = useWorld();
+  const { currentWorld, characters, locations, items, factions, loreNotes, magicSystems, mythologies } = useWorld();
   
   const getWorldContext = () => {
     if (!currentWorld) return '';
@@ -30,7 +32,9 @@ Description: ${currentWorld.description}
 Characters: ${characters.map(c => c.name).join(', ')}
 Locations: ${locations.map(l => l.name).join(', ')}
 Factions: ${factions.map(f => f.name).join(', ')}
-Items: ${items.map(i => i.name).join(', ')}`;
+Items: ${items.map(i => i.name).join(', ')}
+Magic Systems: ${magicSystems.map(m => m.name).join(', ')}
+Mythologies: ${mythologies.map(m => m.name).join(', ')}`;
   };
   
   const makeAIRequest = async (messages: any[]) => {
@@ -314,6 +318,76 @@ Return only the name, nothing else.`;
     }
   };
 
+  const expandMagicSystem = async (magicSystem: MagicSystem): Promise<Partial<MagicSystem>> => {
+    setIsGenerating(true);
+    try {
+      const prompt = `Expand this magic system with more details:
+
+${getWorldContext()}
+
+Magic System: ${magicSystem.name}
+Type: ${magicSystem.type}
+Source: ${magicSystem.source}
+Current rules: ${magicSystem.rules.join(', ')}
+
+Generate an expanded version with:
+1. More detailed rules and mechanics
+2. Additional limitations and costs
+3. Famous practitioners and their abilities
+4. Magical schools or traditions
+5. Legendary artifacts related to this system
+
+Return as JSON with fields: rules (array), limitations (array), practitioners (array), schools (array), artifacts (array), history, notes`;
+      
+      const completion = await makeAIRequest([
+        { role: 'system', content: 'You are a creative worldbuilding assistant. Always return valid JSON.' },
+        { role: 'user', content: prompt }
+      ]);
+      
+      return JSON.parse(completion);
+    } catch (error) {
+      console.error('Error expanding magic system:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const expandMythology = async (mythology: Mythology): Promise<Partial<Mythology>> => {
+    setIsGenerating(true);
+    try {
+      const prompt = `Expand this mythology with more details:
+
+${getWorldContext()}
+
+Mythology: ${mythology.name}
+Type: ${mythology.type}
+Origin: ${mythology.origin}
+Current beliefs: ${mythology.beliefs.join(', ')}
+
+Generate an expanded version with:
+1. More detailed beliefs and doctrines
+2. Sacred rituals and ceremonies
+3. Followers and their practices
+4. Holy texts and scriptures
+5. Religious symbols and their meanings
+
+Return as JSON with fields: beliefs (array), rituals (array), followers (array), holyTexts (array), symbols (array), history, notes`;
+      
+      const completion = await makeAIRequest([
+        { role: 'system', content: 'You are a creative worldbuilding assistant. Always return valid JSON.' },
+        { role: 'user', content: prompt }
+      ]);
+      
+      return JSON.parse(completion);
+    } catch (error) {
+      console.error('Error expanding mythology:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     isGenerating,
     expandCharacter,
@@ -325,5 +399,7 @@ Return only the name, nothing else.`;
     generateName,
     generateImage,
     generateContent,
+    expandMagicSystem,
+    expandMythology,
   };
 });

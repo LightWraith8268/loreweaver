@@ -10,33 +10,21 @@ import type { Mythology, Deity } from '@/types/world';
 export default function MythologyEditScreen() {
   const { id, expandedContent } = useLocalSearchParams<{ id?: string; expandedContent?: string }>();
   const { currentWorld, mythologies, createMythology, updateMythology } = useWorld();
-  const { generateContent } = useAI();
+  const { generateContent, expandMythology } = useAI();
   
   const existingMythology = id ? mythologies.find(m => m.id === id) : null;
   const isEditing = !!existingMythology;
 
-  const [formData, setFormData] = useState<{
-    name: string;
-    type: 'pantheon' | 'religion' | 'belief' | 'legend' | 'myth';
-    origin: string;
-    deities: Deity[];
-    beliefs: string[];
-    rituals: string[];
-    followers: string[];
-    holyTexts: string[];
-    symbols: string[];
-    history: string;
-    notes: string;
-  }>({
+  const [formData, setFormData] = useState({
     name: '',
-    type: 'belief',
+    type: 'belief' as 'pantheon' | 'religion' | 'belief' | 'legend' | 'myth',
     origin: '',
-    deities: [],
-    beliefs: [],
-    rituals: [],
-    followers: [],
-    holyTexts: [],
-    symbols: [],
+    deities: [] as Deity[],
+    beliefs: [] as string[],
+    rituals: [] as string[],
+    followers: [] as string[],
+    holyTexts: [] as string[],
+    symbols: [] as string[],
     history: '',
     notes: '',
   });

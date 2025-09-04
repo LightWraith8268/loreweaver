@@ -10,7 +10,7 @@ import type { MagicSystem } from '@/types/world';
 export default function MagicSystemEditScreen() {
   const { id, expandedContent } = useLocalSearchParams<{ id?: string; expandedContent?: string }>();
   const { currentWorld, magicSystems, createMagicSystem, updateMagicSystem } = useWorld();
-  const { generateContent } = useAI();
+  const { generateContent, expandMagicSystem } = useAI();
   
   const existingMagicSystem = id ? magicSystems.find(m => m.id === id) : null;
   const isEditing = !!existingMagicSystem;
