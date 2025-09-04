@@ -14,13 +14,19 @@ export default function MagicSystemsScreen() {
 
   if (!currentWorld) {
     return (
-      <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Magic Systems' }} />
-        <View style={styles.emptyState}>
-          <Sparkles size={64} color={theme.colors.textTertiary} />
-          <Text style={styles.emptyTitle}>No World Selected</Text>
-          <Text style={styles.emptyText}>Select a world to manage magic systems</Text>
-        </View>
+      <View style={styles.emptyContainer}>
+        <Sparkles size={64} color={theme.colors.textTertiary} />
+        <Text style={styles.emptyTitle}>No World Selected</Text>
+        <Text style={styles.emptyDescription}>
+          Select a world to manage magic systems
+        </Text>
+        <TouchableOpacity 
+          style={styles.selectWorldButton}
+          onPress={() => router.push('/world-select')}
+          testID="select-world-button"
+        >
+          <Text style={styles.selectWorldButtonText}>Select a World</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -189,12 +195,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  scrollView: {
+  emptyContainer: {
     flex: 1,
-  },
-  content: {
-    padding: theme.spacing.md,
-    gap: theme.spacing.md,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing.lg,
   },
   emptyState: {
     flex: 1,
@@ -204,16 +210,40 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.semibold,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+  },
+  emptyDescription: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.sm,
+    textAlign: 'center',
   },
   emptyText: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
     textAlign: 'center',
     marginBottom: theme.spacing.xl,
+  },
+  selectWorldButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
+    marginTop: theme.spacing.lg,
+  },
+  selectWorldButtonText: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: theme.spacing.md,
+    gap: theme.spacing.md,
   },
   createButton: {
     flexDirection: 'row',

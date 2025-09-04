@@ -135,13 +135,14 @@ export default function TimelineScreen() {
         <Clock size={64} color={theme.colors.textTertiary} />
         <Text style={styles.emptyTitle}>No World Selected</Text>
         <Text style={styles.emptyDescription}>
-          Select a world from the dashboard to manage timeline
+          Select a world to manage timeline
         </Text>
         <TouchableOpacity 
           style={styles.selectWorldButton}
-          onPress={() => router.push('/')}
+          onPress={() => router.push('/world-select')}
+          testID="select-world-button"
         >
-          <Text style={styles.selectWorldButtonText}>Go to Dashboard</Text>
+          <Text style={styles.selectWorldButtonText}>Select a World</Text>
         </TouchableOpacity>
       </View>
     );
