@@ -17,7 +17,8 @@ import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme, getTabBarHeight, getTouchableStyle, getSafeContentPadding, getModalDimensions, deviceInfo } from '@/constants/theme';
+import { theme, getTabBarHeight, getTouchableStyle, getSafeContentPadding, deviceInfo } from '@/constants/theme';
+import { useResponsiveLayout, useResponsiveGrid, useResponsiveModal } from '@/hooks/responsive-layout';
 
 import NameGenerator from '@/components/NameGenerator';
 import type { World } from '@/types/world';
@@ -44,6 +45,8 @@ export default function DashboardScreen() {
   } = useWorld();
   const { checkConsistency, isGenerating } = useAI();
   const insets = useSafeAreaInsets();
+  const { isTablet, isLargeTablet, shouldUseGrid } = useResponsiveLayout();
+  const modalDimensions = useResponsiveModal();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newWorldName, setNewWorldName] = useState('');
@@ -182,6 +185,8 @@ export default function DashboardScreen() {
     { label: 'Mythologies', count: mythologies.length, color: '#dc2626' },
     { label: 'Lore Notes', count: loreNotes.length, color: theme.colors.success },
   ] : [];
+  
+  const { columns } = useResponsiveGrid(stats.length);
   
   const genreColors = {
     fantasy: theme.colors.fantasy,
@@ -427,7 +432,7 @@ export default function DashboardScreen() {
           style={styles.modalOverlay}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <View style={[styles.modalContent, getModalDimensions()]}>
+          <View style={[styles.modalContent, modalDimensions]}>
             <Text style={styles.modalTitle}>Create New World</Text>
             
             <TextInput
@@ -501,7 +506,7 @@ export default function DashboardScreen() {
         onRequestClose={() => setShowExportModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, getModalDimensions()]}>
+          <View style={[styles.modalContent, modalDimensions]}>
             <Text style={styles.modalTitle}>Export World</Text>
             
             <Text style={styles.modalDescription}>
@@ -564,7 +569,7 @@ export default function DashboardScreen() {
             contentContainerStyle={styles.modalScrollContent}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={[styles.modalContent, getModalDimensions()]}>
+            <View style={[styles.modalContent, modalDimensions]}>
               <Text style={styles.modalTitle}>Import World</Text>
             
             <Text style={styles.modalDescription}>
@@ -1033,5 +1038,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...theme.shadows.large,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.responsive.adaptiveSpacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  actionCardGrid: {
+    width: `${100 / 3 - 2}%`,
+    height: theme.responsive.isTablet ? 140 : 120,
+    marginRight: 0,
+    minWidth: theme.responsive.minTouchTarget * 2.5,
+    minHeight: theme.responsive.minTouchTarget * 2.5,
   },
 });

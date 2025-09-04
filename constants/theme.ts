@@ -3,7 +3,36 @@ import { Platform, Dimensions } from 'react-native';
 // Get device dimensions for responsive design
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isTablet = screenWidth >= 768;
+const isLargeTablet = screenWidth >= 1024;
 const isSmallScreen = screenWidth < 375;
+const isLandscape = screenWidth > screenHeight;
+
+// Responsive breakpoints
+const breakpoints = {
+  phone: 0,
+  tablet: 768,
+  largeTablet: 1024,
+  desktop: 1440,
+};
+
+// Get responsive value based on screen size
+const getResponsiveValue = <T>(values: {
+  phone: T;
+  tablet?: T;
+  largeTablet?: T;
+  desktop?: T;
+}): T => {
+  if (screenWidth >= breakpoints.desktop && values.desktop !== undefined) {
+    return values.desktop;
+  }
+  if (screenWidth >= breakpoints.largeTablet && values.largeTablet !== undefined) {
+    return values.largeTablet;
+  }
+  if (screenWidth >= breakpoints.tablet && values.tablet !== undefined) {
+    return values.tablet;
+  }
+  return values.phone;
+};
 
 // Update theme with device-aware values
 export const theme = {
@@ -57,7 +86,74 @@ export const theme = {
     semibold: '600' as const,
     bold: '700' as const,
   },
-  // Mobile-specific constants
+  // Responsive design constants
+  responsive: {
+    minTouchTarget: getResponsiveValue({
+      phone: Platform.OS === 'android' ? 48 : 44,
+      tablet: Platform.OS === 'android' ? 52 : 48,
+      largeTablet: Platform.OS === 'android' ? 56 : 52,
+    }),
+    tabBarHeight: {
+      ios: getResponsiveValue({ phone: 49, tablet: 56, largeTablet: 64 }),
+      android: getResponsiveValue({ phone: 56, tablet: 64, largeTablet: 72 }),
+    },
+    headerHeight: {
+      ios: getResponsiveValue({ phone: 44, tablet: 52, largeTablet: 60 }),
+      android: getResponsiveValue({ phone: 56, tablet: 64, largeTablet: 72 }),
+    },
+    statusBarHeight: {
+      ios: 20, // Default, will be overridden by safe area
+      android: 24, // Default, will be overridden by safe area
+    },
+    // Enhanced responsive touch and interaction constants
+    cardMinHeight: getResponsiveValue({
+      phone: Platform.OS === 'android' ? 56 : 52,
+      tablet: Platform.OS === 'android' ? 64 : 60,
+      largeTablet: Platform.OS === 'android' ? 72 : 68,
+    }),
+    buttonMinHeight: getResponsiveValue({
+      phone: Platform.OS === 'android' ? 48 : 44,
+      tablet: Platform.OS === 'android' ? 52 : 48,
+      largeTablet: Platform.OS === 'android' ? 56 : 52,
+    }),
+    inputMinHeight: getResponsiveValue({
+      phone: Platform.OS === 'android' ? 48 : 44,
+      tablet: Platform.OS === 'android' ? 52 : 48,
+      largeTablet: Platform.OS === 'android' ? 56 : 52,
+    }),
+    fabSize: getResponsiveValue({ phone: 56, tablet: 64, largeTablet: 72 }),
+    iconButtonSize: getResponsiveValue({
+      phone: Platform.OS === 'android' ? 48 : 44,
+      tablet: Platform.OS === 'android' ? 52 : 48,
+      largeTablet: Platform.OS === 'android' ? 56 : 52,
+    }),
+    // Device info
+    isTablet,
+    isLargeTablet,
+    isSmallScreen,
+    isLandscape,
+    screenWidth,
+    screenHeight,
+    breakpoints,
+    // Adaptive spacing based on screen size
+    adaptiveSpacing: {
+      xs: getResponsiveValue({ phone: isSmallScreen ? 2 : 4, tablet: 6, largeTablet: 8 }),
+      sm: getResponsiveValue({ phone: isSmallScreen ? 6 : 8, tablet: 12, largeTablet: 16 }),
+      md: getResponsiveValue({ phone: isSmallScreen ? 12 : 16, tablet: 20, largeTablet: 24 }),
+      lg: getResponsiveValue({ phone: isSmallScreen ? 18 : 24, tablet: 32, largeTablet: 40 }),
+      xl: getResponsiveValue({ phone: isSmallScreen ? 24 : 32, tablet: 40, largeTablet: 48 }),
+      xxl: getResponsiveValue({ phone: isSmallScreen ? 36 : 48, tablet: 64, largeTablet: 80 }),
+    },
+    // Tablet-specific layout constants
+    tablet: {
+      sidebarWidth: getResponsiveValue({ phone: 0, tablet: 280, largeTablet: 320 }),
+      contentMaxWidth: getResponsiveValue({ phone: screenWidth, tablet: 800, largeTablet: 1000 }),
+      gridColumns: getResponsiveValue({ phone: 1, tablet: 2, largeTablet: 3 }),
+      modalWidth: getResponsiveValue({ phone: '90%', tablet: '70%', largeTablet: '60%' }),
+      modalMaxWidth: getResponsiveValue({ phone: 400, tablet: 600, largeTablet: 800 }),
+    },
+  },
+  // Legacy mobile constants for backward compatibility
   mobile: {
     minTouchTarget: Platform.OS === 'android' ? 48 : 44,
     tabBarHeight: {
@@ -69,21 +165,18 @@ export const theme = {
       android: 56,
     },
     statusBarHeight: {
-      ios: 20, // Default, will be overridden by safe area
-      android: 24, // Default, will be overridden by safe area
+      ios: 20,
+      android: 24,
     },
-    // Enhanced mobile touch and interaction constants
     cardMinHeight: Platform.OS === 'android' ? 56 : 52,
     buttonMinHeight: Platform.OS === 'android' ? 48 : 44,
     inputMinHeight: Platform.OS === 'android' ? 48 : 44,
     fabSize: 56,
     iconButtonSize: Platform.OS === 'android' ? 48 : 44,
-    // Responsive design constants
     isTablet,
     isSmallScreen,
     screenWidth,
     screenHeight,
-    // Adaptive spacing based on screen size
     adaptiveSpacing: {
       xs: isSmallScreen ? 2 : 4,
       sm: isSmallScreen ? 6 : 8,
@@ -136,15 +229,44 @@ export const theme = {
 
 // Helper function to get platform-specific tab bar height with safe area
 export const getTabBarHeight = (bottomInset: number) => {
-  const baseHeight = Platform.OS === 'ios' ? theme.mobile.tabBarHeight.ios : theme.mobile.tabBarHeight.android;
+  const baseHeight = Platform.OS === 'ios' ? theme.responsive.tabBarHeight.ios : theme.responsive.tabBarHeight.android;
   const minInset = Platform.OS === 'ios' ? 16 : 8;
   return baseHeight + Math.max(bottomInset, minInset);
 };
 
 // Helper function to get platform-specific header height with safe area
 export const getHeaderHeight = (topInset: number) => {
-  const baseHeight = Platform.OS === 'ios' ? theme.mobile.headerHeight.ios : theme.mobile.headerHeight.android;
+  const baseHeight = Platform.OS === 'ios' ? theme.responsive.headerHeight.ios : theme.responsive.headerHeight.android;
   return baseHeight + topInset;
+};
+
+// Helper function for responsive layout
+export const getResponsiveLayout = () => {
+  return {
+    isTablet,
+    isLargeTablet,
+    isLandscape,
+    columns: theme.responsive.tablet.gridColumns,
+    sidebarWidth: theme.responsive.tablet.sidebarWidth,
+    contentMaxWidth: theme.responsive.tablet.contentMaxWidth,
+    shouldUseSidebar: isTablet && isLandscape,
+    shouldUseGrid: isTablet,
+  };
+};
+
+// Helper function for responsive spacing
+export const getResponsiveSpacing = (size: keyof typeof theme.responsive.adaptiveSpacing) => {
+  return theme.responsive.adaptiveSpacing[size];
+};
+
+// Helper function for responsive font sizes
+export const getResponsiveFontSize = (baseSize: keyof typeof theme.fontSize) => {
+  const base = theme.fontSize[baseSize];
+  return getResponsiveValue({
+    phone: base,
+    tablet: base + 2,
+    largeTablet: base + 4,
+  });
 };
 
 // Helper function to get safe content padding
@@ -157,14 +279,9 @@ export const getSafeContentPadding = (insets: { top: number; bottom: number; lef
   };
 };
 
-// Helper function for responsive font sizes
-export const getResponsiveFontSize = (baseSize: number) => {
-  return Platform.OS === 'ios' ? baseSize : Math.max(baseSize - 1, 10);
-};
-
 // Helper function for touch target sizing
 export const getTouchableStyle = (minSize?: number) => {
-  const size = minSize || theme.mobile.minTouchTarget;
+  const size = minSize || theme.responsive.minTouchTarget;
   return {
     minWidth: size,
     minHeight: size,
@@ -194,19 +311,55 @@ export const getKeyboardAwarePadding = (baseInset: number) => {
 // Helper function for modal sizing
 export const getModalDimensions = () => {
   return {
-    width: isTablet ? '70%' : '90%',
-    maxWidth: isTablet ? 600 : 400,
+    width: theme.responsive.tablet.modalWidth,
+    maxWidth: theme.responsive.tablet.modalMaxWidth,
     maxHeight: '85%',
+  };
+};
+
+// Helper function for grid layout
+export const getGridLayout = (itemCount: number) => {
+  const columns = theme.responsive.tablet.gridColumns;
+  const rows = Math.ceil(itemCount / columns);
+  return {
+    columns,
+    rows,
+    itemWidth: `${100 / columns}%`,
+  };
+};
+
+// Helper function for orientation-aware dimensions
+export const getOrientationDimensions = () => {
+  const { width, height } = Dimensions.get('window');
+  return {
+    width,
+    height,
+    isLandscape: width > height,
+    isPortrait: height > width,
+    aspectRatio: width / height,
   };
 };
 
 // Export device info for components
 export const deviceInfo = {
   isTablet,
+  isLargeTablet,
   isSmallScreen,
+  isLandscape,
   screenWidth,
   screenHeight,
+  breakpoints,
   isIOS: Platform.OS === 'ios',
   isAndroid: Platform.OS === 'android',
   isWeb: Platform.OS === 'web',
+  getResponsiveValue,
+};
+
+// Export responsive utilities
+export const responsive = {
+  getResponsiveValue,
+  getResponsiveLayout,
+  getResponsiveSpacing,
+  getGridLayout,
+  getOrientationDimensions,
 };

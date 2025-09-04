@@ -15,7 +15,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.lightwraith8268.loreweaver"
+      "bundleIdentifier": "app.lightwraith8268.loreweaver",
+      "requireFullScreen": true
     },
     "android": {
       "adaptiveIcon": {
@@ -32,6 +33,12 @@
         "expo-router",
         {
           "origin": "https://rork.com/"
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
         }
       ]
     ],

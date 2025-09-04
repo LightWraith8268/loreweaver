@@ -4,9 +4,11 @@ import React from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { theme, getTabBarHeight, getHeaderHeight, getTouchableStyle } from "@/constants/theme";
+import { useResponsiveLayout } from "@/hooks/responsive-layout";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { isTablet, isLargeTablet, shouldUseSidebar } = useResponsiveLayout();
   
   return (
     <Tabs
@@ -29,13 +31,15 @@ export default function TabLayout() {
           ...theme.shadows.large,
         },
         tabBarLabelStyle: {
-          fontSize: Platform.OS === 'ios' ? theme.fontSize.xs : theme.fontSize.xs - 1,
+          fontSize: isTablet 
+            ? (Platform.OS === 'ios' ? theme.fontSize.sm : theme.fontSize.sm - 1)
+            : (Platform.OS === 'ios' ? theme.fontSize.xs : theme.fontSize.xs - 1),
           fontWeight: theme.fontWeight.medium,
-          marginTop: Platform.OS === 'ios' ? 4 : 2,
-          marginBottom: Platform.OS === 'ios' ? 2 : 1,
+          marginTop: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
+          marginBottom: Platform.OS === 'ios' ? (isTablet ? 4 : 2) : (isTablet ? 2 : 1),
         },
         tabBarIconStyle: {
-          marginTop: Platform.OS === 'ios' ? 4 : 2,
+          marginTop: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
         },
         headerStyle: {
           backgroundColor: theme.colors.surface,
@@ -48,8 +52,8 @@ export default function TabLayout() {
           fontSize: Platform.OS === 'ios' ? theme.fontSize.lg : theme.fontSize.lg + 1,
         },
         tabBarItemStyle: {
-          paddingVertical: Platform.OS === 'ios' ? 4 : 2,
-          minHeight: theme.mobile.minTouchTarget,
+          paddingVertical: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
+          minHeight: theme.responsive.minTouchTarget,
         },
         tabBarAllowFontScaling: false,
         tabBarHideOnKeyboard: Platform.OS === 'android',
@@ -74,42 +78,42 @@ export default function TabLayout() {
         options={{
           title: "Dashboard",
           headerShown: false,
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Home size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="entities"
         options={{
           title: "Entities",
-          tabBarIcon: ({ color }) => <Users size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Users size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="world"
         options={{
           title: "World",
-          tabBarIcon: ({ color }) => <MapPin size={24} color={color} />,
+          tabBarIcon: ({ color }) => <MapPin size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="systems"
         options={{
           title: "Systems",
-          tabBarIcon: ({ color }) => <Sparkles size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Sparkles size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="lore"
         options={{
           title: "Lore",
-          tabBarIcon: ({ color }) => <ScrollText size={24} color={color} />,
+          tabBarIcon: ({ color }) => <ScrollText size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="tools"
         options={{
           title: "Tools",
-          tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Settings size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
