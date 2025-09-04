@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 export const theme = {
   colors: {
     background: '#0A0E1A',
@@ -35,13 +37,13 @@ export const theme = {
     full: 9999,
   },
   fontSize: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 18,
-    xl: 24,
-    xxl: 32,
-    xxxl: 40,
+    xs: Platform.OS === 'ios' ? 12 : 11,
+    sm: Platform.OS === 'ios' ? 14 : 13,
+    md: Platform.OS === 'ios' ? 16 : 15,
+    lg: Platform.OS === 'ios' ? 18 : 17,
+    xl: Platform.OS === 'ios' ? 24 : 22,
+    xxl: Platform.OS === 'ios' ? 32 : 28,
+    xxxl: Platform.OS === 'ios' ? 40 : 36,
   },
   fontWeight: {
     normal: '400' as const,
@@ -49,4 +51,72 @@ export const theme = {
     semibold: '600' as const,
     bold: '700' as const,
   },
+  // Mobile-specific constants
+  mobile: {
+    minTouchTarget: Platform.OS === 'android' ? 48 : 44,
+    tabBarHeight: {
+      ios: 49,
+      android: 56,
+    },
+    headerHeight: {
+      ios: 44,
+      android: 56,
+    },
+    statusBarHeight: {
+      ios: 20, // Default, will be overridden by safe area
+      android: 24, // Default, will be overridden by safe area
+    },
+  },
+  // Platform-specific shadows
+  shadows: {
+    small: Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+      default: {},
+    }),
+    medium: Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+      default: {},
+    }),
+    large: Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+      default: {},
+    }),
+  },
+};
+
+// Helper function to get platform-specific tab bar height with safe area
+export const getTabBarHeight = (bottomInset: number) => {
+  const baseHeight = Platform.OS === 'ios' ? theme.mobile.tabBarHeight.ios : theme.mobile.tabBarHeight.android;
+  const minInset = Platform.OS === 'ios' ? 16 : 8;
+  return baseHeight + Math.max(bottomInset, minInset);
+};
+
+// Helper function to get platform-specific header height with safe area
+export const getHeaderHeight = (topInset: number) => {
+  const baseHeight = Platform.OS === 'ios' ? theme.mobile.headerHeight.ios : theme.mobile.headerHeight.android;
+  return baseHeight + topInset;
 };

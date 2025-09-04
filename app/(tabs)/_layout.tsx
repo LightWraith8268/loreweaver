@@ -3,7 +3,7 @@ import { Home, Users, MapPin, Sparkles, ScrollText, Settings } from "lucide-reac
 import React from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { theme } from "@/constants/theme";
+import { theme, getTabBarHeight, getHeaderHeight } from "@/constants/theme";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -17,31 +17,38 @@ export default function TabLayout() {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
           borderTopWidth: 1,
-          paddingBottom: Platform.OS === 'ios' ? insets.bottom : theme.spacing.sm,
-          paddingTop: theme.spacing.sm,
-          height: Platform.OS === 'ios' ? 84 + insets.bottom : 68,
+          paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 16 : 8),
+          paddingTop: Platform.OS === 'ios' ? 8 : 6,
+          height: getTabBarHeight(insets.bottom),
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
+          ...theme.shadows.large,
         },
         tabBarLabelStyle: {
-          fontSize: theme.fontSize.xs,
+          fontSize: Platform.OS === 'ios' ? theme.fontSize.xs : theme.fontSize.xs - 1,
           fontWeight: theme.fontWeight.medium,
-          marginTop: 2,
+          marginTop: Platform.OS === 'ios' ? 4 : 2,
+          marginBottom: Platform.OS === 'ios' ? 2 : 1,
         },
         tabBarIconStyle: {
-          marginTop: 2,
+          marginTop: Platform.OS === 'ios' ? 4 : 2,
         },
         headerStyle: {
           backgroundColor: theme.colors.surface,
-          height: Platform.OS === 'ios' ? 44 + insets.top : 56 + insets.top,
+          height: getHeaderHeight(insets.top),
+          ...theme.shadows.medium,
         },
         headerTintColor: theme.colors.text,
         headerTitleStyle: {
           fontWeight: theme.fontWeight.semibold,
-          fontSize: theme.fontSize.lg,
+          fontSize: Platform.OS === 'ios' ? theme.fontSize.lg : theme.fontSize.lg + 1,
         },
+        tabBarItemStyle: {
+          paddingVertical: Platform.OS === 'ios' ? 4 : 2,
+        },
+        tabBarAllowFontScaling: false, // Prevent font scaling issues
       }}
     >
       <Tabs.Screen

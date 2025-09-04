@@ -16,7 +16,7 @@ import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme } from '@/constants/theme';
+import { theme, getTabBarHeight } from '@/constants/theme';
 
 import NameGenerator from '@/components/NameGenerator';
 import type { World } from '@/types/world';
@@ -245,7 +245,9 @@ export default function DashboardScreen() {
         style={styles.content} 
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Platform.OS === 'ios' ? 84 + insets.bottom + theme.spacing.lg : 68 + theme.spacing.lg }
+          { 
+            paddingBottom: getTabBarHeight(insets.bottom) + theme.spacing.xl
+          }
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -607,7 +609,12 @@ export default function DashboardScreen() {
       {/* FAB */}
       {currentWorld && (
         <TouchableOpacity 
-          style={styles.fab}
+          style={[
+            styles.fab,
+            {
+              bottom: getTabBarHeight(insets.bottom) + theme.spacing.lg
+            }
+          ]}
           onPress={() => setShowCreateModal(true)}
         >
           <Plus size={28} color={theme.colors.background} />
@@ -625,10 +632,15 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: theme.colors.surface,
     paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.md,
+    paddingTop: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.md,
     paddingBottom: theme.spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
+    elevation: Platform.OS === 'android' ? 2 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 1 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 2 : 0,
   },
   headerTop: {
     flexDirection: 'row',
@@ -646,7 +658,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
   },
   iconButton: {
-    padding: theme.spacing.sm,
+    padding: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.sm + 2,
+    minWidth: Platform.OS === 'android' ? 44 : 40,
+    minHeight: Platform.OS === 'android' ? 44 : 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: theme.borderRadius.sm,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -668,6 +685,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: theme.spacing.md,
+    paddingTop: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.md,
   },
   worldCard: {
     backgroundColor: theme.colors.surface,
@@ -709,11 +727,16 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    minWidth: '30%',
+    minWidth: Platform.OS === 'ios' ? '30%' : '32%',
     backgroundColor: theme.colors.surfaceLight,
     borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
+    padding: Platform.OS === 'ios' ? theme.spacing.md : theme.spacing.md + 2,
     alignItems: 'center',
+    elevation: Platform.OS === 'android' ? 1 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 1 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.05 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 2 : 0,
   },
   statCount: {
     fontSize: theme.fontSize.xl,
@@ -734,13 +757,18 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   actionCard: {
-    width: 120,
-    height: 120,
+    width: Platform.OS === 'ios' ? 120 : 130,
+    height: Platform.OS === 'ios' ? 120 : 130,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.md,
     marginRight: theme.spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: Platform.OS === 'android' ? 2 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 2 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 4 : 0,
   },
   actionText: {
     fontSize: theme.fontSize.sm,
@@ -757,6 +785,12 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     alignItems: 'center',
+    minHeight: Platform.OS === 'android' ? 56 : 52,
+    elevation: Platform.OS === 'android' ? 1 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 1 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.05 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 2 : 0,
   },
   resultTypeBadge: {
     paddingHorizontal: theme.spacing.sm,
@@ -804,10 +838,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: theme.colors.primary,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: Platform.OS === 'ios' ? theme.spacing.md : theme.spacing.md + 2,
     borderRadius: theme.borderRadius.full,
     marginTop: theme.spacing.lg,
     alignItems: 'center',
+    minHeight: Platform.OS === 'android' ? 48 : 44,
+    elevation: Platform.OS === 'android' ? 4 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 2 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.2 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 4 : 0,
   },
   createButtonText: {
     fontSize: theme.fontSize.md,
@@ -825,8 +865,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
+    width: Platform.OS === 'ios' ? '90%' : '92%',
+    maxWidth: Platform.OS === 'ios' ? 400 : 420,
+    maxHeight: '80%',
+    elevation: Platform.OS === 'android' ? 8 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 8 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 16 : 0,
   },
   modalTitle: {
     fontSize: theme.fontSize.xl,
@@ -880,6 +926,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     alignItems: 'center',
+    minHeight: Platform.OS === 'android' ? 48 : 44,
+    justifyContent: 'center',
+    backgroundColor: Platform.OS === 'android' ? theme.colors.surfaceLight : 'transparent',
   },
   cancelButtonText: {
     fontSize: theme.fontSize.md,
@@ -891,6 +940,13 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     alignItems: 'center',
+    minHeight: Platform.OS === 'android' ? 48 : 44,
+    justifyContent: 'center',
+    elevation: Platform.OS === 'android' ? 2 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 1 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 2 : 0,
   },
   confirmButtonText: {
     fontSize: theme.fontSize.md,
@@ -910,6 +966,12 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.md,
+    minHeight: Platform.OS === 'android' ? 56 : 52,
+    elevation: Platform.OS === 'android' ? 1 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 1 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.05 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 2 : 0,
   },
   exportOptionContent: {
     flex: 1,
@@ -952,18 +1014,17 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 84 + theme.spacing.lg + 16 : 68 + theme.spacing.lg,
     right: theme.spacing.lg,
-    width: 56,
-    height: 56,
+    width: Platform.OS === 'ios' ? 56 : 56,
+    height: Platform.OS === 'ios' ? 56 : 56,
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    elevation: Platform.OS === 'android' ? 8 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
+    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 4 } : { width: 0, height: 0 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.3 : 0,
+    shadowRadius: Platform.OS === 'ios' ? 8 : 0,
   },
 });

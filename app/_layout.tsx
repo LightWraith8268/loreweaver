@@ -2,25 +2,47 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { WorldProvider } from "@/hooks/world-context";
 import { AIProvider } from "@/hooks/ai-context";
+import { theme } from "@/constants/theme";
 
 SplashScreen.preventAutoHideAsync();
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    },
+  },
+});
 
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ 
-      headerBackTitle: "Back",
+      headerBackTitle: Platform.OS === 'ios' ? "Back" : "",
       headerStyle: {
-        backgroundColor: '#141824',
+        backgroundColor: theme.colors.surface,
+        ...(Platform.OS === 'android' && { elevation: 4 }),
+        ...(Platform.OS === 'ios' && {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        }),
       },
-      headerTintColor: '#E2E8F0',
+      headerTintColor: theme.colors.text,
+      headerTitleStyle: {
+        fontWeight: theme.fontWeight.semibold,
+        fontSize: Platform.OS === 'ios' ? theme.fontSize.lg : theme.fontSize.lg + 1,
+      },
       contentStyle: {
-        backgroundColor: '#0A0E1A',
+        backgroundColor: theme.colors.background,
       },
+      animation: Platform.OS === 'ios' ? 'slide_from_right' : 'fade_from_bottom',
     }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="world-select" options={{ 
