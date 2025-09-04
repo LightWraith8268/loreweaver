@@ -47,6 +47,14 @@ function RootLayoutNav() {
         title: "Edit Lore Note",
         presentation: "modal",
       }} />
+      <Stack.Screen name="magic-edit" options={{ 
+        title: "Edit Magic System",
+        presentation: "modal",
+      }} />
+      <Stack.Screen name="mythology-edit" options={{ 
+        title: "Edit Mythology",
+        presentation: "modal",
+      }} />
     </Stack>
   );
 }

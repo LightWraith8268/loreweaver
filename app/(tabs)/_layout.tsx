@@ -65,6 +65,54 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="characters"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="items"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="factions"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="locations"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="timeline"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="relationships"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="magic"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="mythology"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
