@@ -365,6 +365,10 @@ export interface AISettings {
     google?: { apiKey: string; enabled: boolean };
     cohere?: { apiKey: string; enabled: boolean };
     huggingface?: { apiKey: string; enabled: boolean };
+    groq?: { apiKey: string; enabled: boolean };
+    together?: { apiKey: string; enabled: boolean };
+    replicate?: { apiKey: string; enabled: boolean };
+    fireworks?: { apiKey: string; enabled: boolean };
   };
   defaultModels: {
     textGeneration: string;
@@ -377,7 +381,17 @@ export interface AISettings {
   freeKeys: {
     huggingface: string;
     cohere: string;
+    groq: string;
+    together: string;
+    replicate: string;
+    fireworks: string;
   };
+}
+
+export interface TypographySettings {
+  fontFamily: 'System' | 'Raleway' | 'Georgia' | 'Times' | 'Helvetica' | 'Arial';
+  fontSize: 'small' | 'medium' | 'large' | 'extra-large';
+  lineHeight: 'tight' | 'normal' | 'relaxed' | 'loose';
 }
 
 export interface AppSettings {
@@ -388,6 +402,7 @@ export interface AppSettings {
   backupFrequency: 'never' | 'daily' | 'weekly' | 'monthly';
   exportFormat: 'json' | 'pdf';
   language: string;
+  typography: TypographySettings;
 }
 
 export interface NovelExtraction {

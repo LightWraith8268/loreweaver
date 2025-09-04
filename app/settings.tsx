@@ -14,14 +14,15 @@ import { Stack, router } from 'expo-router';
 import {
   Moon,
   Sun,
-  Palette,
   Bot,
   Key,
-  Save,
   RotateCcw,
   X,
   ChevronRight,
-  Settings as SettingsIcon,
+  Type,
+  Wifi,
+  WifiOff,
+  Info,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
 import { createTheme } from '@/constants/theme';
@@ -367,6 +368,90 @@ export default function SettingsScreen() {
       color: theme.colors.textSecondary,
       marginBottom: theme.spacing.sm,
     },
+    freeKeysInfo: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: theme.colors.primary + '10',
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.lg,
+      gap: theme.spacing.sm,
+    },
+    freeKeysText: {
+      flex: 1,
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.primary,
+      lineHeight: 20,
+    },
+    providerStatusContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+    },
+    freeKeyBadge: {
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.success,
+      backgroundColor: theme.colors.success + '20',
+      paddingHorizontal: theme.spacing.xs,
+      paddingVertical: 2,
+      borderRadius: theme.borderRadius.sm,
+    },
+    freeKeyNotice: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: theme.colors.success + '10',
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.md,
+      marginTop: theme.spacing.sm,
+      gap: theme.spacing.sm,
+    },
+    freeKeyNoticeText: {
+      flex: 1,
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.success,
+      lineHeight: 16,
+    },
+    dropdownButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      gap: theme.spacing.sm,
+    },
+    dropdownText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.text,
+    },
+    fontSizeButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing.xs,
+    },
+    fontSizeButton: {
+      width: 32,
+      height: 32,
+      borderRadius: theme.borderRadius.full,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    fontSizeButtonActive: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    fontSizeButtonText: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.text,
+      fontWeight: theme.fontWeight.medium,
+    },
+    fontSizeButtonTextActive: {
+      color: theme.colors.background,
+    },
   });
 
   return (
@@ -428,6 +513,67 @@ export default function SettingsScreen() {
                       Dark
                     </Text>
                   </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Typography Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Typography</Text>
+            
+            <View style={styles.settingCard}>
+              <View style={styles.settingRow}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Font Family</Text>
+                  <Text style={styles.settingDescription}>
+                    Choose your preferred font for reading (Raleway available)
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.dropdownButton}
+                  onPress={() => {
+                    Alert.alert(
+                      'Font Selection',
+                      'Available fonts: System (default), Raleway, Georgia, Times, Helvetica, Arial. Font selection UI coming soon!'
+                    );
+                  }}
+                >
+                  <Type size={16} color={theme.colors.textSecondary} />
+                  <Text style={styles.dropdownText}>{settings.typography.fontFamily}</Text>
+                  <ChevronRight size={16} color={theme.colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <View style={styles.settingCard}>
+              <View style={styles.settingRow}>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Font Size</Text>
+                  <Text style={styles.settingDescription}>
+                    Adjust text size for better readability
+                  </Text>
+                </View>
+                <View style={styles.fontSizeButtons}>
+                  {(['small', 'medium', 'large', 'extra-large'] as const).map((size) => (
+                    <TouchableOpacity
+                      key={size}
+                      style={[
+                        styles.fontSizeButton,
+                        settings.typography.fontSize === size && styles.fontSizeButtonActive,
+                      ]}
+                      onPress={() => updateSettings({ 
+                        typography: { ...settings.typography, fontSize: size }
+                      })}
+                    >
+                      <Text style={[
+                        styles.fontSizeButtonText,
+                        settings.typography.fontSize === size && styles.fontSizeButtonTextActive,
+                      ]}>
+                        {size === 'extra-large' ? 'XL' : size.charAt(0).toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </View>
             </View>

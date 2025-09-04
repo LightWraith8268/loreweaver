@@ -6,20 +6,28 @@ import type { AppSettings, AISettings } from '@/types/world';
 
 const DEFAULT_AI_SETTINGS: AISettings = {
   providers: {
-    huggingface: { apiKey: 'hf_demo_key_12345', enabled: true },
-    cohere: { apiKey: 'cohere_demo_key_67890', enabled: true },
+    huggingface: { apiKey: 'hf_QLbfBXAiELMhyRumxlNEpinzjH', enabled: true },
+    cohere: { apiKey: 'trial-key-here', enabled: true },
+    groq: { apiKey: 'gsk_demo_key_free_tier', enabled: true },
+    together: { apiKey: 'together_free_trial_key', enabled: true },
+    replicate: { apiKey: 'r8_demo_free_key', enabled: true },
+    fireworks: { apiKey: 'fw_demo_free_key', enabled: true },
   },
   defaultModels: {
-    textGeneration: 'huggingface/microsoft/DialoGPT-medium',
-    imageGeneration: 'huggingface/runwayml/stable-diffusion-v1-5',
-    speechToText: 'huggingface/openai/whisper-base',
-    textToSpeech: 'huggingface/microsoft/speecht5_tts',
+    textGeneration: 'groq/llama3-8b-8192',
+    imageGeneration: 'replicate/stability-ai/stable-diffusion',
+    speechToText: 'groq/whisper-large-v3',
+    textToSpeech: 'elevenlabs/eleven_multilingual_v2',
     translation: 'huggingface/Helsinki-NLP/opus-mt-en-de',
-    summarization: 'huggingface/facebook/bart-large-cnn',
+    summarization: 'together/meta-llama/Llama-2-7b-chat-hf',
   },
   freeKeys: {
-    huggingface: 'hf_demo_key_12345',
-    cohere: 'cohere_demo_key_67890',
+    huggingface: 'hf_QLbfBXAiELMhyRumxlNEpinzjH',
+    cohere: 'trial-key-here',
+    groq: 'gsk_demo_key_free_tier',
+    together: 'together_free_trial_key',
+    replicate: 'r8_demo_free_key',
+    fireworks: 'fw_demo_free_key',
   },
 };
 
@@ -31,6 +39,11 @@ const DEFAULT_SETTINGS: AppSettings = {
   backupFrequency: 'weekly',
   exportFormat: 'json',
   language: 'en',
+  typography: {
+    fontFamily: 'System',
+    fontSize: 'medium',
+    lineHeight: 'normal',
+  },
 };
 
 interface SettingsContextType {
