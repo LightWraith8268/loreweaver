@@ -67,11 +67,21 @@ export default function MagicSystemEditScreen() {
       return;
     }
 
+    if (!currentWorld) {
+      Alert.alert('Error', 'No world selected');
+      return;
+    }
+
     try {
+      const magicSystemData = {
+        ...formData,
+        worldId: currentWorld.id,
+      };
+
       if (isEditing && existingMagicSystem) {
-        await updateMagicSystem(existingMagicSystem.id, formData);
+        await updateMagicSystem(existingMagicSystem.id, magicSystemData);
       } else {
-        await createMagicSystem(formData);
+        await createMagicSystem(magicSystemData);
       }
       router.back();
     } catch (error) {

@@ -154,8 +154,8 @@ function splitIntoSections(text: string): Array<{ type: string; content: string 
   return sections;
 }
 
-function parseCharacters(content: string) {
-  const characters = [];
+function parseCharacters(content: string): Array<Partial<import('@/types/world').Character>> {
+  const characters: Array<Partial<import('@/types/world').Character>> = [];
   const entries = splitEntries(content);
 
   entries.forEach(entry => {
@@ -178,8 +178,8 @@ function parseCharacters(content: string) {
   return characters;
 }
 
-function parseLocations(content: string) {
-  const locations = [];
+function parseLocations(content: string): Array<Partial<import('@/types/world').Location>> {
+  const locations: Array<Partial<import('@/types/world').Location>> = [];
   const entries = splitEntries(content);
 
   entries.forEach(entry => {
@@ -200,8 +200,8 @@ function parseLocations(content: string) {
   return locations;
 }
 
-function parseItems(content: string) {
-  const items = [];
+function parseItems(content: string): Array<Partial<import('@/types/world').Item>> {
+  const items: Array<Partial<import('@/types/world').Item>> = [];
   const entries = splitEntries(content);
 
   entries.forEach(entry => {
@@ -222,8 +222,8 @@ function parseItems(content: string) {
   return items;
 }
 
-function parseFactions(content: string) {
-  const factions = [];
+function parseFactions(content: string): Array<Partial<import('@/types/world').Faction>> {
+  const factions: Array<Partial<import('@/types/world').Faction>> = [];
   const entries = splitEntries(content);
 
   entries.forEach(entry => {
@@ -246,8 +246,8 @@ function parseFactions(content: string) {
   return factions;
 }
 
-function parseMagicSystems(content: string) {
-  const magicSystems = [];
+function parseMagicSystems(content: string): Array<Partial<import('@/types/world').MagicSystem>> {
+  const magicSystems: Array<Partial<import('@/types/world').MagicSystem>> = [];
   const entries = splitEntries(content);
 
   entries.forEach(entry => {
@@ -271,8 +271,8 @@ function parseMagicSystems(content: string) {
   return magicSystems;
 }
 
-function parseMythologies(content: string) {
-  const mythologies = [];
+function parseMythologies(content: string): Array<Partial<import('@/types/world').Mythology>> {
+  const mythologies: Array<Partial<import('@/types/world').Mythology>> = [];
   const entries = splitEntries(content);
 
   entries.forEach(entry => {

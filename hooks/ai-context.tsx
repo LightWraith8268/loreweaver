@@ -13,6 +13,7 @@ interface AIContextType {
   checkConsistency: () => Promise<string>;
   generateName: (type: EntityType) => Promise<string>;
   generateImage: (prompt: string) => Promise<string>;
+  generateContent: (prompt: string, world?: any) => Promise<string>;
 }
 
 export const [AIProvider, useAI] = createContextHook<AIContextType>(() => {
@@ -294,6 +295,25 @@ Return only the name, nothing else.`;
     }
   };
   
+  const generateContent = async (prompt: string, world?: any): Promise<string> => {
+    setIsGenerating(true);
+    try {
+      const contextPrompt = world ? `World Context: ${world.name} (${world.genre})\n\n${prompt}` : prompt;
+      
+      const completion = await makeAIRequest([
+        { role: 'system', content: 'You are a creative worldbuilding assistant.' },
+        { role: 'user', content: contextPrompt }
+      ]);
+      
+      return completion;
+    } catch (error) {
+      console.error('Error generating content:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     isGenerating,
     expandCharacter,
@@ -304,5 +324,6 @@ Return only the name, nothing else.`;
     checkConsistency,
     generateName,
     generateImage,
+    generateContent,
   };
 });

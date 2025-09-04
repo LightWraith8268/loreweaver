@@ -15,16 +15,28 @@ export default function MythologyEditScreen() {
   const existingMythology = id ? mythologies.find(m => m.id === id) : null;
   const isEditing = !!existingMythology;
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    type: 'pantheon' | 'religion' | 'belief' | 'legend' | 'myth';
+    origin: string;
+    deities: Deity[];
+    beliefs: string[];
+    rituals: string[];
+    followers: string[];
+    holyTexts: string[];
+    symbols: string[];
+    history: string;
+    notes: string;
+  }>({
     name: '',
-    type: 'belief' as const,
+    type: 'belief',
     origin: '',
-    deities: [] as Deity[],
-    beliefs: [] as string[],
-    rituals: [] as string[],
-    followers: [] as string[],
-    holyTexts: [] as string[],
-    symbols: [] as string[],
+    deities: [],
+    beliefs: [],
+    rituals: [],
+    followers: [],
+    holyTexts: [],
+    symbols: [],
     history: '',
     notes: '',
   });
@@ -272,7 +284,7 @@ export default function MythologyEditScreen() {
                     styles.typeButton,
                     formData.type === type && styles.typeButtonActive,
                   ]}
-                  onPress={() => setFormData(prev => ({ ...prev, type }))}
+                  onPress={() => setFormData(prev => ({ ...prev, type: type as 'pantheon' | 'religion' | 'belief' | 'legend' | 'myth' }))}
                 >
                   <Text
                     style={[
