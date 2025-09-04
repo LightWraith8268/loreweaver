@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Home, Users, MapPin, Sparkles, ScrollText, Settings } from "lucide-react-native";
+import { Home, Users, MapPin, Sparkles, ScrollText, Wrench, BookOpen, Layers, Globe } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -114,10 +114,31 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="foundations"
+        options={{
+          title: "Foundations",
+          tabBarIcon: ({ color }) => <BookOpen size={isTablet ? 28 : 24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="worldbuilding"
+        options={{
+          title: "Worldbuilding",
+          tabBarIcon: ({ color }) => <Globe size={isTablet ? 28 : 24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="plot"
+        options={{
+          title: "Plot",
+          tabBarIcon: ({ color }) => <Layers size={isTablet ? 28 : 24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="tools"
         options={{
           title: "Tools",
-          tabBarIcon: ({ color }) => <Settings size={isTablet ? 28 : 24} color={color} />,
+          tabBarIcon: ({ color }) => <Wrench size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -176,20 +197,7 @@ export default function TabLayout() {
           title: "Mythology",
         }}
       />
-      <Tabs.Screen
-        name="foundations"
-        options={{
-          href: null,
-          title: "Foundations",
-        }}
-      />
-      <Tabs.Screen
-        name="worldbuilding"
-        options={{
-          href: null,
-          title: "Worldbuilding",
-        }}
-      />
+
       <Tabs.Screen
         name="species"
         options={{
@@ -204,13 +212,7 @@ export default function TabLayout() {
           title: "Organizations",
         }}
       />
-      <Tabs.Screen
-        name="plot"
-        options={{
-          href: null,
-          title: "Plot",
-        }}
-      />
+
       <Tabs.Screen
         name="artifacts"
         options={{

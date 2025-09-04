@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { Stack, router } from 'expo-router';
-import { Plus, Crown, Users, BookOpen, Star } from 'lucide-react-native';
+import { Plus, Crown, Users, BookOpen, Star, Wand2, X } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import type { Mythology } from '@/types/world';
 
 export default function MythologyScreen() {
-  const { currentWorld, mythologies, deleteMythology } = useWorld();
-  const { generateContent } = useAI();
+  const { currentWorld, mythologies, deleteMythology, createMythology } = useWorld();
+  const { generateContent, isGenerating } = useAI();
   const [expandingId, setExpandingId] = useState<string | null>(null);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [selectedMythologyType, setSelectedMythologyType] = useState<string>('pantheon');
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  
+  const mythologyTypes = [
+    { id: 'pantheon', label: 'Pantheon', description: 'Collection of gods and deities' },
+    { id: 'religion', label: 'Religion', description: 'Organized belief system with doctrine' },
+    { id: 'belief', label: 'Cultural Belief', description: 'Folk beliefs and traditions' },
+    { id: 'legend', label: 'Legend', description: 'Heroic tales and epic stories' },
+    { id: 'myth', label: 'Creation Myth', description: 'Origin stories of the world' },
+    { id: 'prophecy', label: 'Prophecy', description: 'Foretelling of future events' },
+    { id: 'afterlife', label: 'Afterlife Beliefs', description: 'What happens after death' },
+    { id: 'cosmology', label: 'Cosmology', description: 'Structure and nature of the universe' },
+  ];
 
   if (!currentWorld) {
     return (
@@ -64,6 +79,78 @@ export default function MythologyScreen() {
       Alert.alert('Error', 'Failed to expand mythology');
     } finally {
       setExpandingId(null);
+    }
+  };
+  
+  const handleAIGenerate = async () => {
+    if (!currentWorld) {
+      Alert.alert('Error', 'Please select a world first');
+      return;
+    }
+    
+    setIsCreating(true);
+    try {
+      const selectedType = mythologyTypes.find(t => t.id === selectedMythologyType);
+      const typeDescription = selectedType?.description || 'mythology';
+      
+      const prompt = `Generate a detailed ${selectedMythologyType} mythology for a ${currentWorld.genre} world.
+      
+World Context: ${currentWorld.name} - ${currentWorld.description}
+      
+Mythology Type: ${typeDescription}
+      ${customPrompt ? `\nAdditional Requirements: ${customPrompt}` : ''}
+      
+Generate:
+      1. Name (appropriate for the world's genre and mythology type)
+      2. Origin story or historical background
+      3. Core beliefs and doctrines (array)
+      4. Key deities or figures with names and domains
+      5. Sacred texts, rituals, or practices
+      6. Followers and cultural groups
+      
+      Return as JSON with fields: name, type, origin, beliefs (array), deities (array with name and domain), followers (array), practices (array), notes`;
+      
+      const generated = await generateContent(prompt);
+      const mythologyData = JSON.parse(generated);
+      
+      // Map the selected type to the allowed Mythology type
+      const getMythologyType = (selected: string): 'pantheon' | 'religion' | 'belief' | 'legend' | 'myth' => {
+        switch (selected) {
+          case 'pantheon': return 'pantheon';
+          case 'religion': return 'religion';
+          case 'belief': return 'belief';
+          case 'legend': return 'legend';
+          case 'myth': return 'myth';
+          case 'prophecy': return 'legend';
+          case 'afterlife': return 'belief';
+          case 'cosmology': return 'myth';
+          default: return 'myth';
+        }
+      };
+      
+      await createMythology({
+        worldId: currentWorld.id,
+        name: mythologyData.name || 'Generated Mythology',
+        type: getMythologyType(selectedMythologyType),
+        origin: mythologyData.origin || '',
+        beliefs: mythologyData.beliefs || [],
+        deities: mythologyData.deities || [],
+        followers: mythologyData.followers || [],
+        rituals: mythologyData.practices || [],
+        holyTexts: [],
+        symbols: [],
+        history: '',
+        notes: mythologyData.notes || '',
+      });
+      
+      setShowAIModal(false);
+      setCustomPrompt('');
+      Alert.alert('Success', `Created mythology: ${mythologyData.name}`);
+    } catch (error) {
+      console.error('AI generation error:', error);
+      Alert.alert('Error', 'Failed to generate mythology');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -193,13 +280,23 @@ export default function MythologyScreen() {
           <Crown size={64} color={theme.colors.textTertiary} />
           <Text style={styles.emptyTitle}>No Mythologies</Text>
           <Text style={styles.emptyDescription}>Create your first mythology to get started</Text>
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => router.push('/mythology-edit')}
-          >
-            <Plus size={20} color={theme.colors.background} />
-            <Text style={styles.createButtonText}>Create Mythology</Text>
-          </TouchableOpacity>
+          <View style={styles.emptyActions}>
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={() => setShowAIModal(true)}
+            >
+              <Wand2 size={20} color={theme.colors.background} />
+              <Text style={styles.createButtonText}>Generate Mythology</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.createButton, styles.manualButton]}
+              onPress={() => router.push('/mythology-edit')}
+            >
+              <Plus size={20} color={theme.colors.primary} />
+              <Text style={[styles.createButtonText, styles.manualButtonText]}>Create Manually</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -208,6 +305,82 @@ export default function MythologyScreen() {
           </View>
         </ScrollView>
       )}
+      
+      {/* AI Generation Modal */}
+      <Modal
+        visible={showAIModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAIModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>AI Mythology Generator</Text>
+              <TouchableOpacity onPress={() => setShowAIModal(false)}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.sectionLabel}>Mythology Type</Text>
+            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+              {mythologyTypes.map((type) => (
+                <TouchableOpacity
+                  key={type.id}
+                  style={[
+                    styles.typeOption,
+                    selectedMythologyType === type.id && styles.selectedTypeOption
+                  ]}
+                  onPress={() => setSelectedMythologyType(type.id)}
+                >
+                  <Text style={[
+                    styles.typeLabel,
+                    selectedMythologyType === type.id && styles.selectedTypeLabel
+                  ]}>
+                    {type.label}
+                  </Text>
+                  <Text style={styles.typeDescription}>{type.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+            <TextInput
+              style={styles.promptInput}
+              placeholder="e.g., based on Norse mythology, includes trickster gods, emphasizes balance..."
+              placeholderTextColor={theme.colors.textTertiary}
+              value={customPrompt}
+              onChangeText={setCustomPrompt}
+              multiline
+              numberOfLines={3}
+            />
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => setShowAIModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.generateButton}
+                onPress={handleAIGenerate}
+                disabled={isCreating || isGenerating}
+              >
+                {isCreating || isGenerating ? (
+                  <ActivityIndicator color={theme.colors.background} />
+                ) : (
+                  <>
+                    <Wand2 size={16} color={theme.colors.background} />
+                    <Text style={styles.generateButtonText}>Generate</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -282,6 +455,118 @@ const styles = StyleSheet.create({
     color: theme.colors.background,
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.medium,
+  },
+  emptyActions: {
+    gap: theme.spacing.md,
+    alignItems: 'center',
+  },
+  manualButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  manualButtonText: {
+    color: theme.colors.primary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.lg,
+  },
+  modalTitle: {
+    fontSize: theme.fontSize.xl,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.text,
+  },
+  sectionLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  typeSelector: {
+    maxHeight: 200,
+    marginBottom: theme.spacing.lg,
+  },
+  typeOption: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: theme.spacing.sm,
+  },
+  selectedTypeOption: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '10',
+  },
+  typeLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+  },
+  selectedTypeLabel: {
+    color: theme.colors.primary,
+  },
+  typeDescription: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+  },
+  promptInput: {
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.lg,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  cancelButton: {
+    flex: 1,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+  },
+  generateButton: {
+    flex: 1,
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+  },
+  generateButtonText: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.background,
   },
   addButton: {
     padding: theme.spacing.sm,
