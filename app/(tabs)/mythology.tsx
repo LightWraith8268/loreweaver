@@ -192,7 +192,7 @@ export default function MythologyScreen() {
         <View style={styles.emptyState}>
           <Crown size={64} color={theme.colors.textTertiary} />
           <Text style={styles.emptyTitle}>No Mythologies</Text>
-          <Text style={styles.emptyText}>Create your first mythology to get started</Text>
+          <Text style={styles.emptyDescription}>Create your first mythology to get started</Text>
           <TouchableOpacity
             style={styles.createButton}
             onPress={() => router.push('/mythology-edit')}
