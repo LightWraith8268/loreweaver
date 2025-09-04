@@ -196,7 +196,10 @@ export default function DashboardScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>LoreWeaver</Text>
+          <View style={styles.headerTitles}>
+            <Text style={styles.title} testID="header-title">LoreWeaver</Text>
+            <Text style={styles.subtitle} testID="header-subtitle">Dashboard</Text>
+          </View>
           <View style={styles.headerActions}>
             <TouchableOpacity 
               style={styles.iconButton}
@@ -664,6 +667,15 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.xxxl,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
+  },
+  headerTitles: {
+    flexDirection: 'column',
+  },
+  subtitle: {
+    marginTop: 2,
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.medium,
+    color: theme.colors.textSecondary,
   },
   headerActions: {
     flexDirection: 'row',
