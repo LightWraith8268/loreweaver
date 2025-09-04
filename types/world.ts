@@ -2,14 +2,32 @@ export interface World {
   id: string;
   name: string;
   description: string;
-  genre: 'fantasy' | 'sci-fi' | 'cyberpunk' | 'mythology' | 'urban-fantasy' | 'space-opera' | 'custom';
+  genre: WorldGenre;
   createdAt: string;
   updatedAt: string;
   thumbnail?: string;
   template?: WorldTemplate;
   tags?: string[];
   isOfflineMode?: boolean;
+  series?: Series[];
 }
+
+export type WorldGenre = 
+  | 'fantasy' | 'high-fantasy' | 'dark-fantasy' | 'urban-fantasy' | 'epic-fantasy'
+  | 'sci-fi' | 'space-opera' | 'cyberpunk' | 'steampunk' | 'biopunk' | 'dystopian'
+  | 'horror' | 'cosmic-horror' | 'gothic-horror' | 'supernatural-horror'
+  | 'mystery' | 'detective' | 'noir' | 'thriller'
+  | 'historical' | 'alternate-history' | 'historical-fiction'
+  | 'mythology' | 'folklore' | 'legend'
+  | 'adventure' | 'swashbuckling' | 'exploration'
+  | 'romance' | 'paranormal-romance' | 'romantic-fantasy'
+  | 'western' | 'weird-west' | 'space-western'
+  | 'post-apocalyptic' | 'zombie' | 'survival'
+  | 'superhero' | 'comic-book' | 'pulp'
+  | 'slice-of-life' | 'contemporary' | 'literary'
+  | 'comedy' | 'satire' | 'parody'
+  | 'experimental' | 'surreal' | 'magical-realism'
+  | 'custom';
 
 export interface WorldTemplate {
   id: string;
@@ -297,4 +315,88 @@ export interface ExportOptions {
   includeImages: boolean;
   includePrivateNotes: boolean;
   sections: string[];
+}
+
+export interface Series {
+  id: string;
+  worldId: string;
+  title: string;
+  description: string;
+  genre: string;
+  status: 'planning' | 'writing' | 'editing' | 'published' | 'completed';
+  books: Book[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Book {
+  id: string;
+  seriesId: string;
+  title: string;
+  description: string;
+  status: 'planning' | 'outlining' | 'writing' | 'editing' | 'published' | 'completed';
+  wordCount: number;
+  targetWordCount?: number;
+  chapters: Chapter[];
+  outline: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Chapter {
+  id: string;
+  bookId: string;
+  title: string;
+  content: string;
+  summary: string;
+  wordCount: number;
+  status: 'planning' | 'writing' | 'editing' | 'completed';
+  order: number;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AISettings {
+  providers: {
+    openai?: { apiKey: string; enabled: boolean };
+    anthropic?: { apiKey: string; enabled: boolean };
+    google?: { apiKey: string; enabled: boolean };
+    cohere?: { apiKey: string; enabled: boolean };
+    huggingface?: { apiKey: string; enabled: boolean };
+  };
+  defaultModels: {
+    textGeneration: string;
+    imageGeneration: string;
+    speechToText: string;
+    textToSpeech: string;
+    translation: string;
+    summarization: string;
+  };
+  freeKeys: {
+    huggingface: string;
+    cohere: string;
+  };
+}
+
+export interface AppSettings {
+  theme: 'dark' | 'light';
+  ai: AISettings;
+  offlineMode: boolean;
+  autoSave: boolean;
+  backupFrequency: 'never' | 'daily' | 'weekly' | 'monthly';
+  exportFormat: 'json' | 'pdf';
+  language: string;
+}
+
+export interface NovelExtraction {
+  characters: Partial<Character>[];
+  locations: Partial<Location>[];
+  items: Partial<Item>[];
+  factions: Partial<Faction>[];
+  events: Partial<TimelineEvent>[];
+  themes: string[];
+  plotPoints: string[];
+  worldBuilding: string[];
 }

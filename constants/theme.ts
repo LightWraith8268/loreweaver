@@ -34,28 +34,52 @@ const getResponsiveValue = <T>(values: {
   return values.phone;
 };
 
-// Update theme with device-aware values
-export const theme = {
-  colors: {
-    background: '#0A0E1A',
-    surface: '#141824',
-    surfaceLight: '#1C2333',
-    primary: '#6366F1',
-    primaryDark: '#4F46E5',
-    secondary: '#8B5CF6',
-    accent: '#EC4899',
-    text: '#E2E8F0',
-    textSecondary: '#94A3B8',
-    textTertiary: '#64748B',
-    border: '#334155',
-    success: '#10B981',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    fantasy: '#9333EA',
-    scifi: '#06B6D4',
-    cyberpunk: '#F97316',
-    mythology: '#EAB308',
-  },
+// Color schemes
+const darkColors = {
+  background: '#0A0E1A',
+  surface: '#141824',
+  surfaceLight: '#1C2333',
+  primary: '#6366F1',
+  primaryDark: '#4F46E5',
+  secondary: '#8B5CF6',
+  accent: '#EC4899',
+  text: '#E2E8F0',
+  textSecondary: '#94A3B8',
+  textTertiary: '#64748B',
+  border: '#334155',
+  success: '#10B981',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  fantasy: '#9333EA',
+  scifi: '#06B6D4',
+  cyberpunk: '#F97316',
+  mythology: '#EAB308',
+};
+
+const lightColors = {
+  background: '#FFFFFF',
+  surface: '#F8FAFC',
+  surfaceLight: '#F1F5F9',
+  primary: '#6366F1',
+  primaryDark: '#4F46E5',
+  secondary: '#8B5CF6',
+  accent: '#EC4899',
+  text: '#1E293B',
+  textSecondary: '#475569',
+  textTertiary: '#64748B',
+  border: '#E2E8F0',
+  success: '#10B981',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  fantasy: '#9333EA',
+  scifi: '#06B6D4',
+  cyberpunk: '#F97316',
+  mythology: '#EAB308',
+};
+
+// Create theme function that accepts theme mode
+export const createTheme = (mode: 'dark' | 'light' = 'dark') => ({
+  colors: mode === 'dark' ? darkColors : lightColors,
   spacing: {
     xs: 4,
     sm: 8,
@@ -226,6 +250,9 @@ export const theme = {
     }),
   },
 };
+
+// Default theme (dark mode)
+export const theme = createTheme('dark');
 
 // Helper function to get platform-specific tab bar height with safe area
 export const getTabBarHeight = (bottomInset: number) => {
