@@ -427,6 +427,14 @@ export default function DashboardScreen() {
               </TouchableOpacity>
               
               <TouchableOpacity 
+                style={[styles.actionCard, { backgroundColor: '#f59e0b20' }]}
+                onPress={() => router.push('/foundations')}
+              >
+                <Lightbulb size={32} color="#f59e0b" />
+                <Text style={styles.actionText}>Foundations</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.secondary + '20' }]}
                 onPress={() => {
                   setNameGeneratorType('character');

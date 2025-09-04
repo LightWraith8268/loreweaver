@@ -176,6 +176,62 @@ export default function TabLayout() {
           title: "Mythology",
         }}
       />
+      <Tabs.Screen
+        name="foundations"
+        options={{
+          href: null,
+          title: "Foundations",
+        }}
+      />
+      <Tabs.Screen
+        name="worldbuilding"
+        options={{
+          href: null,
+          title: "Worldbuilding",
+        }}
+      />
+      <Tabs.Screen
+        name="species"
+        options={{
+          href: null,
+          title: "Species",
+        }}
+      />
+      <Tabs.Screen
+        name="organizations"
+        options={{
+          href: null,
+          title: "Organizations",
+        }}
+      />
+      <Tabs.Screen
+        name="plot"
+        options={{
+          href: null,
+          title: "Plot",
+        }}
+      />
+      <Tabs.Screen
+        name="artifacts"
+        options={{
+          href: null,
+          title: "Artifacts",
+        }}
+      />
+      <Tabs.Screen
+        name="meta-tools"
+        options={{
+          href: null,
+          title: "Meta Tools",
+        }}
+      />
+      <Tabs.Screen
+        name="bonus"
+        options={{
+          href: null,
+          title: "Bonus Content",
+        }}
+      />
     </Tabs>
   );
 }
