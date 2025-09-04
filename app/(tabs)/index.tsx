@@ -196,7 +196,7 @@ export default function DashboardScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>LoreWeaver</Text>
+          <Text style={styles.title}>Dashboard</Text>
           <View style={styles.headerActions}>
             <TouchableOpacity 
               style={styles.iconButton}
