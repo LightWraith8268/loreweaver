@@ -224,7 +224,7 @@ export default function AdvancedSearch({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = () => StyleSheet.create({
   container: {
     marginBottom: theme.spacing.md,
   },
@@ -358,3 +358,5 @@ const styles = StyleSheet.create({
     color: theme.colors.background,
   },
 });
+
+const styles = createStyles();
