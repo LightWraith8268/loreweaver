@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Users, Package, Shield, Plus, Search, Upload, Download } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { parseDocxFile } from '@/utils/docx-parser';
@@ -47,6 +48,7 @@ export default function EntitiesScreen() {
   const { currentWorld, characters, items, factions, importData } = useWorld();
   const [searchQuery, setSearchQuery] = useState('');
   const [isImporting, setIsImporting] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleImport = async (type: 'characters' | 'items' | 'factions') => {
     if (!currentWorld) {
@@ -137,7 +139,14 @@ export default function EntitiesScreen() {
         }}
       />
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Platform.OS === 'ios' ? 84 + insets.bottom + theme.spacing.lg : 68 + theme.spacing.lg }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           <View style={styles.searchContainer}>
             <View style={styles.searchInputContainer}>
@@ -271,6 +280,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   content: {
     padding: theme.spacing.lg,

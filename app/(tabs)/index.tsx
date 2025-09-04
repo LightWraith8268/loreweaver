@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
@@ -41,6 +42,7 @@ export default function DashboardScreen() {
     importData: importWorldData,
   } = useWorld();
   const { checkConsistency, isGenerating } = useAI();
+  const insets = useSafeAreaInsets();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newWorldName, setNewWorldName] = useState('');
@@ -239,7 +241,14 @@ export default function DashboardScreen() {
         </View>
       </View>
       
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Platform.OS === 'ios' ? 84 + insets.bottom + theme.spacing.lg : 68 + theme.spacing.lg }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {currentWorld ? (
           <>
             {/* Current World Card */}
@@ -655,6 +664,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     padding: theme.spacing.md,
   },
   worldCard: {
@@ -940,7 +952,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: theme.spacing.lg,
+    bottom: Platform.OS === 'ios' ? 84 + theme.spacing.lg + 16 : 68 + theme.spacing.lg,
     right: theme.spacing.lg,
     width: 56,
     height: 56,
