@@ -20,6 +20,7 @@ import NameGenerator from '@/components/NameGenerator';
 import AdvancedSearch from '@/components/AdvancedSearch';
 import { VoiceCaptureComponent } from '@/components/VoiceCaptureComponent';
 import { EnhancedExportSystem } from '@/components/EnhancedExportSystem';
+import { SeriesManager } from '@/components/SeriesManager';
 import type { EntityType, VoiceCapture } from '@/types/world';
 
 interface ToolCardProps {
@@ -57,6 +58,7 @@ export default function ToolsScreen() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showVoiceCapture, setShowVoiceCapture] = useState(false);
   const [showEnhancedExport, setShowEnhancedExport] = useState(false);
+  const [showSeriesManager, setShowSeriesManager] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilters, setSearchFilters] = useState({
     entityTypes: [] as EntityType[],
@@ -353,12 +355,18 @@ export default function ToolsScreen() {
               />
               
               <ToolCard
-                title="World Settings"
-                description="Configure world preferences and settings"
+                title="Series & Books"
+                description="Manage book series and extract world elements"
+                icon={<FileText size={24} color={theme.colors.primary} />}
+                onPress={() => setShowSeriesManager(true)}
+                disabled={!currentWorld}
+              />
+              
+              <ToolCard
+                title="App Settings"
+                description="Configure app preferences and AI settings"
                 icon={<Settings size={24} color={theme.colors.textSecondary} />}
-                onPress={() => {
-                  Alert.alert('Coming Soon', 'World settings will be available in a future update');
-                }}
+                onPress={() => router.push('/settings')}
               />
             </View>
           </View>
@@ -411,6 +419,11 @@ export default function ToolsScreen() {
           }}
         />
       )}
+      
+      <SeriesManager
+        visible={showSeriesManager}
+        onClose={() => setShowSeriesManager(false)}
+      />
     </View>
   );
 }

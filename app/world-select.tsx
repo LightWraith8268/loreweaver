@@ -11,20 +11,103 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Globe, Trash2, Check, Edit3, Plus, X } from 'lucide-react-native';
+import { Globe, Trash2, Edit3, Plus, X, ChevronDown } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
-import { theme } from '@/constants/theme';
-import type { World } from '@/types/world';
+import { useSettings } from '@/hooks/settings-context';
+import { createTheme } from '@/constants/theme';
+import { WORLD_TEMPLATES } from '@/constants/templates';
+import type { World, WorldGenre } from '@/types/world';
+
+const GENRE_OPTIONS: { value: WorldGenre; label: string }[] = [
+  { value: 'fantasy', label: 'Fantasy' },
+  { value: 'high-fantasy', label: 'High Fantasy' },
+  { value: 'dark-fantasy', label: 'Dark Fantasy' },
+  { value: 'urban-fantasy', label: 'Urban Fantasy' },
+  { value: 'epic-fantasy', label: 'Epic Fantasy' },
+  { value: 'sci-fi', label: 'Science Fiction' },
+  { value: 'space-opera', label: 'Space Opera' },
+  { value: 'cyberpunk', label: 'Cyberpunk' },
+  { value: 'steampunk', label: 'Steampunk' },
+  { value: 'biopunk', label: 'Biopunk' },
+  { value: 'dystopian', label: 'Dystopian' },
+  { value: 'horror', label: 'Horror' },
+  { value: 'cosmic-horror', label: 'Cosmic Horror' },
+  { value: 'gothic-horror', label: 'Gothic Horror' },
+  { value: 'supernatural-horror', label: 'Supernatural Horror' },
+  { value: 'mystery', label: 'Mystery' },
+  { value: 'detective', label: 'Detective' },
+  { value: 'noir', label: 'Noir' },
+  { value: 'thriller', label: 'Thriller' },
+  { value: 'historical', label: 'Historical' },
+  { value: 'alternate-history', label: 'Alternate History' },
+  { value: 'historical-fiction', label: 'Historical Fiction' },
+  { value: 'mythology', label: 'Mythology' },
+  { value: 'folklore', label: 'Folklore' },
+  { value: 'legend', label: 'Legend' },
+  { value: 'adventure', label: 'Adventure' },
+  { value: 'swashbuckling', label: 'Swashbuckling' },
+  { value: 'exploration', label: 'Exploration' },
+  { value: 'romance', label: 'Romance' },
+  { value: 'paranormal-romance', label: 'Paranormal Romance' },
+  { value: 'romantic-fantasy', label: 'Romantic Fantasy' },
+  { value: 'western', label: 'Western' },
+  { value: 'weird-west', label: 'Weird West' },
+  { value: 'space-western', label: 'Space Western' },
+  { value: 'post-apocalyptic', label: 'Post-Apocalyptic' },
+  { value: 'zombie', label: 'Zombie' },
+  { value: 'survival', label: 'Survival' },
+  { value: 'superhero', label: 'Superhero' },
+  { value: 'comic-book', label: 'Comic Book' },
+  { value: 'pulp', label: 'Pulp' },
+  { value: 'slice-of-life', label: 'Slice of Life' },
+  { value: 'contemporary', label: 'Contemporary' },
+  { value: 'literary', label: 'Literary' },
+  { value: 'comedy', label: 'Comedy' },
+  { value: 'satire', label: 'Satire' },
+  { value: 'parody', label: 'Parody' },
+  { value: 'experimental', label: 'Experimental' },
+  { value: 'surreal', label: 'Surreal' },
+  { value: 'magical-realism', label: 'Magical Realism' },
+  { value: 'custom', label: 'Custom' },
+];
 
 export default function WorldSelectScreen() {
   const { worlds, currentWorld, setCurrentWorld, createWorld, updateWorld, deleteWorld } = useWorld();
+  const { settings } = useSettings();
+  const theme = createTheme(settings.theme);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingWorld, setEditingWorld] = useState<World | null>(null);
   const [newWorldName, setNewWorldName] = useState('');
   const [newWorldDescription, setNewWorldDescription] = useState('');
-  const [newWorldGenre, setNewWorldGenre] = useState<World['genre']>('fantasy');
+  const [newWorldGenre, setNewWorldGenre] = useState<WorldGenre>('fantasy');
+  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  
+  const getGenreColor = (genre: WorldGenre) => {
+    switch (genre) {
+      case 'fantasy':
+      case 'high-fantasy':
+      case 'dark-fantasy':
+      case 'urban-fantasy':
+      case 'epic-fantasy':
+        return theme.colors.fantasy;
+      case 'sci-fi':
+      case 'space-opera':
+      case 'cyberpunk':
+      case 'steampunk':
+      case 'biopunk':
+      case 'dystopian':
+        return theme.colors.scifi;
+      case 'mythology':
+      case 'folklore':
+      case 'legend':
+        return theme.colors.mythology;
+      default:
+        return theme.colors.primary;
+    }
+  };
   
   const handleSelectWorld = (world: typeof worlds[0]) => {
     setCurrentWorld(world);
@@ -39,10 +122,12 @@ export default function WorldSelectScreen() {
     
     setIsCreating(true);
     try {
+      const template = selectedTemplate ? WORLD_TEMPLATES.find(t => t.id === selectedTemplate) : undefined;
       await createWorld({
         name: newWorldName,
         description: newWorldDescription,
         genre: newWorldGenre,
+        template,
       });
       setShowCreateModal(false);
       resetModal();
@@ -111,16 +196,276 @@ export default function WorldSelectScreen() {
     setNewWorldName('');
     setNewWorldDescription('');
     setNewWorldGenre('fantasy');
+    setSelectedTemplate(null);
+    setShowGenreDropdown(false);
     setEditingWorld(null);
   };
   
-  const genreColors = {
-    fantasy: theme.colors.fantasy,
-    'sci-fi': theme.colors.scifi,
-    cyberpunk: theme.colors.cyberpunk,
-    mythology: theme.colors.mythology,
-    custom: theme.colors.primary,
-  };
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing.md,
+      backgroundColor: theme.colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    title: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+    },
+    createButton: {
+      flexDirection: 'row',
+      backgroundColor: theme.colors.primary,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.borderRadius.full,
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+    },
+    createButtonText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.background,
+    },
+    content: {
+      flex: 1,
+      padding: theme.spacing.md,
+    },
+    worldList: {
+      gap: theme.spacing.md,
+    },
+    worldCard: {
+      flexDirection: 'row',
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.lg,
+      overflow: 'hidden',
+    },
+    worldCardContent: {
+      flex: 1,
+      padding: theme.spacing.lg,
+      borderLeftWidth: 4,
+    },
+    selectedCard: {
+      backgroundColor: theme.colors.success + '10',
+    },
+    worldHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.sm,
+    },
+    worldInfo: {
+      flex: 1,
+    },
+    worldName: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.xs,
+    },
+    genreBadge: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+      borderRadius: theme.borderRadius.sm,
+      alignSelf: 'flex-start',
+    },
+    genreText: {
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.background,
+    },
+    currentBadge: {
+      backgroundColor: theme.colors.success,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+      borderRadius: theme.borderRadius.sm,
+    },
+    currentText: {
+      fontSize: theme.fontSize.xs,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.background,
+    },
+    worldDescription: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      marginBottom: theme.spacing.sm,
+    },
+    worldDate: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textTertiary,
+    },
+    worldActions: {
+      justifyContent: 'center',
+      paddingHorizontal: theme.spacing.md,
+      gap: theme.spacing.md,
+    },
+    actionButton: {
+      padding: theme.spacing.sm,
+    },
+    emptyState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: theme.spacing.xxl,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+      marginTop: theme.spacing.lg,
+    },
+    emptyDescription: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.sm,
+      textAlign: 'center',
+      paddingHorizontal: theme.spacing.xl,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.xl,
+      padding: theme.spacing.lg,
+      width: '90%',
+      maxWidth: 400,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+    },
+    modalTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+    },
+    input: {
+      backgroundColor: theme.colors.surfaceLight,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.md,
+    },
+    textArea: {
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+    inputLabel: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      marginBottom: theme.spacing.sm,
+    },
+    genreDropdown: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surfaceLight,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    genreDropdownText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+    },
+    genreDropdownList: {
+      maxHeight: 200,
+      backgroundColor: theme.colors.surfaceLight,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    genreDropdownItem: {
+      padding: theme.spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    genreDropdownItemSelected: {
+      backgroundColor: theme.colors.primary + '20',
+    },
+    genreDropdownItemText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.text,
+    },
+    genreDropdownItemTextSelected: {
+      color: theme.colors.primary,
+      fontWeight: theme.fontWeight.semibold,
+    },
+    templateOptions: {
+      gap: theme.spacing.sm,
+      marginBottom: theme.spacing.lg,
+    },
+    templateOption: {
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surfaceLight,
+    },
+    templateOptionSelected: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.primary + '10',
+    },
+    templateOptionText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.text,
+      marginBottom: 4,
+    },
+    templateOptionTextSelected: {
+      color: theme.colors.primary,
+    },
+    templateDescription: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+    },
+    modalActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: theme.spacing.md,
+    },
+    cancelButton: {
+      flex: 1,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+    },
+    confirmButton: {
+      flex: 1,
+      backgroundColor: theme.colors.primary,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      alignItems: 'center',
+    },
+    confirmButtonText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.background,
+    },
+  });
   
   return (
     <View style={styles.container}>
@@ -143,7 +488,7 @@ export default function WorldSelectScreen() {
                 <TouchableOpacity
                   style={[
                     styles.worldCardContent,
-                    { borderColor: genreColors[world.genre] },
+                    { borderColor: getGenreColor(world.genre) },
                     currentWorld?.id === world.id && styles.selectedCard
                   ]}
                   onPress={() => handleSelectWorld(world)}
@@ -151,7 +496,7 @@ export default function WorldSelectScreen() {
                   <View style={styles.worldHeader}>
                     <View style={styles.worldInfo}>
                       <Text style={styles.worldName}>{world.name}</Text>
-                      <View style={[styles.genreBadge, { backgroundColor: genreColors[world.genre] }]}>
+                      <View style={[styles.genreBadge, { backgroundColor: getGenreColor(world.genre) }]}>
                         <Text style={styles.genreText}>{world.genre}</Text>
                       </View>
                     </View>
@@ -238,21 +583,74 @@ export default function WorldSelectScreen() {
             />
             
             <Text style={styles.inputLabel}>Genre</Text>
-            <View style={styles.genreOptions}>
-              {(['fantasy', 'sci-fi', 'cyberpunk', 'mythology', 'custom'] as const).map((genre) => (
+            <TouchableOpacity
+              style={styles.genreDropdown}
+              onPress={() => setShowGenreDropdown(!showGenreDropdown)}
+            >
+              <Text style={styles.genreDropdownText}>
+                {GENRE_OPTIONS.find(g => g.value === newWorldGenre)?.label || 'Select Genre'}
+              </Text>
+              <ChevronDown size={20} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
+            
+            {showGenreDropdown && (
+              <ScrollView style={styles.genreDropdownList} nestedScrollEnabled>
+                {GENRE_OPTIONS.map((genre) => (
+                  <TouchableOpacity
+                    key={genre.value}
+                    style={[
+                      styles.genreDropdownItem,
+                      newWorldGenre === genre.value && styles.genreDropdownItemSelected
+                    ]}
+                    onPress={() => {
+                      setNewWorldGenre(genre.value);
+                      setShowGenreDropdown(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.genreDropdownItemText,
+                      newWorldGenre === genre.value && styles.genreDropdownItemTextSelected
+                    ]}>
+                      {genre.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+            
+            <Text style={styles.inputLabel}>Template (Optional)</Text>
+            <View style={styles.templateOptions}>
+              <TouchableOpacity
+                style={[
+                  styles.templateOption,
+                  !selectedTemplate && styles.templateOptionSelected
+                ]}
+                onPress={() => setSelectedTemplate(null)}
+              >
+                <Text style={[
+                  styles.templateOptionText,
+                  !selectedTemplate && styles.templateOptionTextSelected
+                ]}>
+                  Blank World
+                </Text>
+              </TouchableOpacity>
+              {WORLD_TEMPLATES.map((template) => (
                 <TouchableOpacity
-                  key={genre}
+                  key={template.id}
                   style={[
-                    styles.genreOption,
-                    newWorldGenre === genre && { backgroundColor: genreColors[genre] }
+                    styles.templateOption,
+                    selectedTemplate === template.id && styles.templateOptionSelected
                   ]}
-                  onPress={() => setNewWorldGenre(genre)}
+                  onPress={() => setSelectedTemplate(template.id)}
                 >
                   <Text style={[
-                    styles.genreOptionText,
-                    newWorldGenre === genre && { color: theme.colors.background }
+                    styles.templateOptionText,
+                    selectedTemplate === template.id && styles.templateOptionTextSelected
                   ]}>
-                    {genre}
+                    {template.name}
+                  </Text>
+                  <Text style={styles.templateDescription}>
+                    {template.description}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -326,25 +724,40 @@ export default function WorldSelectScreen() {
             />
             
             <Text style={styles.inputLabel}>Genre</Text>
-            <View style={styles.genreOptions}>
-              {(['fantasy', 'sci-fi', 'cyberpunk', 'mythology', 'custom'] as const).map((genre) => (
-                <TouchableOpacity
-                  key={genre}
-                  style={[
-                    styles.genreOption,
-                    newWorldGenre === genre && { backgroundColor: genreColors[genre] }
-                  ]}
-                  onPress={() => setNewWorldGenre(genre)}
-                >
-                  <Text style={[
-                    styles.genreOptionText,
-                    newWorldGenre === genre && { color: theme.colors.background }
-                  ]}>
-                    {genre}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <TouchableOpacity
+              style={styles.genreDropdown}
+              onPress={() => setShowGenreDropdown(!showGenreDropdown)}
+            >
+              <Text style={styles.genreDropdownText}>
+                {GENRE_OPTIONS.find(g => g.value === newWorldGenre)?.label || 'Select Genre'}
+              </Text>
+              <ChevronDown size={20} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
+            
+            {showGenreDropdown && (
+              <ScrollView style={styles.genreDropdownList} nestedScrollEnabled>
+                {GENRE_OPTIONS.map((genre) => (
+                  <TouchableOpacity
+                    key={genre.value}
+                    style={[
+                      styles.genreDropdownItem,
+                      newWorldGenre === genre.value && styles.genreDropdownItemSelected
+                    ]}
+                    onPress={() => {
+                      setNewWorldGenre(genre.value);
+                      setShowGenreDropdown(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.genreDropdownItemText,
+                      newWorldGenre === genre.value && styles.genreDropdownItemTextSelected
+                    ]}>
+                      {genre.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
             
             <View style={styles.modalActions}>
               <TouchableOpacity 
@@ -375,219 +788,3 @@ export default function WorldSelectScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  title: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-  },
-  createButton: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.full,
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  createButtonText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    padding: theme.spacing.md,
-  },
-  worldList: {
-    gap: theme.spacing.md,
-  },
-  worldCard: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    overflow: 'hidden',
-  },
-  worldCardContent: {
-    flex: 1,
-    padding: theme.spacing.lg,
-    borderLeftWidth: 4,
-  },
-  selectedCard: {
-    backgroundColor: theme.colors.success + '10',
-  },
-  worldHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.sm,
-  },
-  worldInfo: {
-    flex: 1,
-  },
-  worldName: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  genreBadge: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.sm,
-    alignSelf: 'flex-start',
-  },
-  genreText: {
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
-  },
-  currentBadge: {
-    backgroundColor: theme.colors.success,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.sm,
-  },
-  currentText: {
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
-  },
-  worldDescription: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.sm,
-  },
-  worldDate: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textTertiary,
-  },
-  worldActions: {
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.md,
-    gap: theme.spacing.md,
-  },
-  actionButton: {
-    padding: theme.spacing.sm,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: theme.spacing.xxl,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-  },
-  emptyDescription: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
-    textAlign: 'center',
-    paddingHorizontal: theme.spacing.xl,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-  },
-  input: {
-    backgroundColor: theme.colors.surfaceLight,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  inputLabel: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.sm,
-  },
-  genreOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
-  },
-  genreOption: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  genreOptionText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-  },
-  cancelButton: {
-    flex: 1,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
-  confirmButton: {
-    flex: 1,
-    backgroundColor: theme.colors.primary,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-  },
-  confirmButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
-  },
-});

@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { WorldProvider } from "@/hooks/world-context";
 import { AIProvider } from "@/hooks/ai-context";
+import { SettingsProvider } from "@/hooks/settings-context";
 import { theme } from "@/constants/theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -90,6 +91,10 @@ function RootLayoutNav() {
         title: "Edit Mythology",
         presentation: "modal",
       }} />
+      <Stack.Screen name="settings" options={{ 
+        title: "Settings",
+        presentation: "modal",
+      }} />
     </Stack>
   );
 }
@@ -114,11 +119,13 @@ export default function RootLayout() {
             backgroundColor={theme.colors.surface}
             translucent={Platform.OS === 'android'}
           />
-          <WorldProvider>
-            <AIProvider>
-              <RootLayoutNav />
-            </AIProvider>
-          </WorldProvider>
+          <SettingsProvider>
+            <WorldProvider>
+              <AIProvider>
+                <RootLayoutNav />
+              </AIProvider>
+            </WorldProvider>
+          </SettingsProvider>
         </GestureHandlerRootView>
       </QueryClientProvider>
     </SafeAreaProvider>
