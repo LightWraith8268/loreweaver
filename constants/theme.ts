@@ -249,7 +249,7 @@ export const createTheme = (mode: 'dark' | 'light' = 'dark') => ({
       default: {},
     }),
   },
-};
+});
 
 // Default theme (dark mode)
 export const theme = createTheme('dark');
