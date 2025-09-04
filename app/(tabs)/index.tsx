@@ -196,7 +196,7 @@ export default function DashboardScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>Dashboard</Text>
+          <Text style={styles.title}>LoreWeaver</Text>
           <View style={styles.headerActions}>
             <TouchableOpacity 
               style={styles.iconButton}
@@ -661,7 +661,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: theme.fontSize.xxl,
+    fontSize: theme.fontSize.xxxl,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
   },

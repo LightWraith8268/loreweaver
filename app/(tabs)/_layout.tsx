@@ -74,7 +74,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "LoreWeaver",
+          title: "Dashboard",
           tabBarIcon: ({ color }) => <Home size={24} color={color} />,
         }}
       />
