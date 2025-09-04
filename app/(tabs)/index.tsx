@@ -253,7 +253,21 @@ export default function DashboardScreen() {
             </View>
             
             {/* Quick Actions */}
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Quick Actions</Text>
+              <TouchableOpacity 
+                style={styles.quickExportButton}
+                onPress={() => handleExportWorld('json')}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <Download size={16} color={theme.colors.primary} />
+                )}
+                <Text style={styles.quickExportText}>Export JSON</Text>
+              </TouchableOpacity>
+            </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickActions}>
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.primary + '20' }]}
@@ -876,6 +890,26 @@ const styles = StyleSheet.create({
     minHeight: 120,
     textAlignVertical: 'top',
     fontFamily: 'monospace',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  quickExportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.primary + '20',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.full,
+    gap: theme.spacing.xs,
+  },
+  quickExportText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.primary,
+    fontWeight: theme.fontWeight.medium,
   },
   fab: {
     position: 'absolute',

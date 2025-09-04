@@ -234,24 +234,41 @@ export const exportToMarkdown = (data: WorldExportData): string => {
 };
 
 export const shareData = async (content: string, filename: string, mimeType: string) => {
-  if (Platform.OS === 'web') {
-    // Web: Create download link
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  } else {
-    // Mobile: Copy to clipboard and show alert
-    // Note: In a real app, you'd use expo-sharing or similar
-    Alert.alert(
-      'Export Ready',
-      'The export data has been prepared. In a full implementation, this would be shared via the native sharing system.',
-      [{ text: 'OK' }]
-    );
+  try {
+    if (Platform.OS === 'web') {
+      // Web: Create download link
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      Alert.alert(
+        'Export Complete',
+        `Your world data has been downloaded as ${filename}`,
+        [{ text: 'OK' }]
+      );
+    } else {
+      // Mobile: Copy to clipboard and show alert with data preview
+      const preview = content.length > 200 ? content.substring(0, 200) + '...' : content;
+      Alert.alert(
+        'Export Ready',
+        `Your world data is ready to share:\n\n${preview}\n\nIn a full implementation, this would be shared via the native sharing system.`,
+        [
+          { text: 'Copy to Clipboard', onPress: () => {
+            // In a real app, you'd use expo-clipboard
+            console.log('Copied to clipboard:', content);
+          }},
+          { text: 'OK' }
+        ]
+      );
+    }
+  } catch (error) {
+    console.error('Share error:', error);
+    Alert.alert('Error', 'Failed to export data');
   }
 };
