@@ -311,7 +311,7 @@ export interface ResearchNote {
 }
 
 export interface ExportOptions {
-  format: 'json' | 'pdf' | 'roll20' | 'foundry' | 'novel';
+  format: 'json' | 'docx' | 'pdf' | 'txt' | 'markdown' | 'roll20' | 'foundry' | 'novel' | 'epub';
   includeImages: boolean;
   includePrivateNotes: boolean;
   sections: string[];

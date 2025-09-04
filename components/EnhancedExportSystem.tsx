@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
-  ActivityIndicator,
-  Platform,
 } from 'react-native';
 import {
   Download,
@@ -18,8 +16,6 @@ import {
   X,
   Check,
   Settings,
-  Folder,
-  Share,
   Image,
   Loader,
 } from 'lucide-react-native';
@@ -475,6 +471,247 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
     }
   };
 
+  const styles = StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.xl,
+      padding: theme.spacing.lg,
+      width: '95%',
+      maxWidth: 600,
+      maxHeight: '90%',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+    },
+    modalTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold as any,
+      color: theme.colors.text,
+    },
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold as any,
+      color: theme.colors.text,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
+    },
+    emptyText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      textAlign: 'center' as const,
+    },
+    title: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold as any,
+      color: theme.colors.text,
+      textAlign: 'center' as const,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.xs,
+    },
+    subtitle: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      textAlign: 'center' as const,
+      marginBottom: theme.spacing.xl,
+    },
+    section: {
+      margin: theme.spacing.lg,
+      marginBottom: theme.spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.semibold as any,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.md,
+    },
+    formatOption: {
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.sm,
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    formatOptionSelected: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.surfaceLight,
+    },
+    formatInfo: {
+      flex: 1,
+      marginLeft: theme.spacing.md,
+    },
+    formatName: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium as any,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.xs,
+    },
+    formatNameSelected: {
+      color: theme.colors.primary,
+    },
+    formatDescription: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+    },
+    sectionOption: {
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    sectionOptionSelected: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.surfaceLight,
+    },
+    sectionInfo: {
+      flex: 1,
+    },
+    sectionName: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium as any,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.xs,
+    },
+    sectionNameSelected: {
+      color: theme.colors.primary,
+    },
+    sectionCount: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+    },
+    optionRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      gap: theme.spacing.md,
+    },
+    optionRowSelected: {
+      borderColor: theme.colors.primary,
+      backgroundColor: theme.colors.surfaceLight,
+    },
+    optionText: {
+      flex: 1,
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+    },
+    optionTextSelected: {
+      color: theme.colors.primary,
+      fontWeight: theme.fontWeight.medium as any,
+    },
+    actions: {
+      flexDirection: 'row' as const,
+      padding: theme.spacing.lg,
+      gap: theme.spacing.md,
+    },
+    generateImagesButton: {
+      flex: 1,
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.warning,
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      gap: theme.spacing.sm,
+    },
+    exportButton: {
+      flex: 1,
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.primary,
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      gap: theme.spacing.sm,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    buttonText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium as any,
+      color: theme.colors.surface,
+    },
+    exportInfo: {
+      backgroundColor: theme.colors.surfaceLight,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      margin: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
+    },
+    exportTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.semibold as any,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.xs,
+    },
+    exportMeta: {
+      flexDirection: 'row' as const,
+      gap: theme.spacing.md,
+    },
+    metaItem: {
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+    },
+    metaText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+    },
+    formatOptionDisabled: {
+      opacity: 0.5,
+    },
+    comingSoon: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.warning,
+      fontStyle: 'italic' as const,
+      marginTop: theme.spacing.xs,
+    },
+    closeButton: {
+      backgroundColor: theme.colors.primary,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginTop: theme.spacing.lg,
+    },
+    closeButtonText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.medium as any,
+      color: theme.colors.surface,
+    },
+  });
+
+
+
   if (!visible) return null;
 
   if (exportType === 'world' && !currentWorld) {
@@ -682,241 +919,3 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
   return content;
 };
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '95%',
-    maxWidth: 600,
-    maxHeight: '90%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-  },
-  emptyText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-  },
-  title: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    textAlign: 'center',
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.xs,
-  },
-  subtitle: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xl,
-  },
-  section: {
-    margin: theme.spacing.lg,
-    marginBottom: theme.spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  formatOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  formatOptionSelected: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  formatInfo: {
-    flex: 1,
-    marginLeft: theme.spacing.md,
-  },
-  formatName: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  formatNameSelected: {
-    color: theme.colors.primary,
-  },
-  formatDescription: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-  },
-  sectionOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  sectionOptionSelected: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  sectionInfo: {
-    flex: 1,
-  },
-  sectionName: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  sectionNameSelected: {
-    color: theme.colors.primary,
-  },
-  sectionCount: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    gap: theme.spacing.md,
-  },
-  optionRowSelected: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  optionText: {
-    flex: 1,
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
-  optionTextSelected: {
-    color: theme.colors.primary,
-    fontWeight: theme.fontWeight.medium,
-  },
-  actions: {
-    flexDirection: 'row',
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-  },
-  generateImagesButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.warning,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.sm,
-  },
-  exportButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.sm,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    color: theme.colors.surface,
-  },
-  exportInfo: {
-    backgroundColor: theme.colors.surfaceLight,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    margin: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
-  },
-  exportTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  exportMeta: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  metaText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-  },
-  formatOptionDisabled: {
-    opacity: 0.5,
-  },
-  comingSoon: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.warning,
-    fontStyle: 'italic',
-    marginTop: theme.spacing.xs,
-  },
-  closeButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginTop: theme.spacing.lg,
-  },
-  closeButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
-    color: theme.colors.surface,
-  },
-});
