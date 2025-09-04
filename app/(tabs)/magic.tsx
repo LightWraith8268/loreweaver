@@ -170,7 +170,7 @@ export default function MagicSystemsScreen() {
         <View style={styles.emptyState}>
           <Sparkles size={64} color={theme.colors.textTertiary} />
           <Text style={styles.emptyTitle}>No Magic Systems</Text>
-          <Text style={styles.emptyText}>Create your first magic system to get started</Text>
+          <Text style={styles.emptyDescription}>Create your first magic system to get started</Text>
           <TouchableOpacity
             style={styles.createButton}
             onPress={() => router.push('/magic-edit')}

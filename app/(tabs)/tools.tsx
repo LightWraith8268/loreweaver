@@ -219,6 +219,25 @@ export default function ToolsScreen() {
     }
   };
 
+  if (!currentWorld) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Settings size={64} color={theme.colors.textTertiary} />
+        <Text style={styles.emptyTitle}>No World Selected</Text>
+        <Text style={styles.emptyDescription}>
+          Select a world to access tools
+        </Text>
+        <TouchableOpacity 
+          style={styles.selectWorldButton}
+          onPress={() => router.push('/world-select')}
+          testID="select-world-button"
+        >
+          <Text style={styles.selectWorldButtonText}>Select a World</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -334,6 +353,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  emptyContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing.lg,
+  },
+  emptyTitle: {
+    fontSize: theme.fontSize.xl,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.text,
+    marginTop: theme.spacing.lg,
+  },
+  emptyDescription: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.sm,
+    textAlign: 'center',
+  },
+  selectWorldButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
+    marginTop: theme.spacing.lg,
+  },
+  selectWorldButtonText: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.background,
   },
   scrollView: {
     flex: 1,
