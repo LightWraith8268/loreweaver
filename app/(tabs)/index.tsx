@@ -208,6 +208,12 @@ export default function DashboardScreen() {
           <View style={styles.headerActions}>
             <TouchableOpacity 
               style={styles.iconButton}
+              onPress={() => router.push('/settings' as any)}
+            >
+              <Settings size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.iconButton}
               onPress={() => router.push('/world-select' as any)}
             >
               <Globe size={24} color={theme.colors.text} />
