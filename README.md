@@ -1,2 +1,2 @@
-# loreweaver
+# LoreWeaver
 Created by Rork
