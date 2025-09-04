@@ -16,7 +16,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.lightwraith8268.loreweaver",
-      "requireFullScreen": true
+      "requireFullScreen": false,
+      "supportedOrientations": ["portrait", "portraitUpsideDown", "landscapeLeft", "landscapeRight"]
     },
     "android": {
       "adaptiveIcon": {
