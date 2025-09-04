@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown } from 'lucide-react-native';
+import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown, Lightbulb } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
@@ -21,6 +21,7 @@ import { theme, getTabBarHeight, getTouchableStyle, getSafeContentPadding, devic
 import { useResponsiveLayout, useResponsiveGrid, useResponsiveModal } from '@/hooks/responsive-layout';
 
 import NameGenerator from '@/components/NameGenerator';
+import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
 import type { World, WorldGenre } from '@/types/world';
 
 export default function DashboardScreen() {
@@ -60,6 +61,7 @@ export default function DashboardScreen() {
   const [isImporting, setIsImporting] = useState(false);
   const [showNameGenerator, setShowNameGenerator] = useState(false);
   const [nameGeneratorType, setNameGeneratorType] = useState<'character' | 'location' | 'item' | 'faction'>('character');
+  const [showAIIdeas, setShowAIIdeas] = useState(false);
   
   const handleCreateWorld = async () => {
     if (!newWorldName.trim()) {
@@ -434,6 +436,14 @@ export default function DashboardScreen() {
                 <Sparkles size={32} color={theme.colors.secondary} />
                 <Text style={styles.actionText}>Name Generator</Text>
               </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.actionCard, { backgroundColor: theme.colors.primary + '20' }]}
+                onPress={() => setShowAIIdeas(true)}
+              >
+                <Lightbulb size={32} color={theme.colors.primary} />
+                <Text style={styles.actionText}>AI Ideas</Text>
+              </TouchableOpacity>
             </ScrollView>
             
             {/* Search Results */}
@@ -679,6 +689,12 @@ export default function DashboardScreen() {
         }}
         entityType={nameGeneratorType}
         genre={currentWorld?.genre}
+      />
+      
+      <AIIdeasGenerator
+        visible={showAIIdeas}
+        onClose={() => setShowAIIdeas(false)}
+        contextType={currentWorld ? 'world' : 'global'}
       />
       
       {/* FAB */}

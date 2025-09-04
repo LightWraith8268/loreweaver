@@ -14,22 +14,20 @@ import {
 import {
   Book,
   Plus,
-  Edit3,
-  Trash2,
   FileText,
   Upload,
-  Download,
   Eye,
   X,
-  ChevronRight,
   BookOpen,
   PenTool,
+  Sparkles,
+  Wand2,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
 import { useWorld } from '@/hooks/world-context';
 import { createTheme } from '@/constants/theme';
-import { extractWorldFromNovel, analyzeNovelSeries } from '@/utils/novel-extraction';
-import type { Series, Book as BookType, Chapter, NovelExtraction } from '@/types/world';
+import { analyzeNovelSeries } from '@/utils/novel-extraction';
+import type { Series, Book as BookType, Chapter } from '@/types/world';
 
 interface SeriesManagerProps {
   visible: boolean;
@@ -52,6 +50,9 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
   const [newSeriesDescription, setNewSeriesDescription] = useState('');
   const [newBookTitle, setNewBookTitle] = useState('');
   const [newBookDescription, setNewBookDescription] = useState('');
+  const [isGeneratingSeriesName, setIsGeneratingSeriesName] = useState(false);
+  const [isGeneratingBookName, setIsGeneratingBookName] = useState(false);
+  const [isGeneratingChapterContent, setIsGeneratingChapterContent] = useState(false);
 
   const handleCreateSeries = () => {
     if (!newSeriesTitle.trim()) {
@@ -152,6 +153,161 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
     } finally {
       setIsExtracting(false);
       setShowNovelExtractor(false);
+    }
+  };
+
+  const generateSeriesName = async () => {
+    setIsGeneratingSeriesName(true);
+    try {
+      const genre = currentWorld?.genre || 'fantasy';
+      const prompt = `Generate 3 compelling series names for a ${genre} story series. Each name should be unique, memorable, and suitable for the genre. Provide just the names, one per line.`;
+
+      const response = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate series names');
+      }
+
+      const data = await response.json();
+      const names = data.completion.split('\n').filter((name: string) => name.trim());
+      if (names.length > 0) {
+        setNewSeriesTitle(names[0].trim());
+      }
+    } catch (error) {
+      console.error('Error generating series name:', error);
+      Alert.alert('Error', 'Failed to generate series name. Please try again.');
+    } finally {
+      setIsGeneratingSeriesName(false);
+    }
+  };
+
+  const generateBookName = async () => {
+    if (!selectedSeries) return;
+    
+    setIsGeneratingBookName(true);
+    try {
+      const genre = currentWorld?.genre || 'fantasy';
+      const seriesContext = `Series: ${selectedSeries.title} - ${selectedSeries.description}`;
+      const bookNumber = selectedSeries.books.length + 1;
+      
+      const prompt = `Generate 3 compelling book titles for book ${bookNumber} in the series "${selectedSeries.title}". Genre: ${genre}. ${seriesContext}. Each title should fit the series theme and be suitable for the genre. Provide just the titles, one per line.`;
+
+      const response = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate book names');
+      }
+
+      const data = await response.json();
+      const names = data.completion.split('\n').filter((name: string) => name.trim());
+      if (names.length > 0) {
+        setNewBookTitle(names[0].trim());
+      }
+    } catch (error) {
+      console.error('Error generating book name:', error);
+      Alert.alert('Error', 'Failed to generate book name. Please try again.');
+    } finally {
+      setIsGeneratingBookName(false);
+    }
+  };
+
+  const generateChapterContent = async (book: BookType, chapterTitle: string) => {
+    setIsGeneratingChapterContent(true);
+    try {
+      const genre = currentWorld?.genre || 'fantasy';
+      const seriesContext = selectedSeries ? `Series: ${selectedSeries.title} - ${selectedSeries.description}` : '';
+      const bookContext = `Book: ${book.title} - ${book.description}`;
+      const chapterNumber = book.chapters.length + 1;
+      
+      const prompt = `Write a compelling chapter content for "${chapterTitle}" (Chapter ${chapterNumber}) in the book "${book.title}". Genre: ${genre}. ${seriesContext}. ${bookContext}. Write approximately 1000-1500 words of engaging narrative content that fits the story and genre.`;
+
+      const response = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate chapter content');
+      }
+
+      const data = await response.json();
+      
+      // Create new chapter with generated content
+      const newChapter: Chapter = {
+        id: Date.now().toString(),
+        bookId: book.id,
+        title: chapterTitle,
+        content: data.completion,
+        summary: `Chapter ${chapterNumber} of ${book.title}`,
+        wordCount: data.completion.split(' ').length,
+        status: 'completed',
+        order: chapterNumber,
+        notes: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Update the book with the new chapter
+      setSeries(prev => prev.map(s => 
+        s.id === book.seriesId 
+          ? {
+              ...s,
+              books: s.books.map(b => 
+                b.id === book.id 
+                  ? {
+                      ...b,
+                      chapters: [...b.chapters, newChapter],
+                      wordCount: b.wordCount + newChapter.wordCount,
+                      updatedAt: new Date().toISOString(),
+                    }
+                  : b
+              )
+            }
+          : s
+      ));
+
+      Alert.alert('Success', `Chapter "${chapterTitle}" has been generated and added to the book.`);
+    } catch (error) {
+      console.error('Error generating chapter content:', error);
+      Alert.alert('Error', 'Failed to generate chapter content. Please try again.');
+    } finally {
+      setIsGeneratingChapterContent(false);
     }
   };
 
@@ -392,6 +548,23 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
       fontWeight: theme.fontWeight.medium,
       color: theme.colors.secondary,
     },
+    aiButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 40,
+      marginLeft: theme.spacing.sm,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: theme.spacing.sm,
+    },
+    inputFlex: {
+      flex: 1,
+    },
   });
 
   if (!visible) return null;
@@ -485,11 +658,27 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
                               <TouchableOpacity
                                 style={styles.actionButton}
                                 onPress={() => {
-                                  // View book details
+                                  const chapterTitle = `Chapter ${book.chapters.length + 1}`;
+                                  Alert.alert(
+                                    'Generate Chapter',
+                                    `Generate AI content for "${chapterTitle}"?`,
+                                    [
+                                      { text: 'Cancel', style: 'cancel' },
+                                      {
+                                        text: 'Generate',
+                                        onPress: () => generateChapterContent(book, chapterTitle)
+                                      }
+                                    ]
+                                  );
                                 }}
+                                disabled={isGeneratingChapterContent}
                               >
-                                <Eye size={12} color={theme.colors.primary} />
-                                <Text style={styles.actionButtonText}>View</Text>
+                                {isGeneratingChapterContent ? (
+                                  <ActivityIndicator size={12} color={theme.colors.primary} />
+                                ) : (
+                                  <Sparkles size={12} color={theme.colors.primary} />
+                                )}
+                                <Text style={styles.actionButtonText}>AI Chapter</Text>
                               </TouchableOpacity>
                             </View>
                           </View>
@@ -562,13 +751,26 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
             </View>
 
             <Text style={styles.inputLabel}>Series Title</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter series title"
-              placeholderTextColor={theme.colors.textTertiary}
-              value={newSeriesTitle}
-              onChangeText={setNewSeriesTitle}
-            />
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[styles.input, styles.inputFlex, { marginBottom: 0 }]}
+                placeholder="Enter series title"
+                placeholderTextColor={theme.colors.textTertiary}
+                value={newSeriesTitle}
+                onChangeText={setNewSeriesTitle}
+              />
+              <TouchableOpacity
+                style={styles.aiButton}
+                onPress={generateSeriesName}
+                disabled={isGeneratingSeriesName}
+              >
+                {isGeneratingSeriesName ? (
+                  <ActivityIndicator size="small" color={theme.colors.background} />
+                ) : (
+                  <Wand2 size={16} color={theme.colors.background} />
+                )}
+              </TouchableOpacity>
+            </View>
 
             <Text style={styles.inputLabel}>Description</Text>
             <TextInput
@@ -621,13 +823,26 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
             </View>
 
             <Text style={styles.inputLabel}>Book Title</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter book title"
-              placeholderTextColor={theme.colors.textTertiary}
-              value={newBookTitle}
-              onChangeText={setNewBookTitle}
-            />
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[styles.input, styles.inputFlex, { marginBottom: 0 }]}
+                placeholder="Enter book title"
+                placeholderTextColor={theme.colors.textTertiary}
+                value={newBookTitle}
+                onChangeText={setNewBookTitle}
+              />
+              <TouchableOpacity
+                style={styles.aiButton}
+                onPress={generateBookName}
+                disabled={isGeneratingBookName}
+              >
+                {isGeneratingBookName ? (
+                  <ActivityIndicator size="small" color={theme.colors.background} />
+                ) : (
+                  <Wand2 size={16} color={theme.colors.background} />
+                )}
+              </TouchableOpacity>
+            </View>
 
             <Text style={styles.inputLabel}>Description</Text>
             <TextInput

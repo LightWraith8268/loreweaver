@@ -9,7 +9,8 @@ import {
   FileText, 
   Database,
   Settings,
-  Mic
+  Mic,
+  Lightbulb
 } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
@@ -21,6 +22,7 @@ import AdvancedSearch from '@/components/AdvancedSearch';
 import { VoiceCaptureComponent } from '@/components/VoiceCaptureComponent';
 import { EnhancedExportSystem } from '@/components/EnhancedExportSystem';
 import { SeriesManager } from '@/components/SeriesManager';
+import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
 import type { EntityType, VoiceCapture } from '@/types/world';
 
 interface ToolCardProps {
@@ -59,6 +61,7 @@ export default function ToolsScreen() {
   const [showVoiceCapture, setShowVoiceCapture] = useState(false);
   const [showEnhancedExport, setShowEnhancedExport] = useState(false);
   const [showSeriesManager, setShowSeriesManager] = useState(false);
+  const [showAIIdeas, setShowAIIdeas] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilters, setSearchFilters] = useState({
     entityTypes: [] as EntityType[],
@@ -324,6 +327,13 @@ export default function ToolsScreen() {
                 icon={<Shuffle size={24} color={theme.colors.primary} />}
                 onPress={() => setShowNameGenerator(true)}
               />
+              
+              <ToolCard
+                title="AI Ideas Generator"
+                description="Generate creative ideas for stories, characters, and world building"
+                icon={<Lightbulb size={24} color={theme.colors.primary} />}
+                onPress={() => setShowAIIdeas(true)}
+              />
             </View>
           </View>
 
@@ -423,6 +433,12 @@ export default function ToolsScreen() {
       <SeriesManager
         visible={showSeriesManager}
         onClose={() => setShowSeriesManager(false)}
+      />
+      
+      <AIIdeasGenerator
+        visible={showAIIdeas}
+        onClose={() => setShowAIIdeas(false)}
+        contextType={currentWorld ? 'world' : 'global'}
       />
     </View>
   );
