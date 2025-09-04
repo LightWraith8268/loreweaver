@@ -20,9 +20,9 @@ export default function TabLayout() {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
           borderTopWidth: 1,
-          paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 16 : 8),
-          paddingTop: Platform.OS === 'ios' ? 8 : 6,
-          height: getTabBarHeight(insets.bottom),
+          paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 12),
+          paddingTop: Platform.OS === 'ios' ? 12 : 10,
+          height: getTabBarHeight(insets.bottom) + (Platform.OS === 'ios' ? 8 : 6),
           position: 'absolute',
           bottom: 0,
           left: 0,
@@ -35,11 +35,11 @@ export default function TabLayout() {
             ? (Platform.OS === 'ios' ? theme.fontSize.sm : theme.fontSize.sm - 1)
             : (Platform.OS === 'ios' ? theme.fontSize.xs : theme.fontSize.xs - 1),
           fontWeight: theme.fontWeight.medium,
-          marginTop: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
-          marginBottom: Platform.OS === 'ios' ? (isTablet ? 4 : 2) : (isTablet ? 2 : 1),
+          marginTop: Platform.OS === 'ios' ? (isTablet ? 8 : 6) : (isTablet ? 6 : 4),
+          marginBottom: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
         },
         tabBarIconStyle: {
-          marginTop: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
+          marginTop: Platform.OS === 'ios' ? (isTablet ? 8 : 6) : (isTablet ? 6 : 4),
         },
         headerStyle: {
           backgroundColor: theme.colors.surface,
@@ -52,7 +52,7 @@ export default function TabLayout() {
           fontSize: Platform.OS === 'ios' ? theme.fontSize.lg : theme.fontSize.lg + 1,
         },
         tabBarItemStyle: {
-          paddingVertical: Platform.OS === 'ios' ? (isTablet ? 6 : 4) : (isTablet ? 4 : 2),
+          paddingVertical: Platform.OS === 'ios' ? (isTablet ? 8 : 6) : (isTablet ? 6 : 4),
           minHeight: theme.responsive.minTouchTarget,
         },
         tabBarAllowFontScaling: false,

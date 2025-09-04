@@ -17,7 +17,12 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.lightwraith8268.loreweaver",
       "requireFullScreen": false,
-      "supportedOrientations": ["portrait", "portraitUpsideDown", "landscapeLeft", "landscapeRight"]
+      "supportedOrientations": [
+        "portrait",
+        "portraitUpsideDown",
+        "landscapeLeft",
+        "landscapeRight"
+      ]
     },
     "android": {
       "adaptiveIcon": {
