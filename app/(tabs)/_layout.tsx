@@ -11,7 +11,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textTertiary,
         tabBarStyle: {
@@ -25,7 +25,6 @@ export default function TabLayout() {
           bottom: 0,
           left: 0,
           right: 0,
-          // Ensure tab bar is above content
           zIndex: 1000,
           ...theme.shadows.large,
         },
@@ -50,11 +49,9 @@ export default function TabLayout() {
         },
         tabBarItemStyle: {
           paddingVertical: Platform.OS === 'ios' ? 4 : 2,
-          // Ensure proper touch target size
           minHeight: theme.mobile.minTouchTarget,
         },
-        tabBarAllowFontScaling: false, // Prevent font scaling issues
-        // Optimize for mobile performance
+        tabBarAllowFontScaling: false,
         tabBarHideOnKeyboard: Platform.OS === 'android',
         tabBarVisibilityAnimationConfig: {
           show: {
@@ -76,6 +73,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Dashboard",
+          headerShown: false,
           tabBarIcon: ({ color }) => <Home size={24} color={color} />,
         }}
       />
@@ -118,48 +116,56 @@ export default function TabLayout() {
         name="characters"
         options={{
           href: null,
+          title: "Characters",
         }}
       />
       <Tabs.Screen
         name="items"
         options={{
           href: null,
+          title: "Items",
         }}
       />
       <Tabs.Screen
         name="factions"
         options={{
           href: null,
+          title: "Factions",
         }}
       />
       <Tabs.Screen
         name="locations"
         options={{
           href: null,
+          title: "Locations",
         }}
       />
       <Tabs.Screen
         name="timeline"
         options={{
           href: null,
+          title: "Timeline",
         }}
       />
       <Tabs.Screen
         name="relationships"
         options={{
           href: null,
+          title: "Relationships",
         }}
       />
       <Tabs.Screen
         name="magic"
         options={{
           href: null,
+          title: "Magic Systems",
         }}
       />
       <Tabs.Screen
         name="mythology"
         options={{
           href: null,
+          title: "Mythology",
         }}
       />
     </Tabs>
