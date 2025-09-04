@@ -9,13 +9,14 @@ import {
   Modal,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network } from 'lucide-react-native';
+import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
-import { exportWorldData, importWorldData, exportToJSON, exportToMarkdown, shareData } from '@/utils/export';
+
 import NameGenerator from '@/components/NameGenerator';
 import type { World } from '@/types/world';
 
@@ -33,7 +34,11 @@ export default function DashboardScreen() {
     items,
     factions,
     loreNotes,
+    magicSystems,
+    mythologies,
     createSnapshot,
+    exportWorld,
+    importData: importWorldData,
   } = useWorld();
   const { checkConsistency, isGenerating } = useAI();
   
@@ -103,17 +108,25 @@ export default function DashboardScreen() {
     
     setIsExporting(true);
     try {
-      const data = await exportWorldData(currentWorld.id);
-      if (!data) {
-        Alert.alert('Error', 'Failed to export world data');
-        return;
+      const content = await exportWorld();
+      const filename = `${currentWorld.name.replace(/[^a-zA-Z0-9]/g, '_')}.json`;
+      
+      if (Platform.OS === 'web') {
+        const blob = new Blob([content], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        Alert.alert('Export Complete', 'World data copied to clipboard', [
+          { text: 'OK' }
+        ]);
       }
       
-      const content = format === 'json' ? exportToJSON(data) : exportToMarkdown(data);
-      const filename = `${currentWorld.name.replace(/[^a-zA-Z0-9]/g, '_')}.${format}`;
-      const mimeType = format === 'json' ? 'application/json' : 'text/markdown';
-      
-      await shareData(content, filename, mimeType);
       setShowExportModal(false);
     } catch (error) {
       Alert.alert('Error', 'Failed to export world');
@@ -131,15 +144,11 @@ export default function DashboardScreen() {
     setIsImporting(true);
     try {
       const data = JSON.parse(importData);
-      const success = await importWorldData(data);
+      await importWorldData(data);
       
-      if (success) {
-        Alert.alert('Success', 'World imported successfully');
-        setShowImportModal(false);
-        setImportData('');
-      } else {
-        Alert.alert('Error', 'Failed to import world');
-      }
+      Alert.alert('Success', 'World data imported successfully');
+      setShowImportModal(false);
+      setImportData('');
     } catch (error) {
       Alert.alert('Error', 'Invalid world data format');
     } finally {
@@ -166,6 +175,8 @@ export default function DashboardScreen() {
     { label: 'Locations', count: locations.length, color: theme.colors.secondary },
     { label: 'Items', count: items.length, color: theme.colors.accent },
     { label: 'Factions', count: factions.length, color: theme.colors.warning },
+    { label: 'Magic Systems', count: magicSystems.length, color: '#9333ea' },
+    { label: 'Mythologies', count: mythologies.length, color: '#dc2626' },
     { label: 'Lore Notes', count: loreNotes.length, color: theme.colors.success },
   ] : [];
   
@@ -320,6 +331,22 @@ export default function DashboardScreen() {
               >
                 <Network size={32} color={theme.colors.accent} />
                 <Text style={styles.actionText}>View Relations</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.actionCard, { backgroundColor: '#9333ea20' }]}
+                onPress={() => router.push('/magic')}
+              >
+                <Sparkles size={32} color="#9333ea" />
+                <Text style={styles.actionText}>Magic Systems</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.actionCard, { backgroundColor: '#dc262620' }]}
+                onPress={() => router.push('/mythology')}
+              >
+                <Crown size={32} color="#dc2626" />
+                <Text style={styles.actionText}>Mythologies</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 

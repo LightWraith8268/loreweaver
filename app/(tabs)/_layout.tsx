@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Home, Users, MapPin, Package, Shield, ScrollText, Clock, Network } from "lucide-react-native";
+import { Home, Users, MapPin, Package, Shield, ScrollText, Clock, Network, Sparkles, Crown } from "lucide-react-native";
 import React from "react";
 import { theme } from "@/constants/theme";
 
@@ -77,6 +77,20 @@ export default function TabLayout() {
         options={{
           title: "Relations",
           tabBarIcon: ({ color }) => <Network size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="magic"
+        options={{
+          title: "Magic",
+          tabBarIcon: ({ color }) => <Sparkles size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="mythology"
+        options={{
+          title: "Mythology",
+          tabBarIcon: ({ color }) => <Crown size={24} color={color} />,
         }}
       />
     </Tabs>

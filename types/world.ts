@@ -112,6 +112,50 @@ export interface Relationship {
   description: string;
 }
 
+export interface MagicSystem {
+  id: string;
+  worldId: string;
+  name: string;
+  type: string;
+  source: string;
+  rules: string[];
+  limitations: string[];
+  practitioners: string[];
+  schools?: string[];
+  artifacts: string[];
+  history: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Mythology {
+  id: string;
+  worldId: string;
+  name: string;
+  type: 'pantheon' | 'religion' | 'belief' | 'legend' | 'myth';
+  origin: string;
+  deities: Deity[];
+  beliefs: string[];
+  rituals: string[];
+  followers: string[];
+  holyTexts: string[];
+  symbols: string[];
+  history: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Deity {
+  id: string;
+  name: string;
+  domain: string[];
+  description: string;
+  symbols: string[];
+  relationships: string[];
+}
+
 export interface WorldSnapshot {
   id: string;
   worldId: string;
@@ -120,4 +164,14 @@ export interface WorldSnapshot {
   createdAt: string;
 }
 
-export type EntityType = 'character' | 'location' | 'item' | 'faction' | 'lore' | 'timeline' | 'snapshot';
+export interface ImportedData {
+  characters?: Partial<Character>[];
+  locations?: Partial<Location>[];
+  items?: Partial<Item>[];
+  factions?: Partial<Faction>[];
+  magicSystems?: Partial<MagicSystem>[];
+  mythologies?: Partial<Mythology>[];
+  loreNotes?: Partial<LoreNote>[];
+}
+
+export type EntityType = 'character' | 'location' | 'item' | 'faction' | 'lore' | 'timeline' | 'snapshot' | 'magicSystem' | 'mythology';

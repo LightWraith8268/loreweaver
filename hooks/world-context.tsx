@@ -2,7 +2,7 @@ import createContextHook from '@nkzw/create-context-hook';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, useMemo } from 'react';
-import type { World, Character, Location, Item, Faction, Timeline, LoreNote, WorldSnapshot, EntityType } from '@/types/world';
+import type { World, Character, Location, Item, Faction, Timeline, LoreNote, WorldSnapshot, EntityType, MagicSystem, Mythology, ImportedData } from '@/types/world';
 
 interface WorldContextType {
   // Current world
@@ -51,11 +51,27 @@ interface WorldContextType {
   updateLoreNote: (id: string, updates: Partial<LoreNote>) => Promise<void>;
   deleteLoreNote: (id: string) => Promise<void>;
   
+  // Magic Systems
+  magicSystems: MagicSystem[];
+  createMagicSystem: (magicSystem: Omit<MagicSystem, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateMagicSystem: (id: string, updates: Partial<MagicSystem>) => Promise<void>;
+  deleteMagicSystem: (id: string) => Promise<void>;
+  
+  // Mythologies
+  mythologies: Mythology[];
+  createMythology: (mythology: Omit<Mythology, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateMythology: (id: string, updates: Partial<Mythology>) => Promise<void>;
+  deleteMythology: (id: string) => Promise<void>;
+  
   // Snapshots
   snapshots: WorldSnapshot[];
   createSnapshot: (name: string) => Promise<void>;
   restoreSnapshot: (snapshotId: string) => Promise<void>;
   deleteSnapshot: (id: string) => Promise<void>;
+  
+  // Import/Export
+  importData: (data: ImportedData) => Promise<void>;
+  exportWorld: () => Promise<string>;
   
   // Search
   searchQuery: string;
@@ -140,6 +156,26 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     enabled: !!currentWorld,
   });
   
+  const magicSystemsQuery = useQuery({
+    queryKey: ['magicSystems', currentWorld?.id],
+    queryFn: async () => {
+      if (!currentWorld) return [];
+      const data = await AsyncStorage.getItem(`magicSystems_${currentWorld.id}`);
+      return data ? JSON.parse(data) : [];
+    },
+    enabled: !!currentWorld,
+  });
+  
+  const mythologiesQuery = useQuery({
+    queryKey: ['mythologies', currentWorld?.id],
+    queryFn: async () => {
+      if (!currentWorld) return [];
+      const data = await AsyncStorage.getItem(`mythologies_${currentWorld.id}`);
+      return data ? JSON.parse(data) : [];
+    },
+    enabled: !!currentWorld,
+  });
+  
   const snapshotsQuery = useQuery({
     queryKey: ['snapshots', currentWorld?.id],
     queryFn: async () => {
@@ -214,6 +250,8 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       await AsyncStorage.removeItem(`factions_${id}`);
       await AsyncStorage.removeItem(`timelines_${id}`);
       await AsyncStorage.removeItem(`loreNotes_${id}`);
+      await AsyncStorage.removeItem(`magicSystems_${id}`);
+      await AsyncStorage.removeItem(`mythologies_${id}`);
       await AsyncStorage.removeItem(`snapshots_${id}`);
       return updated;
     },
@@ -293,6 +331,8 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
         factions: factionsQuery.data || [],
         timelines: timelinesQuery.data || [],
         loreNotes: loreNotesQuery.data || [],
+        magicSystems: magicSystemsQuery.data || [],
+        mythologies: mythologiesQuery.data || [],
       };
       
       const snapshot: WorldSnapshot = {
@@ -332,6 +372,8 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       await AsyncStorage.setItem(`factions_${currentWorld.id}`, JSON.stringify(data.factions));
       await AsyncStorage.setItem(`timelines_${currentWorld.id}`, JSON.stringify(data.timelines));
       await AsyncStorage.setItem(`loreNotes_${currentWorld.id}`, JSON.stringify(data.loreNotes));
+      await AsyncStorage.setItem(`magicSystems_${currentWorld.id}`, JSON.stringify(data.magicSystems));
+      await AsyncStorage.setItem(`mythologies_${currentWorld.id}`, JSON.stringify(data.mythologies));
       
       return data;
     },
@@ -343,6 +385,8 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       queryClient.invalidateQueries({ queryKey: ['factions', currentWorld?.id] });
       queryClient.invalidateQueries({ queryKey: ['timelines', currentWorld?.id] });
       queryClient.invalidateQueries({ queryKey: ['loreNotes', currentWorld?.id] });
+      queryClient.invalidateQueries({ queryKey: ['magicSystems', currentWorld?.id] });
+      queryClient.invalidateQueries({ queryKey: ['mythologies', currentWorld?.id] });
     },
   });
   
@@ -394,8 +438,25 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       }
     });
     
+    // Search magic systems
+    (magicSystemsQuery.data || []).forEach((magic: MagicSystem) => {
+      if (magic.name.toLowerCase().includes(query) || 
+          magic.type.toLowerCase().includes(query) ||
+          magic.source.toLowerCase().includes(query)) {
+        results.push({ ...magic, type: 'magicSystem' });
+      }
+    });
+    
+    // Search mythologies
+    (mythologiesQuery.data || []).forEach((myth: Mythology) => {
+      if (myth.name.toLowerCase().includes(query) || 
+          myth.origin.toLowerCase().includes(query)) {
+        results.push({ ...myth, type: 'mythology' });
+      }
+    });
+    
     return results;
-  }, [searchQuery, currentWorld, charactersQuery.data, locationsQuery.data, itemsQuery.data, factionsQuery.data, loreNotesQuery.data]);
+  }, [searchQuery, currentWorld, charactersQuery.data, locationsQuery.data, itemsQuery.data, factionsQuery.data, loreNotesQuery.data, magicSystemsQuery.data, mythologiesQuery.data]);
   
   return {
     currentWorld,
@@ -436,6 +497,16 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     updateLoreNote: async (id: string, updates: Partial<LoreNote>) => { await updateEntityMutation('lore').mutateAsync({ id, updates }); },
     deleteLoreNote: async (id: string) => { await deleteEntityMutation('lore').mutateAsync(id); },
     
+    magicSystems: magicSystemsQuery.data || [],
+    createMagicSystem: async (magicSystem: Omit<MagicSystem, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('magicSystem').mutateAsync(magicSystem); },
+    updateMagicSystem: async (id: string, updates: Partial<MagicSystem>) => { await updateEntityMutation('magicSystem').mutateAsync({ id, updates }); },
+    deleteMagicSystem: async (id: string) => { await deleteEntityMutation('magicSystem').mutateAsync(id); },
+    
+    mythologies: mythologiesQuery.data || [],
+    createMythology: async (mythology: Omit<Mythology, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('mythology').mutateAsync(mythology); },
+    updateMythology: async (id: string, updates: Partial<Mythology>) => { await updateEntityMutation('mythology').mutateAsync({ id, updates }); },
+    deleteMythology: async (id: string) => { await deleteEntityMutation('mythology').mutateAsync(id); },
+    
     snapshots: snapshotsQuery.data || [],
     createSnapshot: async (name: string) => { await createSnapshotMutation.mutateAsync(name); },
     restoreSnapshot: async (snapshotId: string) => { await restoreSnapshotMutation.mutateAsync(snapshotId); },
@@ -444,6 +515,158 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     searchQuery,
     setSearchQuery,
     searchResults,
+    
+    importData: async (data: ImportedData) => {
+      if (!currentWorld) throw new Error('No world selected');
+      
+      // Import each entity type
+      if (data.characters) {
+        for (const char of data.characters) {
+          if (char.name) {
+            await createEntityMutation('character').mutateAsync({
+              worldId: currentWorld.id,
+              name: char.name,
+              role: char.role || '',
+              traits: char.traits || [],
+              appearance: char.appearance || '',
+              backstory: char.backstory || '',
+              relationships: char.relationships || [],
+              factionIds: char.factionIds || [],
+              locationIds: char.locationIds || [],
+              notes: char.notes || '',
+            });
+          }
+        }
+      }
+      
+      if (data.locations) {
+        for (const loc of data.locations) {
+          if (loc.name) {
+            await createEntityMutation('location').mutateAsync({
+              worldId: currentWorld.id,
+              name: loc.name,
+              type: loc.type || '',
+              description: loc.description || '',
+              significance: loc.significance || '',
+              inhabitants: loc.inhabitants || [],
+              connectedLocations: loc.connectedLocations || [],
+              notes: loc.notes || '',
+            });
+          }
+        }
+      }
+      
+      if (data.items) {
+        for (const item of data.items) {
+          if (item.name) {
+            await createEntityMutation('item').mutateAsync({
+              worldId: currentWorld.id,
+              name: item.name,
+              type: item.type || '',
+              description: item.description || '',
+              powers: item.powers || '',
+              history: item.history || '',
+              currentOwner: item.currentOwner || '',
+              notes: item.notes || '',
+            });
+          }
+        }
+      }
+      
+      if (data.factions) {
+        for (const faction of data.factions) {
+          if (faction.name) {
+            await createEntityMutation('faction').mutateAsync({
+              worldId: currentWorld.id,
+              name: faction.name,
+              type: faction.type || '',
+              ideology: faction.ideology || '',
+              goals: faction.goals || [],
+              leaders: faction.leaders || [],
+              memberIds: faction.memberIds || [],
+              allies: faction.allies || [],
+              enemies: faction.enemies || [],
+              notes: faction.notes || '',
+            });
+          }
+        }
+      }
+      
+      if (data.magicSystems) {
+        for (const magic of data.magicSystems) {
+          if (magic.name) {
+            await createEntityMutation('magicSystem').mutateAsync({
+              worldId: currentWorld.id,
+              name: magic.name,
+              type: magic.type || '',
+              source: magic.source || '',
+              rules: magic.rules || [],
+              limitations: magic.limitations || [],
+              practitioners: magic.practitioners || [],
+              schools: magic.schools || [],
+              artifacts: magic.artifacts || [],
+              history: magic.history || '',
+              notes: magic.notes || '',
+            });
+          }
+        }
+      }
+      
+      if (data.mythologies) {
+        for (const myth of data.mythologies) {
+          if (myth.name) {
+            await createEntityMutation('mythology').mutateAsync({
+              worldId: currentWorld.id,
+              name: myth.name,
+              type: myth.type || 'belief',
+              origin: myth.origin || '',
+              deities: myth.deities || [],
+              beliefs: myth.beliefs || [],
+              rituals: myth.rituals || [],
+              followers: myth.followers || [],
+              holyTexts: myth.holyTexts || [],
+              symbols: myth.symbols || [],
+              history: myth.history || '',
+              notes: myth.notes || '',
+            });
+          }
+        }
+      }
+      
+      if (data.loreNotes) {
+        for (const note of data.loreNotes) {
+          if (note.title) {
+            await createEntityMutation('lore').mutateAsync({
+              worldId: currentWorld.id,
+              title: note.title,
+              content: note.content || '',
+              category: note.category || '',
+              tags: note.tags || [],
+              linkedEntities: note.linkedEntities || [],
+            });
+          }
+        }
+      }
+    },
+    
+    exportWorld: async () => {
+      if (!currentWorld) throw new Error('No world selected');
+      
+      const worldData = {
+        world: currentWorld,
+        characters: charactersQuery.data || [],
+        locations: locationsQuery.data || [],
+        items: itemsQuery.data || [],
+        factions: factionsQuery.data || [],
+        timelines: timelinesQuery.data || [],
+        loreNotes: loreNotesQuery.data || [],
+        magicSystems: magicSystemsQuery.data || [],
+        mythologies: mythologiesQuery.data || [],
+        exportedAt: new Date().toISOString(),
+      };
+      
+      return JSON.stringify(worldData, null, 2);
+    },
     
     isLoading: worldsQuery.isLoading || charactersQuery.isLoading || locationsQuery.isLoading,
   };
