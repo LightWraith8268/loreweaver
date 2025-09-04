@@ -188,12 +188,61 @@ export default function DashboardScreen() {
   
   const { columns } = useResponsiveGrid(stats.length);
   
-  const genreColors = {
+  const genreColors: Record<string, string> = {
     fantasy: theme.colors.fantasy,
+    'high-fantasy': theme.colors.fantasy,
+    'dark-fantasy': '#4c1d95',
+    'urban-fantasy': '#7c3aed',
+    'epic-fantasy': '#8b5cf6',
     'sci-fi': theme.colors.scifi,
+    'space-opera': theme.colors.scifi,
     cyberpunk: theme.colors.cyberpunk,
+    steampunk: '#92400e',
+    biopunk: '#059669',
+    dystopian: '#374151',
+    horror: '#7f1d1d',
+    'cosmic-horror': '#1f2937',
+    'gothic-horror': '#581c87',
+    'supernatural-horror': '#6b21a8',
+    mystery: '#1e40af',
+    detective: '#1d4ed8',
+    noir: '#111827',
+    thriller: '#dc2626',
+    historical: '#92400e',
+    'alternate-history': '#a16207',
+    'historical-fiction': '#d97706',
     mythology: theme.colors.mythology,
+    folklore: '#059669',
+    legend: '#0d9488',
+    adventure: '#ea580c',
+    swashbuckling: '#c2410c',
+    exploration: '#16a34a',
+    romance: '#e11d48',
+    'paranormal-romance': '#be185d',
+    'romantic-fantasy': '#db2777',
+    western: '#a16207',
+    'weird-west': '#78350f',
+    'space-western': '#451a03',
+    'post-apocalyptic': '#6b7280',
+    zombie: '#374151',
+    survival: '#4b5563',
+    superhero: '#2563eb',
+    'comic-book': '#1d4ed8',
+    pulp: '#7c2d12',
+    'slice-of-life': '#65a30d',
+    contemporary: '#84cc16',
+    literary: '#a3a3a3',
+    comedy: '#facc15',
+    satire: '#eab308',
+    parody: '#ca8a04',
+    experimental: '#8b5cf6',
+    surreal: '#a855f7',
+    'magical-realism': '#c084fc',
     custom: theme.colors.primary,
+  };
+  
+  const getGenreColor = (genre: string): string => {
+    return genreColors[genre] || theme.colors.primary;
   };
   
   return (
@@ -269,10 +318,10 @@ export default function DashboardScreen() {
         {currentWorld ? (
           <>
             {/* Current World Card */}
-            <View style={[styles.worldCard, { borderColor: genreColors[currentWorld.genre] }]}>
+            <View style={[styles.worldCard, { borderColor: getGenreColor(currentWorld.genre) }]}>
               <View style={styles.worldCardHeader}>
                 <Text style={styles.worldName}>{currentWorld.name}</Text>
-                <View style={[styles.genreBadge, { backgroundColor: genreColors[currentWorld.genre] }]}>
+                <View style={[styles.genreBadge, { backgroundColor: getGenreColor(currentWorld.genre) }]}>
                   <Text style={styles.genreText}>{currentWorld.genre}</Text>
                 </View>
               </View>
@@ -394,7 +443,7 @@ export default function DashboardScreen() {
                 <View style={styles.searchResults}>
                   {searchResults.slice(0, 5).map((result, index) => (
                     <TouchableOpacity key={index} style={styles.searchResult}>
-                      <View style={[styles.resultTypeBadge, { backgroundColor: genreColors[currentWorld.genre] }]}>
+                      <View style={[styles.resultTypeBadge, { backgroundColor: getGenreColor(currentWorld.genre) }]}>
                         <Text style={styles.resultTypeText}>{result.type}</Text>
                       </View>
                       <View style={styles.resultContent}>
@@ -466,7 +515,7 @@ export default function DashboardScreen() {
                   key={genre}
                   style={[
                     styles.genreOption,
-                    newWorldGenre === genre && { backgroundColor: genreColors[genre] }
+                    newWorldGenre === genre && { backgroundColor: getGenreColor(genre) }
                   ]}
                   onPress={() => setNewWorldGenre(genre)}
                 >
