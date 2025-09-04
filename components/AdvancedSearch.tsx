@@ -9,7 +9,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { Search, Filter, X } from 'lucide-react-native';
-import { theme } from '@/constants/theme';
+import { createTheme } from '@/constants/theme';
+import { useSettings } from '@/hooks/settings-context';
 import type { EntityType } from '@/types/world';
 
 interface SearchFilters {
@@ -37,6 +38,8 @@ export default function AdvancedSearch({
   onFiltersChange,
   placeholder = 'Search...',
 }: AdvancedSearchProps) {
+  const { settings } = useSettings();
+  const theme = createTheme(settings.theme);
   const [showFilters, setShowFilters] = useState(false);
   const [tempFilters, setTempFilters] = useState<SearchFilters>(filters);
 
@@ -102,6 +105,141 @@ export default function AdvancedSearch({
     filters.tags.length > 0 ||
     filters.dateRange.start ||
     filters.dateRange.end;
+
+  const styles = StyleSheet.create({
+    container: {
+      marginBottom: theme.spacing.md,
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.md,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginHorizontal: theme.spacing.md,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: theme.spacing.sm,
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+    },
+    filterButton: {
+      padding: theme.spacing.xs,
+    },
+    filterButtonActive: {
+      backgroundColor: theme.colors.primary + '20',
+      borderRadius: theme.borderRadius.sm,
+    },
+    activeFilters: {
+      marginTop: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+    },
+    activeFilterChip: {
+      backgroundColor: theme.colors.primary + '20',
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+      borderRadius: theme.borderRadius.sm,
+      marginRight: theme.spacing.sm,
+    },
+    activeFilterText: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.primary,
+      fontWeight: theme.fontWeight.medium,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: theme.colors.surface,
+      borderTopLeftRadius: theme.borderRadius.xl,
+      borderTopRightRadius: theme.borderRadius.xl,
+      maxHeight: '80%',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    modalTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+    },
+    filterContent: {
+      flex: 1,
+      padding: theme.spacing.lg,
+    },
+    filterSection: {
+      marginBottom: theme.spacing.lg,
+    },
+    filterSectionTitle: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.md,
+    },
+    filterOptions: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing.sm,
+    },
+    filterOption: {
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.borderRadius.full,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    filterOptionActive: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    filterOptionText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.text,
+    },
+    filterOptionTextActive: {
+      color: theme.colors.background,
+    },
+    modalActions: {
+      flexDirection: 'row',
+      padding: theme.spacing.lg,
+      gap: theme.spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+    },
+    resetButton: {
+      flex: 1,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      alignItems: 'center',
+    },
+    resetButtonText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.text,
+    },
+    applyButton: {
+      flex: 1,
+      backgroundColor: theme.colors.primary,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      alignItems: 'center',
+    },
+    applyButtonText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.background,
+    },
+  });
 
   return (
     <View style={styles.container}>
@@ -224,137 +362,3 @@ export default function AdvancedSearch({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: theme.spacing.md,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    marginHorizontal: theme.spacing.md,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: theme.spacing.sm,
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
-  filterButton: {
-    padding: theme.spacing.xs,
-  },
-  filterButtonActive: {
-    backgroundColor: theme.colors.primary + '20',
-    borderRadius: theme.borderRadius.sm,
-  },
-  activeFilters: {
-    marginTop: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-  },
-  activeFilterChip: {
-    backgroundColor: theme.colors.primary + '20',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.sm,
-    marginRight: theme.spacing.sm,
-  },
-  activeFilterText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.primary,
-    fontWeight: theme.fontWeight.medium,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderTopLeftRadius: theme.borderRadius.xl,
-    borderTopRightRadius: theme.borderRadius.xl,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-  },
-  filterContent: {
-    flex: 1,
-    padding: theme.spacing.lg,
-  },
-  filterSection: {
-    marginBottom: theme.spacing.lg,
-  },
-  filterSectionTitle: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  filterOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
-  },
-  filterOption: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  filterOptionActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  filterOptionText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
-  },
-  filterOptionTextActive: {
-    color: theme.colors.background,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  resetButton: {
-    flex: 1,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: 'center',
-  },
-  resetButtonText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
-  applyButton: {
-    flex: 1,
-    backgroundColor: theme.colors.primary,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
-  },
-});
