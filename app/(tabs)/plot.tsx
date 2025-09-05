@@ -22,6 +22,7 @@ import {
 
 } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 
@@ -361,10 +362,12 @@ const PlotScreen: React.FC = () => {
   if (!currentWorld) {
     return (
       <View style={styles.container}>
-        <View style={styles.noWorldContainer}>
-          <Text style={styles.noWorldText}>No world selected</Text>
-          <Text style={styles.noWorldSubtext}>Please select a world to manage plot elements</Text>
-        </View>
+        <SelectWorldPrompt
+          title="Plot"
+          description="Select or create a world to develop timelines, arcs, foreshadowing, and symbols"
+          variant="page"
+          testID="plot-select-world"
+        />
       </View>
     );
   }

@@ -128,11 +128,15 @@ Generate:
   
   if (!currentWorld) {
     return (
-      <SelectWorldPrompt
-        title="Characters"
-        description="Select a world to create and manage characters for your stories"
-        customIcon={<User size={64} color={theme.colors.textTertiary} />}
-      />
+      <View style={styles.container}>
+        <SelectWorldPrompt
+          title="Characters"
+          description="Select a world to create and manage characters for your stories"
+          customIcon={<User size={40} color={theme.colors.textTertiary} />}
+          variant="inline"
+          testID="characters-select-world"
+        />
+      </View>
     );
   }
   

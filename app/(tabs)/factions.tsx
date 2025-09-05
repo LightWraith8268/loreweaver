@@ -130,11 +130,15 @@ Generate:
   
   if (!currentWorld) {
     return (
-      <SelectWorldPrompt
-        title="Factions & Organizations"
-        description="Select a world to create and manage factions, guilds, and organizations"
-        customIcon={<Shield size={64} color={theme.colors.textTertiary} />}
-      />
+      <View style={styles.container}>
+        <SelectWorldPrompt
+          title="Factions & Organizations"
+          description="Select a world to create and manage factions, guilds, and organizations"
+          customIcon={<Shield size={40} color={theme.colors.textTertiary} />}
+          variant="inline"
+          testID="factions-select-world"
+        />
+      </View>
     );
   }
   

@@ -1,42 +1,3 @@
-<<<<<<< HEAD
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
-node_modules/
-
-# Expo
-.expo/
-dist/
-web-build/
-expo-env.d.ts
-
-# Native
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
-.vercel
-=======
 # Node modules
 node_modules/
 .bun/
@@ -106,4 +67,3 @@ GoogleService-Info.plist
 # Mac specific
 *.swp
 *~
->>>>>>> d11b270 (Initial commit of LoreWeaver project with Expo + EAS config)

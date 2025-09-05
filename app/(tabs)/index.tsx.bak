@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
+import {StyleSheet,
   Text,
   View,
   ScrollView,
@@ -10,8 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
-  KeyboardAvoidingView,
-} from 'react-native';
+  KeyboardAvoidingView,  Dimensions} from 'react-native';
 import { router } from 'expo-router';
 import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown, Lightbulb } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +22,7 @@ import NameGenerator from '@/components/NameGenerator';
 import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { World, WorldGenre } from '@/types/world';
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function DashboardScreen() {
   const { 
@@ -479,17 +478,14 @@ export default function DashboardScreen() {
           </>
         ) : (
           <SelectWorldPrompt
-            title="No World Selected"
-            description="Select or create a world to begin. You can also use AI Ideas without selecting a world."
+            title="Welcome to LoreWeaver"
+            description="Create your first world to start building your universe, or use our AI tools to get inspired"
             onCreateWorld={() => setShowCreateModal(true)}
             customAction={{
-              label: 'AI Ideas Generator',
+              label: "AI Ideas Generator",
               onPress: () => setShowAIIdeas(true),
-              icon: <Lightbulb size={20} color={theme.colors.text} />,
+              icon: <Lightbulb size={20} color={theme.colors.text} />
             }}
-            variant="page"
-            size="compact"
-            testID="dashboard-select-world"
           />
         )}
       </ScrollView>
@@ -1132,3 +1128,5 @@ const styles = StyleSheet.create({
     minHeight: theme.responsive.minTouchTarget * 2.5,
   },
 });
+
+

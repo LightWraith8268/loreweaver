@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import { useWorld } from '@/hooks/world-context';
 import { Premise, GenreStyleNotes, SeriesScope } from '@/types/world';
 
@@ -602,10 +603,12 @@ const FoundationsScreen: React.FC = () => {
   if (!currentWorld) {
     return (
       <View style={styles.container}>
-        <View style={styles.noWorldContainer}>
-          <Text style={styles.noWorldText}>No world selected</Text>
-          <Text style={styles.noWorldSubtext}>Please select a world to manage foundations</Text>
-        </View>
+        <SelectWorldPrompt
+          title="Foundations"
+          description="Select or create a world to set up premise, style, and series scope"
+          variant="page"
+          testID="foundations-select-world"
+        />
       </View>
     );
   }
