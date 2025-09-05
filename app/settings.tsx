@@ -20,9 +20,7 @@ import {
   X,
   ChevronRight,
   Type,
-  Wifi,
-  WifiOff,
-  Info,
+
   Bug,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
@@ -48,7 +46,7 @@ const AI_MODEL_TYPES = [
 ] as const;
 
 export default function SettingsScreen() {
-  const { settings, updateSettings, updateAISettings, resetSettings, isLoading } = useSettings();
+  const { settings, updateSettings, updateAISettings, resetSettings } = useSettings();
   const theme = createTheme(settings.theme);
   const [showAIModal, setShowAIModal] = useState(false);
   const [showProviderModal, setShowProviderModal] = useState(false);
@@ -56,6 +54,8 @@ export default function SettingsScreen() {
   const [selectedProvider, setSelectedProvider] = useState<keyof AISettings['providers'] | null>(null);
   const [tempApiKey, setTempApiKey] = useState('');
   const [tempAISettings, setTempAISettings] = useState<AISettings>(settings.ai);
+  const [showModelSelector, setShowModelSelector] = useState(false);
+  const [selectedModelType, setSelectedModelType] = useState<keyof AISettings['defaultModels'] | null>(null);
 
   const handleThemeChange = async (newTheme: 'dark' | 'light') => {
     try {
@@ -744,17 +744,7 @@ export default function SettingsScreen() {
                 const modelKey = modelType.key as keyof AISettings['defaultModels'];
                 const currentModel = tempAISettings.defaultModels[modelKey];
                 
-                const availableModels = [
-                  'gpt-4o-mini',
-                  'gpt-4o',
-                  'gpt-4-turbo',
-                  'claude-3-5-sonnet-20241022',
-                  'claude-3-5-haiku-20241022',
-                  'gemini-1.5-flash',
-                  'gemini-1.5-pro',
-                  'command-r-plus',
-                  'llama-3.1-70b-versatile'
-                ];
+
                 
                 return (
                   <View key={modelType.key} style={styles.modelTypeCard}>
@@ -763,25 +753,8 @@ export default function SettingsScreen() {
                     <TouchableOpacity
                       style={styles.modelSelector}
                       onPress={() => {
-                        Alert.alert(
-                          'Select Model',
-                          'Choose a model for ' + modelType.name,
-                          [
-                            { text: 'Cancel', style: 'cancel' },
-                            ...availableModels.map(model => ({
-                              text: model,
-                              onPress: () => {
-                                setTempAISettings(prev => ({
-                                  ...prev,
-                                  defaultModels: {
-                                    ...prev.defaultModels,
-                                    [modelKey]: model
-                                  }
-                                }));
-                              }
-                            }))
-                          ]
-                        );
+                        setSelectedModelType(modelKey);
+                        setShowModelSelector(true);
                       }}
                     >
                       <Text style={styles.currentModel}>Current: {currentModel}</Text>
@@ -857,6 +830,92 @@ export default function SettingsScreen() {
                 onPress={handleProviderKeyUpdate}
               >
                 <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Model Selector Modal */}
+      <Modal
+        visible={showModelSelector}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowModelSelector(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Select Model for {selectedModelType ? AI_MODEL_TYPES.find(t => t.key === selectedModelType)?.name : ''}
+              </Text>
+              <TouchableOpacity onPress={() => setShowModelSelector(false)}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {[
+                'gpt-4o-mini',
+                'gpt-4o',
+                'gpt-4-turbo',
+                'claude-3-5-sonnet-20241022',
+                'claude-3-5-haiku-20241022',
+                'gemini-1.5-flash',
+                'gemini-1.5-pro',
+                'command-r-plus',
+                'llama-3.1-70b-versatile'
+              ].map((model) => {
+                const isSelected = selectedModelType && tempAISettings.defaultModels[selectedModelType] === model;
+                
+                return (
+                  <TouchableOpacity
+                    key={model}
+                    style={[
+                      styles.providerCard,
+                      isSelected && { borderColor: theme.colors.primary, borderWidth: 2 }
+                    ]}
+                    onPress={() => {
+                      if (selectedModelType) {
+                        setTempAISettings(prev => ({
+                          ...prev,
+                          defaultModels: {
+                            ...prev.defaultModels,
+                            [selectedModelType]: model
+                          }
+                        }));
+                      }
+                      setShowModelSelector(false);
+                      setSelectedModelType(null);
+                    }}
+                  >
+                    <Text style={[
+                      styles.providerName,
+                      isSelected && { color: theme.colors.primary }
+                    ]}>
+                      {model}
+                    </Text>
+                    <Text style={styles.providerDescription}>
+                      {model.includes('gpt') ? 'OpenAI GPT Model' :
+                       model.includes('claude') ? 'Anthropic Claude Model' :
+                       model.includes('gemini') ? 'Google Gemini Model' :
+                       model.includes('command') ? 'Cohere Command Model' :
+                       model.includes('llama') ? 'Meta Llama Model' : 'AI Model'}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  setShowModelSelector(false);
+                  setSelectedModelType(null);
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>

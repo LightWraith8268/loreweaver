@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -47,7 +47,8 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
   const { settings } = useSettings();
   const { currentWorld, exportWorld, characters, locations, factions, loreNotes, magicSystems, mythologies } = useWorld();
   const { generateImage, isGenerating } = useAI();
-  const theme = createTheme(settings.theme);
+  const theme = useMemo(() => createTheme(settings.theme), [settings.theme]);
+  
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     format: exportType === 'world' ? 'json' : 'docx',
     includeImages: false,
@@ -471,8 +472,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
     }
   };
 
-  const styles = React.useMemo(() => {
-    return StyleSheet.create({
+  const styles = useMemo(() => StyleSheet.create({
     modalOverlay: {
       flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -709,8 +709,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
       fontWeight: theme.fontWeight.medium as any,
       color: theme.colors.surface,
     },
-  });
-  }, [theme]);
+  }), [theme]);
 
 
 
@@ -911,7 +910,9 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
                 <X size={24} color={theme.colors.text} />
               </TouchableOpacity>
             </View>
-            {content}
+            <View style={{ flex: 1 }}>
+              {content}
+            </View>
           </View>
         </View>
       </Modal>
