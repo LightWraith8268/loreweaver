@@ -46,3 +46,4 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
+
