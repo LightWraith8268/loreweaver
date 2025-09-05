@@ -6,16 +6,12 @@
     "start": "bunx rork start -p 30y02utmvl8n9rx3krk3d --tunnel",
     "start-web": "bunx rork start -p 30y02utmvl8n9rx3krk3d --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p 30y02utmvl8n9rx3krk3d --web --tunnel",
-<<<<<<< HEAD
-    "lint": "expo lint"
-=======
     "lint": "expo lint",
     "start:tunnel": "expo start --tunnel",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "doctor": "npx expo-doctor"
->>>>>>> d11b270 (Initial commit of LoreWeaver project with Expo + EAS config)
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -63,12 +59,13 @@
     "eslint-config-expo": "^9.2.0",
     "typescript": "~5.8.3"
   },
-<<<<<<< HEAD
-  "private": true
-=======
   "private": true,
   "engines": {
     "node": ">=20 <23"
+  },
+  "overrides": {
+    "ajv": "^8.12.0",
+    "ajv-keywords": "^5.1.0",
+    "schema-utils": "^4.2.0"
   }
->>>>>>> d11b270 (Initial commit of LoreWeaver project with Expo + EAS config)
 }
