@@ -23,3 +23,4 @@ jobs:
       - name: Sanity step
         run: |
           echo "CI is alive on main 🎉"
+
