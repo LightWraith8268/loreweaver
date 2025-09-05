@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+env:
+  npm_config_legacy_peer_deps: true
 
 jobs:
   build:
@@ -78,4 +80,5 @@ jobs:
           else
             echo "No package.json in loreweaver/; skipping lint"
           fi
+
 
