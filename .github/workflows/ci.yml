@@ -22,11 +22,7 @@ jobs:
 
       - name: Install deps
         working-directory: loreweaver
-        env:
-          npm_config_legacy_peer_deps: "true"
-          npm_config_audit: "false"
-          npm_config_fund: "false"
-        run: npm ci
+                run: npm ci
 
       - name: Type check (tolerant for now)
         working-directory: loreweaver
@@ -50,6 +46,7 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
+
 
 
 
