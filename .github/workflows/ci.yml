@@ -1,6 +1,7 @@
 name: CI (vendored, cached)
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -46,6 +47,7 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
+
 
 
 
