@@ -479,14 +479,16 @@ export default function DashboardScreen() {
           </>
         ) : (
           <SelectWorldPrompt
-            title="Welcome to LoreWeaver"
-            description="Create your first world to start building your universe, or use our AI tools to get inspired"
+            title="No World Selected"
+            description="Select or create a world to begin. You can also use AI Ideas without selecting a world."
             onCreateWorld={() => setShowCreateModal(true)}
             customAction={{
-              label: "AI Ideas Generator",
+              label: 'AI Ideas Generator',
               onPress: () => setShowAIIdeas(true),
-              icon: <Lightbulb size={20} color={theme.colors.text} />
+              icon: <Lightbulb size={20} color={theme.colors.text} />,
             }}
+            variant="inline"
+            testID="dashboard-select-world"
           />
         )}
       </ScrollView>

@@ -127,11 +127,15 @@ Generate:
   
   if (!currentWorld) {
     return (
-      <SelectWorldPrompt
-        title="Locations"
-        description="Select a world to create and manage locations for your stories"
-        customIcon={<MapPin size={64} color={theme.colors.textTertiary} />}
-      />
+      <View style={styles.container}>
+        <SelectWorldPrompt
+          title="Locations"
+          description="Select a world to create and manage locations for your stories"
+          customIcon={<MapPin size={40} color={theme.colors.textTertiary} />}
+          variant="inline"
+          testID="locations-select-world"
+        />
+      </View>
     );
   }
   
