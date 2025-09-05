@@ -487,7 +487,7 @@ export default function DashboardScreen() {
               onPress: () => setShowAIIdeas(true),
               icon: <Lightbulb size={20} color={theme.colors.text} />,
             }}
-            variant="inline"
+            variant="page"
             testID="dashboard-select-world"
           />
         )}

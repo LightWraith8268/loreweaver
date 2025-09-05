@@ -98,7 +98,7 @@ const IDEA_CATEGORIES = [
   'Character Ideas',
   'World Building',
   'Plot Hooks',
-  'Series Names',
+  'Series Concepts',
   'Book Titles',
   'Chapter Content',
   'Magic Systems',
@@ -126,6 +126,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
   const [customPrompt, setCustomPrompt] = useState('');
   const [ideaCount, setIdeaCount] = useState<number>(3);
   const [selectedCategory, setSelectedCategory] = useState<string>('Story Concepts');
+  const [seriesBooksCount, setSeriesBooksCount] = useState<number>(3);
   const [newAuthor, setNewAuthor] = useState('');
   const [generatedIdeas, setGeneratedIdeas] = useState<GeneratedIdea[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -168,7 +169,9 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
         ? `\nWorld context: ${currentWorld.name} - ${currentWorld.description}` 
         : contextType === 'global' ? '\nGeneral creative writing context - no specific world constraints' : '';
       
-      const prompt = `Generate ${ideaCount} creative ${selectedCategory.toLowerCase()} for ${genreText} stories.${authorText}${contextText}\n\nUser prompt: ${customPrompt}\n\nProvide each idea with a compelling title and detailed description. Make them unique, engaging, and suitable for the specified genre(s).`;
+      const prompt = selectedCategory === 'Series Concepts'
+        ? `Generate ${ideaCount} complete series concepts for ${genreText} fiction.${authorText}${contextText}\n\nFor each series concept, produce: 1) Series title and 2-3 sentence franchise overview, 2) A numbered outline of ${seriesBooksCount} books with book titles and 3-6 sentence synopses, 3) Recurring cast and evolving arcs, 4) Themes and continuity notes, 5) Escalation plan and satisfying endpoint.\n\nUser prompt: ${customPrompt}\n\nWrite clearly with strong hooks. Format each series as a numbered list item with the series title as the heading, followed by details and a numbered sub-list of the ${seriesBooksCount} books.`
+        : `Generate ${ideaCount} creative ${selectedCategory.toLowerCase()} for ${genreText} stories.${authorText}${contextText}\n\nUser prompt: ${customPrompt}\n\nProvide each idea with a compelling title and detailed description. Make them unique, engaging, and suitable for the specified genre(s).`;
 
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
@@ -279,7 +282,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
     },
     modalHeader: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-start',
       alignItems: 'center',
       marginBottom: theme.spacing.lg,
     },
@@ -287,6 +290,13 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       fontSize: getScaledSize(theme.fontSize.xl),
       fontWeight: theme.fontWeight.bold,
       color: theme.colors.text,
+    },
+    closeButton: {
+      position: 'absolute',
+      top: getScaledSpacing(theme.spacing.md),
+      right: getScaledSpacing(theme.spacing.md),
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.full,
     },
     content: {
       flex: 1,
@@ -547,7 +557,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
             <Text style={styles.modalTitle}>
               {contextType === 'world' && currentWorld ? `${currentWorld.name} - AI Ideas` : 'AI Ideas Generator'}
             </Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityLabel="Close ideas generator">
               <X size={24} color={theme.colors.text} />
             </TouchableOpacity>
           </View>
@@ -725,6 +735,33 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
                 ))}
               </View>
             </View>
+
+            {selectedCategory === 'Series Concepts' && (
+              <View style={styles.section}>
+                <Text style={styles.inputLabel}>Books per Series</Text>
+                <View style={styles.countSelector}>
+                  {[2, 3, 4, 5, 6].map((count) => (
+                    <TouchableOpacity
+                      key={count}
+                      style={[
+                        styles.countButton,
+                        seriesBooksCount === count && styles.countButtonSelected,
+                      ]}
+                      onPress={() => setSeriesBooksCount(count)}
+                    >
+                      <Text
+                        style={[
+                          styles.countButtonText,
+                          seriesBooksCount === count && styles.countButtonTextSelected,
+                        ]}
+                      >
+                        {count}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
 
             {/* Generate Button */}
             <TouchableOpacity
