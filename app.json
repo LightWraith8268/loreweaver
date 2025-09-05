@@ -18,13 +18,6 @@
       "bundleIdentifier": "app.lightwraith8268.loreweaver",
       "requireFullScreen": false
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "app.lightwraith8268.loreweaver"
-    },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
@@ -44,6 +37,7 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "android": {}
   }
 }
