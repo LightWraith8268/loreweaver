@@ -1,0 +1,25 @@
+name: CI (minimal sanity)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo (no submodules needed yet)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node setup (no cache to avoid lockfile check)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+
+      - name: Sanity step
+        run: |
+          echo "CI is alive on main 🎉"
