@@ -455,6 +455,15 @@ export default function SettingsScreen() {
     fontSizeButtonTextActive: {
       color: theme.colors.background,
     },
+    modelSelector: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: theme.colors.background,
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.sm,
+      marginTop: theme.spacing.sm,
+    },
   }), [theme]);
 
   return (
@@ -735,11 +744,49 @@ export default function SettingsScreen() {
                 const modelKey = modelType.key as keyof AISettings['defaultModels'];
                 const currentModel = tempAISettings.defaultModels[modelKey];
                 
+                const availableModels = [
+                  'gpt-4o-mini',
+                  'gpt-4o',
+                  'gpt-4-turbo',
+                  'claude-3-5-sonnet-20241022',
+                  'claude-3-5-haiku-20241022',
+                  'gemini-1.5-flash',
+                  'gemini-1.5-pro',
+                  'command-r-plus',
+                  'llama-3.1-70b-versatile'
+                ];
+                
                 return (
                   <View key={modelType.key} style={styles.modelTypeCard}>
                     <Text style={styles.modelTypeName}>{modelType.name}</Text>
                     <Text style={styles.modelTypeDescription}>{modelType.description}</Text>
-                    <Text style={styles.currentModel}>Current: {currentModel}</Text>
+                    <TouchableOpacity
+                      style={styles.modelSelector}
+                      onPress={() => {
+                        Alert.alert(
+                          'Select Model',
+                          'Choose a model for ' + modelType.name,
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            ...availableModels.map(model => ({
+                              text: model,
+                              onPress: () => {
+                                setTempAISettings(prev => ({
+                                  ...prev,
+                                  defaultModels: {
+                                    ...prev.defaultModels,
+                                    [modelKey]: model
+                                  }
+                                }));
+                              }
+                            }))
+                          ]
+                        );
+                      }}
+                    >
+                      <Text style={styles.currentModel}>Current: {currentModel}</Text>
+                      <ChevronRight size={16} color={theme.colors.textSecondary} />
+                    </TouchableOpacity>
                   </View>
                 );
               })}
