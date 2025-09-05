@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Platform, Share } from 'react-native';
-import { Bug, Trash2, Send, Download, RefreshCw, Clock, Smartphone, Globe } from 'lucide-react-native';
-import { theme } from '@/constants/theme';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Platform, Share, Modal } from 'react-native';
+import { Bug, Trash2, Send, Download, RefreshCw, Clock, Smartphone, Globe, X } from 'lucide-react-native';
+import { createTheme } from '@/constants/theme';
+import { useSettings } from '@/hooks/settings-context';
 import { CrashLog, getCrashLogs, clearCrashLogs, exportCrashLogs, sendCrashReport } from '@/utils/crash-logger';
 
 interface CrashLogsViewerProps {
+  visible?: boolean;
   onClose?: () => void;
 }
 
-export default function CrashLogsViewer({ onClose }: CrashLogsViewerProps) {
+export default function CrashLogsViewer({ visible = true, onClose }: CrashLogsViewerProps) {
+  const { settings } = useSettings();
+  const theme = createTheme(settings.theme);
   const [logs, setLogs] = useState<CrashLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLog, setSelectedLog] = useState<CrashLog | null>(null);
@@ -126,8 +130,238 @@ export default function CrashLogsViewer({ onClose }: CrashLogsViewerProps) {
     return platform === 'web' ? Globe : Smartphone;
   };
 
+  const styles = React.useMemo(() => StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.xl,
+      width: '95%',
+      maxWidth: 800,
+      maxHeight: '90%',
+      overflow: 'hidden',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: theme.spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    modalTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+    },
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: theme.spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    titleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
+    },
+    title: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+    },
+    actionButton: {
+      padding: theme.spacing.sm,
+    },
+    backButton: {
+      padding: theme.spacing.sm,
+    },
+    backButtonText: {
+      color: theme.colors.primary,
+      fontSize: theme.fontSize.md,
+    },
+    sendButton: {
+      padding: theme.spacing.sm,
+    },
+    content: {
+      flex: 1,
+      padding: theme.spacing.lg,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+    },
+    loadingText: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.xl,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
+    },
+    emptyMessage: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    logCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    logHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.sm,
+    },
+    logInfo: {
+      flex: 1,
+      marginRight: theme.spacing.sm,
+    },
+    errorName: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.error,
+      marginBottom: 2,
+    },
+    errorMessage: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.text,
+      lineHeight: 18,
+    },
+    platformBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.colors.background,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+      borderRadius: theme.borderRadius.sm,
+    },
+    platformText: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+      textTransform: 'capitalize',
+    },
+    logFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    timestampContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    timestamp: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+    },
+    sendReportButton: {
+      padding: 4,
+    },
+    metadataContainer: {
+      marginBottom: theme.spacing.md,
+      gap: 4,
+    },
+    metadataRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    metadataText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+    },
+    stackTraceContainer: {
+      marginBottom: theme.spacing.md,
+    },
+    stackTraceTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.sm,
+    },
+    stackTraceScroll: {
+      backgroundColor: theme.colors.background,
+      borderRadius: theme.borderRadius.sm,
+      padding: theme.spacing.sm,
+    },
+    stackTraceText: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      lineHeight: 16,
+    },
+    errorInfoContainer: {
+      marginBottom: theme.spacing.md,
+    },
+    errorInfoTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.sm,
+    },
+    errorInfoText: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      backgroundColor: theme.colors.background,
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.sm,
+    },
+    deviceInfoContainer: {
+      backgroundColor: theme.colors.background,
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.sm,
+    },
+    deviceInfoTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.sm,
+    },
+    deviceInfoText: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+      marginBottom: 2,
+    },
+  }), [theme]);
+
+  if (!visible) return null;
+
   if (loading) {
-    return (
+    const loadingContent = (
       <View style={styles.container}>
         <View style={styles.loadingContainer}>
           <RefreshCw size={32} color={theme.colors.primary} />
@@ -135,10 +369,30 @@ export default function CrashLogsViewer({ onClose }: CrashLogsViewerProps) {
         </View>
       </View>
     );
+
+    if (onClose) {
+      return (
+        <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Crash Logs</Text>
+                <TouchableOpacity onPress={onClose}>
+                  <X size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+              </View>
+              {loadingContent}
+            </View>
+          </View>
+        </Modal>
+      );
+    }
+
+    return loadingContent;
   }
 
   if (selectedLog) {
-    return (
+    const detailContent = (
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => setSelectedLog(null)} style={styles.backButton}>
@@ -220,9 +474,29 @@ export default function CrashLogsViewer({ onClose }: CrashLogsViewerProps) {
         </ScrollView>
       </View>
     );
+
+    if (onClose) {
+      return (
+        <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Crash Details</Text>
+                <TouchableOpacity onPress={onClose}>
+                  <X size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+              </View>
+              {detailContent}
+            </View>
+          </View>
+        </Modal>
+      );
+    }
+
+    return detailContent;
   }
 
-  return (
+  const mainContent = (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
@@ -294,205 +568,25 @@ export default function CrashLogsViewer({ onClose }: CrashLogsViewerProps) {
       )}
     </View>
   );
+
+  if (onClose) {
+    return (
+      <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Crash Logs ({logs.length})</Text>
+              <TouchableOpacity onPress={onClose}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+            {mainContent}
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  return mainContent;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-  },
-  title: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-  },
-  actionButton: {
-    padding: theme.spacing.sm,
-  },
-  backButton: {
-    padding: theme.spacing.sm,
-  },
-  backButtonText: {
-    color: theme.colors.primary,
-    fontSize: theme.fontSize.md,
-  },
-  sendButton: {
-    padding: theme.spacing.sm,
-  },
-  content: {
-    flex: 1,
-    padding: theme.spacing.lg,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  loadingText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-  },
-  emptyMessage: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  logCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  logHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.sm,
-  },
-  logInfo: {
-    flex: 1,
-    marginRight: theme.spacing.sm,
-  },
-  errorName: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.error,
-    marginBottom: 2,
-  },
-  errorMessage: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
-    lineHeight: 18,
-  },
-  platformBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: theme.colors.background,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.sm,
-  },
-  platformText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-    textTransform: 'capitalize',
-  },
-  logFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  timestampContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  timestamp: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-  },
-  sendReportButton: {
-    padding: 4,
-  },
-  metadataContainer: {
-    marginBottom: theme.spacing.md,
-    gap: 4,
-  },
-  metadataRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  metadataText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-  },
-  stackTraceContainer: {
-    marginBottom: theme.spacing.md,
-  },
-  stackTraceTitle: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  stackTraceScroll: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.sm,
-    padding: theme.spacing.sm,
-  },
-  stackTraceText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-    lineHeight: 16,
-  },
-  errorInfoContainer: {
-    marginBottom: theme.spacing.md,
-  },
-  errorInfoTitle: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  errorInfoText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.sm,
-  },
-  deviceInfoContainer: {
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.sm,
-  },
-  deviceInfoTitle: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  deviceInfoText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-    marginBottom: 2,
-  },
-});

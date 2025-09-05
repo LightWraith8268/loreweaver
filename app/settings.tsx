@@ -817,14 +817,10 @@ export default function SettingsScreen() {
       </Modal>
 
       {/* Crash Logs Modal */}
-      <Modal
+      <CrashLogsViewer 
         visible={showCrashLogs}
-        animationType="slide"
-        transparent={false}
-        onRequestClose={() => setShowCrashLogs(false)}
-      >
-        <CrashLogsViewer onClose={() => setShowCrashLogs(false)} />
-      </Modal>
+        onClose={() => setShowCrashLogs(false)} 
+      />
     </View>
   );
 }
