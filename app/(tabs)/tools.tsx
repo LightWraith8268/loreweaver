@@ -12,7 +12,8 @@ import {
   Mic,
   Lightbulb
 } from 'lucide-react-native';
-import { theme } from '@/constants/theme';
+import { createTheme } from '@/constants/theme';
+import { useSettings } from '@/hooks/settings-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { exportWorldData, exportToJSON, exportToMarkdown, shareData, parseJsonFile, createFileInput } from '@/utils/export';
@@ -33,25 +34,9 @@ interface ToolCardProps {
   disabled?: boolean;
 }
 
-function ToolCard({ title, description, icon, onPress, disabled = false }: ToolCardProps) {
-  return (
-    <TouchableOpacity 
-      style={[styles.toolCard, disabled && styles.toolCardDisabled]} 
-      onPress={onPress}
-      disabled={disabled}
-    >
-      <View style={styles.toolIcon}>
-        {icon}
-      </View>
-      <View style={styles.toolInfo}>
-        <Text style={[styles.toolTitle, disabled && styles.toolTitleDisabled]}>{title}</Text>
-        <Text style={[styles.toolDescription, disabled && styles.toolDescriptionDisabled]}>{description}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 export default function ToolsScreen() {
+  const { settings } = useSettings();
+  const theme = createTheme(settings.theme);
   const { currentWorld, importData } = useWorld();
   const { checkConsistency, isGenerating } = useAI();
   const [isExporting, setIsExporting] = useState(false);
@@ -69,6 +54,133 @@ export default function ToolsScreen() {
     tags: [] as string[],
     dateRange: {}
   });
+
+  const styles = React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    emptyContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.lg,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold as any,
+      color: theme.colors.text,
+      marginTop: theme.spacing.lg,
+    },
+    emptyDescription: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.sm,
+      textAlign: 'center' as const,
+    },
+    selectWorldButton: {
+      backgroundColor: theme.colors.primary,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      borderRadius: theme.borderRadius.full,
+      marginTop: theme.spacing.lg,
+    },
+    selectWorldButtonText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold as any,
+      color: theme.colors.background,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    content: {
+      padding: theme.spacing.lg,
+      gap: theme.spacing.xl,
+    },
+    section: {
+      gap: theme.spacing.md,
+    },
+    sectionTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: theme.fontWeight.semibold as any,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.sm,
+    },
+    toolsGrid: {
+      gap: theme.spacing.md,
+    },
+    toolCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadius.lg,
+      padding: theme.spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+      gap: theme.spacing.md,
+    },
+    toolCardDisabled: {
+      opacity: 0.5,
+    },
+    toolIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.primary + '20',
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+    },
+    toolInfo: {
+      flex: 1,
+    },
+    toolTitle: {
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold as any,
+      color: theme.colors.text,
+    },
+    toolTitleDisabled: {
+      color: theme.colors.textTertiary,
+    },
+    toolDescription: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      marginTop: 2,
+    },
+    toolDescriptionDisabled: {
+      color: theme.colors.textTertiary,
+    },
+    notice: {
+      backgroundColor: theme.colors.warning + '20',
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.warning + '40',
+    },
+    noticeText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.text,
+      textAlign: 'center' as const,
+    },
+  }), [theme]);
+
+  const ToolCard = ({ title, description, icon, onPress, disabled = false }: ToolCardProps) => {
+    return (
+      <TouchableOpacity 
+        style={[styles.toolCard, disabled && styles.toolCardDisabled]} 
+        onPress={onPress}
+        disabled={disabled}
+      >
+        <View style={styles.toolIcon}>
+          {icon}
+        </View>
+        <View style={styles.toolInfo}>
+          <Text style={[styles.toolTitle, disabled && styles.toolTitleDisabled]}>{title}</Text>
+          <Text style={[styles.toolDescription, disabled && styles.toolDescriptionDisabled]}>{description}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const handleExportJSON = async () => {
     if (!currentWorld) {
@@ -443,112 +555,3 @@ export default function ToolsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  emptyContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-  },
-  emptyDescription: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  selectWorldButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.full,
-    marginTop: theme.spacing.lg,
-  },
-  selectWorldButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.xl,
-  },
-  section: {
-    gap: theme.spacing.md,
-  },
-  sectionTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  toolsGrid: {
-    gap: theme.spacing.md,
-  },
-  toolCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  toolCardDisabled: {
-    opacity: 0.5,
-  },
-  toolIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.primary + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  toolInfo: {
-    flex: 1,
-  },
-  toolTitle: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-  },
-  toolTitleDisabled: {
-    color: theme.colors.textTertiary,
-  },
-  toolDescription: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    marginTop: 2,
-  },
-  toolDescriptionDisabled: {
-    color: theme.colors.textTertiary,
-  },
-  notice: {
-    backgroundColor: theme.colors.warning + '20',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.warning + '40',
-  },
-  noticeText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
-    textAlign: 'center',
-  },
-});

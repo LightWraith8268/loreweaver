@@ -125,7 +125,7 @@ export default function SettingsScreen() {
     setShowProviderModal(true);
   };
 
-  const styles = StyleSheet.create({
+  const styles = React.useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -455,7 +455,7 @@ export default function SettingsScreen() {
     fontSizeButtonTextActive: {
       color: theme.colors.background,
     },
-  });
+  }), [theme]);
 
   return (
     <View style={styles.container}>
