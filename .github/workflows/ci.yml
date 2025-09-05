@@ -1,4 +1,4 @@
-name: CI (submodule, no cache)
+name: CI (vendored, no cache)
 
 on:
   push:
@@ -10,12 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (with submodules)
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node (no cache)
         uses: actions/setup-node@v4
@@ -24,12 +20,7 @@ jobs:
 
       - name: Install deps
         working-directory: loreweaver
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: npm install
 
       - name: Build (tolerant)
         working-directory: loreweaver
@@ -46,4 +37,3 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
-
