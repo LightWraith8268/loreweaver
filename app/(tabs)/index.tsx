@@ -1123,10 +1123,11 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   actionCardGrid: {
-    width: `${100 / 3 - 2}%`,
+    width: Math.floor(Dimensions.get('window').width * (100 / 3 - 2) / 100),
     height: theme.responsive.isTablet ? 140 : 120,
     marginRight: 0,
     minWidth: theme.responsive.minTouchTarget * 2.5,
     minHeight: theme.responsive.minTouchTarget * 2.5,
   },
 });
+
