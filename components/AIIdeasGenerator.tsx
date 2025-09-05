@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Dimensions } from 'react-native';
 import {
   StyleSheet,
   Text,

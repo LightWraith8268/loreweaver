@@ -163,7 +163,7 @@ export default function NameGenerator({
   }, [visible, entityType, genre, generatedNames.length]);
 
   const getEntityTypeLabel = () => {
-    const labels = {
+    const labels: Record<EntityType, string> = {
       character: 'Character',
       location: 'Location',
       item: 'Item',

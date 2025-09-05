@@ -265,7 +265,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
   });
   
   // Generic entity mutations
-  const createEntityMutation = (type: EntityType) => useMutation({
+  const useCreateEntityMutation = (type: EntityType) => useMutation({
     mutationFn: async (entity: any) => {
       if (!currentWorld) throw new Error('No world selected');
       const key = `${type}s_${currentWorld.id}`;
@@ -287,7 +287,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     },
   });
   
-  const updateEntityMutation = (type: EntityType) => useMutation({
+  const useUpdateEntityMutation = (type: EntityType) => useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
       if (!currentWorld) throw new Error('No world selected');
       const key = `${type}s_${currentWorld.id}`;
@@ -304,7 +304,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     },
   });
   
-  const deleteEntityMutation = (type: EntityType) => useMutation({
+  const useDeleteEntityMutation = (type: EntityType) => useMutation({
     mutationFn: async (id: string) => {
       if (!currentWorld) throw new Error('No world selected');
       const key = `${type}s_${currentWorld.id}`;
@@ -469,49 +469,49 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     deleteWorld: async (id: string) => { await deleteWorldMutation.mutateAsync(id); },
     
     characters: charactersQuery.data || [],
-    createCharacter: async (character: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('character').mutateAsync(character); },
-    updateCharacter: async (id: string, updates: Partial<Character>) => { await updateEntityMutation('character').mutateAsync({ id, updates }); },
-    deleteCharacter: async (id: string) => { await deleteEntityMutation('character').mutateAsync(id); },
+    createCharacter: async (character: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('character').mutateAsync(character); },
+    updateCharacter: async (id: string, updates: Partial<Character>) => { await useUpdateEntityMutation('character').mutateAsync({ id, updates }); },
+    deleteCharacter: async (id: string) => { await useDeleteEntityMutation('character').mutateAsync(id); },
     
     locations: locationsQuery.data || [],
-    createLocation: async (location: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('location').mutateAsync(location); },
-    updateLocation: async (id: string, updates: Partial<Location>) => { await updateEntityMutation('location').mutateAsync({ id, updates }); },
-    deleteLocation: async (id: string) => { await deleteEntityMutation('location').mutateAsync(id); },
+    createLocation: async (location: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('location').mutateAsync(location); },
+    updateLocation: async (id: string, updates: Partial<Location>) => { await useUpdateEntityMutation('location').mutateAsync({ id, updates }); },
+    deleteLocation: async (id: string) => { await useDeleteEntityMutation('location').mutateAsync(id); },
     
     items: itemsQuery.data || [],
-    createItem: async (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('item').mutateAsync(item); },
-    updateItem: async (id: string, updates: Partial<Item>) => { await updateEntityMutation('item').mutateAsync({ id, updates }); },
-    deleteItem: async (id: string) => { await deleteEntityMutation('item').mutateAsync(id); },
+    createItem: async (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('item').mutateAsync(item); },
+    updateItem: async (id: string, updates: Partial<Item>) => { await useUpdateEntityMutation('item').mutateAsync({ id, updates }); },
+    deleteItem: async (id: string) => { await useDeleteEntityMutation('item').mutateAsync(id); },
     
     factions: factionsQuery.data || [],
-    createFaction: async (faction: Omit<Faction, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('faction').mutateAsync(faction); },
-    updateFaction: async (id: string, updates: Partial<Faction>) => { await updateEntityMutation('faction').mutateAsync({ id, updates }); },
-    deleteFaction: async (id: string) => { await deleteEntityMutation('faction').mutateAsync(id); },
+    createFaction: async (faction: Omit<Faction, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('faction').mutateAsync(faction); },
+    updateFaction: async (id: string, updates: Partial<Faction>) => { await useUpdateEntityMutation('faction').mutateAsync({ id, updates }); },
+    deleteFaction: async (id: string) => { await useDeleteEntityMutation('faction').mutateAsync(id); },
     
     timelines: timelinesQuery.data || [],
-    createTimeline: async (timeline: Omit<Timeline, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('timeline').mutateAsync(timeline); },
-    updateTimeline: async (id: string, updates: Partial<Timeline>) => { await updateEntityMutation('timeline').mutateAsync({ id, updates }); },
-    deleteTimeline: async (id: string) => { await deleteEntityMutation('timeline').mutateAsync(id); },
+    createTimeline: async (timeline: Omit<Timeline, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('timeline').mutateAsync(timeline); },
+    updateTimeline: async (id: string, updates: Partial<Timeline>) => { await useUpdateEntityMutation('timeline').mutateAsync({ id, updates }); },
+    deleteTimeline: async (id: string) => { await useDeleteEntityMutation('timeline').mutateAsync(id); },
     
     loreNotes: loreNotesQuery.data || [],
-    createLoreNote: async (note: Omit<LoreNote, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('lore').mutateAsync(note); },
-    updateLoreNote: async (id: string, updates: Partial<LoreNote>) => { await updateEntityMutation('lore').mutateAsync({ id, updates }); },
-    deleteLoreNote: async (id: string) => { await deleteEntityMutation('lore').mutateAsync(id); },
+    createLoreNote: async (note: Omit<LoreNote, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('lore').mutateAsync(note); },
+    updateLoreNote: async (id: string, updates: Partial<LoreNote>) => { await useUpdateEntityMutation('lore').mutateAsync({ id, updates }); },
+    deleteLoreNote: async (id: string) => { await useDeleteEntityMutation('lore').mutateAsync(id); },
     
     magicSystems: magicSystemsQuery.data || [],
-    createMagicSystem: async (magicSystem: Omit<MagicSystem, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('magicSystem').mutateAsync(magicSystem); },
-    updateMagicSystem: async (id: string, updates: Partial<MagicSystem>) => { await updateEntityMutation('magicSystem').mutateAsync({ id, updates }); },
-    deleteMagicSystem: async (id: string) => { await deleteEntityMutation('magicSystem').mutateAsync(id); },
+    createMagicSystem: async (magicSystem: Omit<MagicSystem, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('magicSystem').mutateAsync(magicSystem); },
+    updateMagicSystem: async (id: string, updates: Partial<MagicSystem>) => { await useUpdateEntityMutation('magicSystem').mutateAsync({ id, updates }); },
+    deleteMagicSystem: async (id: string) => { await useDeleteEntityMutation('magicSystem').mutateAsync(id); },
     
     mythologies: mythologiesQuery.data || [],
-    createMythology: async (mythology: Omit<Mythology, 'id' | 'createdAt' | 'updatedAt'>) => { await createEntityMutation('mythology').mutateAsync(mythology); },
-    updateMythology: async (id: string, updates: Partial<Mythology>) => { await updateEntityMutation('mythology').mutateAsync({ id, updates }); },
-    deleteMythology: async (id: string) => { await deleteEntityMutation('mythology').mutateAsync(id); },
+    createMythology: async (mythology: Omit<Mythology, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('mythology').mutateAsync(mythology); },
+    updateMythology: async (id: string, updates: Partial<Mythology>) => { await useUpdateEntityMutation('mythology').mutateAsync({ id, updates }); },
+    deleteMythology: async (id: string) => { await useDeleteEntityMutation('mythology').mutateAsync(id); },
     
     snapshots: snapshotsQuery.data || [],
     createSnapshot: async (name: string) => { await createSnapshotMutation.mutateAsync(name); },
     restoreSnapshot: async (snapshotId: string) => { await restoreSnapshotMutation.mutateAsync(snapshotId); },
-    deleteSnapshot: async (id: string) => { await deleteEntityMutation('snapshot').mutateAsync(id); },
+    deleteSnapshot: async (id: string) => { await useDeleteEntityMutation('snapshot').mutateAsync(id); },
     
     searchQuery,
     setSearchQuery,
@@ -524,7 +524,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.characters) {
         for (const char of data.characters) {
           if (char.name) {
-            await createEntityMutation('character').mutateAsync({
+            await useCreateEntityMutation('character').mutateAsync({
               worldId: currentWorld.id,
               name: char.name,
               role: char.role || '',
@@ -543,7 +543,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.locations) {
         for (const loc of data.locations) {
           if (loc.name) {
-            await createEntityMutation('location').mutateAsync({
+            await useCreateEntityMutation('location').mutateAsync({
               worldId: currentWorld.id,
               name: loc.name,
               type: loc.type || '',
@@ -560,7 +560,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.items) {
         for (const item of data.items) {
           if (item.name) {
-            await createEntityMutation('item').mutateAsync({
+            await useCreateEntityMutation('item').mutateAsync({
               worldId: currentWorld.id,
               name: item.name,
               type: item.type || '',
@@ -577,7 +577,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.factions) {
         for (const faction of data.factions) {
           if (faction.name) {
-            await createEntityMutation('faction').mutateAsync({
+            await useCreateEntityMutation('faction').mutateAsync({
               worldId: currentWorld.id,
               name: faction.name,
               type: faction.type || '',
@@ -596,7 +596,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.magicSystems) {
         for (const magic of data.magicSystems) {
           if (magic.name) {
-            await createEntityMutation('magicSystem').mutateAsync({
+            await useCreateEntityMutation('magicSystem').mutateAsync({
               worldId: currentWorld.id,
               name: magic.name,
               type: magic.type || '',
@@ -616,7 +616,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.mythologies) {
         for (const myth of data.mythologies) {
           if (myth.name) {
-            await createEntityMutation('mythology').mutateAsync({
+            await useCreateEntityMutation('mythology').mutateAsync({
               worldId: currentWorld.id,
               name: myth.name,
               type: myth.type || 'belief',
@@ -637,7 +637,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.loreNotes) {
         for (const note of data.loreNotes) {
           if (note.title) {
-            await createEntityMutation('lore').mutateAsync({
+            await useCreateEntityMutation('lore').mutateAsync({
               worldId: currentWorld.id,
               title: note.title,
               content: note.content || '',
@@ -672,3 +672,4 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     isLoading: worldsQuery.isLoading || charactersQuery.isLoading || locationsQuery.isLoading,
   };
 });
+
