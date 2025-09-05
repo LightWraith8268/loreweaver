@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -47,7 +47,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
   const { settings } = useSettings();
   const { currentWorld, exportWorld, characters, locations, factions, loreNotes, magicSystems, mythologies } = useWorld();
   const { generateImage, isGenerating } = useAI();
-  const theme = useMemo(() => createTheme(settings.theme), [settings.theme]);
+  const theme = createTheme(settings.theme);
   
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     format: exportType === 'world' ? 'json' : 'docx',
@@ -472,7 +472,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
     }
   };
 
-  const styles = useMemo(() => StyleSheet.create({
+  const styles = StyleSheet.create({
     modalOverlay: {
       flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -709,7 +709,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
       fontWeight: theme.fontWeight.medium as any,
       color: theme.colors.surface,
     },
-  }), [theme]);
+  });
 
 
 

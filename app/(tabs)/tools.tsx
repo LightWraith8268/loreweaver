@@ -533,14 +533,14 @@ export default function ToolsScreen() {
         />
       )}
 
-      {showEnhancedExport && (
-        <EnhancedExportSystem
-          onExportComplete={(format: string, data: string) => {
-            console.log('Export completed:', format, data.length);
-            setShowEnhancedExport(false);
-          }}
-        />
-      )}
+      <EnhancedExportSystem
+        visible={showEnhancedExport}
+        onClose={() => setShowEnhancedExport(false)}
+        onExportComplete={(format: string, data: string) => {
+          console.log('Export completed:', format, data.length);
+          setShowEnhancedExport(false);
+        }}
+      />
       
       <SeriesManager
         visible={showSeriesManager}
