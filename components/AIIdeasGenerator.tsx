@@ -23,6 +23,7 @@ import {
 import { useSettings } from '@/hooks/settings-context';
 import { useWorld } from '@/hooks/world-context';
 import { createTheme } from '@/constants/theme';
+import { useResponsiveLayout, useResponsiveModal, useResponsiveSpacing, useResponsiveFontSize } from '@/hooks/responsive-layout';
 import type { WorldGenre } from '@/types/world';
 
 interface AIIdeasGeneratorProps {
@@ -113,6 +114,10 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
   const { settings } = useSettings();
   const { currentWorld } = useWorld();
   const theme = createTheme(settings.theme);
+  const { isTablet, isLandscape } = useResponsiveLayout();
+  const modalDimensions = useResponsiveModal();
+  const { getScaledSpacing } = useResponsiveSpacing();
+  const { getScaledSize } = useResponsiveFontSize();
   
   const [selectedGenres, setSelectedGenres] = useState<WorldGenre[]>(
     contextType === 'world' && currentWorld ? [currentWorld.genre] : []
@@ -161,7 +166,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       const authorText = selectedAuthors.length > 0 ? `\nInfluenced by authors: ${selectedAuthors.join(', ')}` : '';
       const contextText = contextType === 'world' && currentWorld 
         ? `\nWorld context: ${currentWorld.name} - ${currentWorld.description}` 
-        : '';
+        : contextType === 'global' ? '\nGeneral creative writing context - no specific world constraints' : '';
       
       const prompt = `Generate ${ideaCount} creative ${selectedCategory.toLowerCase()} for ${genreText} stories.${authorText}${contextText}\n\nUser prompt: ${customPrompt}\n\nProvide each idea with a compelling title and detailed description. Make them unique, engaging, and suitable for the specified genre(s).`;
 
@@ -263,14 +268,14 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       justifyContent: 'center',
       alignItems: 'center',
+      padding: getScaledSpacing(theme.spacing.md),
     },
     modalContent: {
       backgroundColor: theme.colors.surface,
       borderRadius: theme.borderRadius.xl,
-      padding: theme.spacing.lg,
-      width: '95%',
-      maxWidth: 800,
-      maxHeight: '90%',
+      padding: getScaledSpacing(theme.spacing.lg),
+      ...modalDimensions,
+      maxHeight: isTablet ? '85%' : '90%',
     },
     modalHeader: {
       flexDirection: 'row',
@@ -279,7 +284,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       marginBottom: theme.spacing.lg,
     },
     modalTitle: {
-      fontSize: theme.fontSize.xl,
+      fontSize: getScaledSize(theme.fontSize.xl),
       fontWeight: theme.fontWeight.bold,
       color: theme.colors.text,
     },
@@ -287,7 +292,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       flex: 1,
     },
     section: {
-      marginBottom: theme.spacing.lg,
+      marginBottom: getScaledSpacing(theme.spacing.lg),
     },
     sectionTitle: {
       fontSize: theme.fontSize.lg,
@@ -296,9 +301,9 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       marginBottom: theme.spacing.md,
     },
     inputLabel: {
-      fontSize: theme.fontSize.sm,
+      fontSize: getScaledSize(theme.fontSize.sm),
       color: theme.colors.textSecondary,
-      marginBottom: theme.spacing.sm,
+      marginBottom: getScaledSpacing(theme.spacing.sm),
     },
     input: {
       backgroundColor: theme.colors.surfaceLight,
@@ -352,8 +357,8 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
     genreChips: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.md,
+      gap: getScaledSpacing(theme.spacing.sm),
+      marginBottom: getScaledSpacing(theme.spacing.md),
     },
     genreChip: {
       paddingHorizontal: theme.spacing.md,
@@ -411,9 +416,11 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       minWidth: 50,
     },
     countSelector: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.md,
+      flexDirection: isTablet && isLandscape ? 'row' : 'row',
+      flexWrap: isTablet ? 'nowrap' : 'wrap',
+      gap: getScaledSpacing(theme.spacing.sm),
+      marginBottom: getScaledSpacing(theme.spacing.md),
+      justifyContent: isTablet ? 'flex-start' : 'center',
     },
     countButton: {
       paddingHorizontal: theme.spacing.lg,
@@ -535,10 +542,10 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, isTablet && isLandscape && { flexDirection: 'row', gap: getScaledSpacing(theme.spacing.lg) }]}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
-              {contextType === 'world' ? 'World AI Ideas' : 'AI Ideas Generator'}
+              {contextType === 'world' && currentWorld ? `${currentWorld.name} - AI Ideas` : 'AI Ideas Generator'}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <X size={24} color={theme.colors.text} />
@@ -581,7 +588,14 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
 
             {/* Genre Selection */}
             <View style={styles.section}>
-              <Text style={styles.inputLabel}>Genres (1-3 required)</Text>
+              <Text style={styles.inputLabel}>
+                Genres (1-3 required)
+                {contextType === 'world' && currentWorld && (
+                  <Text style={{ color: theme.colors.primary, fontSize: theme.fontSize.xs }}>
+                    {' '}• Current world: {GENRE_OPTIONS.find(opt => opt.value === currentWorld.genre)?.label || currentWorld.genre}
+                  </Text>
+                )}
+              </Text>
               <View style={styles.dropdown}>
                 <TouchableOpacity
                   style={styles.dropdownButton}

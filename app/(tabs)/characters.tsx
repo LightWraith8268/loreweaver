@@ -15,6 +15,7 @@ import { Plus, Sparkles, User, Search, X, Wand2 } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 
 export default function CharactersScreen() {
   const { currentWorld, characters, createCharacter } = useWorld();
@@ -127,20 +128,11 @@ Generate:
   
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <User size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage characters
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="Characters"
+        description="Select a world to create and manage characters for your stories"
+        customIcon={<User size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
   

@@ -15,6 +15,7 @@ import { Plus, Sparkles, Shield, Search, X, Wand2 } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 
 export default function FactionsScreen() {
   const { currentWorld, factions, createFaction } = useWorld();
@@ -129,20 +130,11 @@ Generate:
   
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Shield size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage factions
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="Factions & Organizations"
+        description="Select a world to create and manage factions, guilds, and organizations"
+        customIcon={<Shield size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
   

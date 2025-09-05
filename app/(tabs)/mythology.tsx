@@ -5,6 +5,7 @@ import { Plus, Crown, Users, BookOpen, Star, Wand2, X } from 'lucide-react-nativ
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { Mythology } from '@/types/world';
 
 export default function MythologyScreen() {
@@ -29,20 +30,11 @@ export default function MythologyScreen() {
 
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Crown size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage mythologies
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="Mythology & Religion"
+        description="Select a world to create pantheons, religions, and belief systems"
+        customIcon={<Crown size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
 

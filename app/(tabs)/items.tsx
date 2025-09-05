@@ -15,6 +15,7 @@ import { Plus, Sparkles, Package, Search, X, Wand2 } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 
 export default function ItemsScreen() {
   const { currentWorld, items, createItem } = useWorld();
@@ -123,20 +124,11 @@ Generate:
   
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Package size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage items
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="Items & Artifacts"
+        description="Select a world to create and manage items and artifacts for your stories"
+        customIcon={<Package size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
   

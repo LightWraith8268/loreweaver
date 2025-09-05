@@ -5,6 +5,7 @@ import { Plus, Sparkles, Wand2, BookOpen, Users, X } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { MagicSystem } from '@/types/world';
 
 export default function MagicSystemsScreen() {
@@ -31,20 +32,11 @@ export default function MagicSystemsScreen() {
 
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Sparkles size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage magic systems
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="Magic Systems"
+        description="Select a world to create and manage magical systems and schools of magic"
+        customIcon={<Sparkles size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
 

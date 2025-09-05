@@ -7,14 +7,15 @@ LoreWeaver is a comprehensive worldbuilding application that combines powerful o
 ## 🌟 Key Features
 
 - **🎯 Complete Worldbuilding Suite** - 14 specialized tabs for every aspect of world creation
-- **🤖 AI-Powered Enhancement** - Multiple AI providers with free tier access
-- **📱 Cross-Platform** - Works on mobile, tablet, and desktop with responsive design
+- **🤖 AI-Powered Enhancement** - AI Ideas Generator works globally or with world context
+- **📱 Cross-Platform Optimized** - Responsive design for phones, tablets, and web with rotation support
 - **🔄 Offline Mode** - Full functionality without internet connection
-- **💾 Local Storage** - All data stored securely on your device
-- **🎨 Beautiful UI** - Modern, intuitive interface with dark/light themes
+- **💾 Local Storage** - All data stored securely on your device with AsyncStorage
+- **🎨 Beautiful UI** - Modern, intuitive interface with multiple themes and font customization
 - **🔗 Smart Linking** - Automatic cross-references between all world elements
 - **📊 Visual Tools** - Relationship networks, timelines, and interactive maps
-- **📤 Professional Export** - PDF world bibles, campaign exports, and more
+- **📤 Professional Export** - JSON and Markdown export formats
+- **🌍 Consistent World Selection** - Unified "Select World" experience across all screens
 
 ## 🎯 Core Worldbuilding Tools
 
@@ -120,11 +121,17 @@ Manage world knowledge and background:
 - **Saved Searches**: Save frequently used search criteria
 
 ### 12. **AI-Powered Features** 🤖
+- **AI Ideas Generator**: Generate creative ideas with or without world context
+  - Works globally (no world required) or with world-specific context
+  - 14 idea categories: Story concepts, characters, plot hooks, titles, etc.
+  - Genre-aware suggestions (40+ genres supported)
+  - Author influence system for style inspiration
+  - Custom prompts for specific requirements
 - **World Consistency Checker**: AI analyzes for contradictions
-- **Plot Hook Generator**: Story ideas based on world elements
-- **Character Dialogue**: AI creates character-specific speech
-- **World Expansion**: AI recommends missing elements
-- **Name Generator**: AI-powered names for all entity types
+- **Character Generation**: Complete character profiles with AI
+- **Location Creation**: Detailed locations with AI assistance
+- **Item Generation**: Magical items with powers and backstories
+- **Name Generator**: Context-appropriate names for all entity types
 - **Content Enhancement**: AI suggestions for improvements
 
 ## 📚 Content Management & Organization
@@ -258,48 +265,53 @@ Manage world knowledge and background:
 
 ### Tips for Success
 - **Start Small**: Begin with core elements and expand gradually
-- **Use Templates**: Leverage pre-built templates for faster setup
+- **Use AI Ideas Generator**: Generate inspiration even without a world selected
 - **Cross-Reference**: Take advantage of automatic linking between entities
-- **Regular Backups**: Export your world data regularly
+- **Regular Backups**: Export your world data regularly (JSON format recommended)
 - **Explore AI Features**: Use AI to enhance and expand your world
+- **Tablet Optimization**: Take advantage of landscape mode for better workflow
+- **Consistent Navigation**: Use the unified world selection across all screens
 
 ## 💡 Auto Save & Offline Mode
 
 ### Auto Save Features
 **How It Works:**
-- **Debounced Saving**: Changes saved after 2-second delay
-- **Smart Detection**: Only saves when data actually changes
-- **Background Operation**: Saves without interrupting workflow
+- **Local Storage Based**: All saving is done to local device storage (AsyncStorage)
+- **Immediate Persistence**: Changes are saved immediately to local storage
+- **No Network Required**: All data operations work completely offline
+- **React Query Integration**: Optimistic updates with local cache management
 - **Error Handling**: Failed saves are logged and handled gracefully
 
 **Settings:**
-- **Enable/Disable**: Toggle in Settings > App Settings
-- **Configurable Delays**: Different delays for different content types
-- **Manual Override**: Force save with Ctrl+S
+- **Always Enabled**: Auto-save is built into the app architecture
+- **Instant Saving**: No delays - changes persist immediately
+- **Local Only**: No cloud sync - all data stays on your device
 
 ### Offline Mode Features
-**What Works Offline:**
+**Everything Works Offline:**
 - ✅ All worldbuilding tools (Characters, Locations, Factions, etc.)
 - ✅ Content creation and editing
-- ✅ Data storage and retrieval
+- ✅ Data storage and retrieval (local AsyncStorage)
 - ✅ Search and filtering
 - ✅ Templates and frameworks
 - ✅ Import/export (local files)
-- ✅ Voice recording (local processing)
 - ✅ All UI features and navigation
+- ✅ **AI Ideas Generator** - Works without world selection
+- ✅ Name generators and content tools
 
 **What Requires Internet:**
-- ❌ AI-powered features (content generation, consistency checking)
-- ❌ Image generation for portraits and locations
+- ❌ AI-powered content generation (uses external AI APIs)
+- ❌ AI consistency checking
 - ❌ Voice-to-text transcription (uses cloud AI)
-- ❌ Online research integration
-- ❌ Cloud backup and sync
+- ❌ Image generation features
 
 **Data Storage:**
-- All world data stored locally on your device
-- No data lost when switching between online/offline modes
-- Automatic local backups ensure data safety
-- Export options work offline for local file creation
+- All world data stored locally using React Native AsyncStorage
+- No cloud storage or external databases
+- Data persists between app sessions
+- Export options create local files
+- Import works with local files
+- Complete privacy - your data never leaves your device (except for AI features)
 
 ## 🛠️ Technical Details
 

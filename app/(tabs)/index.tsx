@@ -22,6 +22,7 @@ import { useResponsiveLayout, useResponsiveGrid, useResponsiveModal } from '@/ho
 
 import NameGenerator from '@/components/NameGenerator';
 import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { World, WorldGenre } from '@/types/world';
 
 export default function DashboardScreen() {
@@ -477,20 +478,16 @@ export default function DashboardScreen() {
             )}
           </>
         ) : (
-          <View style={styles.emptyState}>
-            <Globe size={64} color={theme.colors.textTertiary} />
-            <Text style={styles.emptyTitle}>No World Selected</Text>
-            <Text style={styles.emptyDescription}>
-              Create your first world to start building your universe
-            </Text>
-            <TouchableOpacity 
-              style={styles.createButton}
-              onPress={() => setShowCreateModal(true)}
-            >
-              <Plus size={20} color={theme.colors.background} />
-              <Text style={styles.createButtonText}>Create World</Text>
-            </TouchableOpacity>
-          </View>
+          <SelectWorldPrompt
+            title="Welcome to LoreWeaver"
+            description="Create your first world to start building your universe, or use our AI tools to get inspired"
+            onCreateWorld={() => setShowCreateModal(true)}
+            customAction={{
+              label: "AI Ideas Generator",
+              onPress: () => setShowAIIdeas(true),
+              icon: <Lightbulb size={20} color={theme.colors.text} />
+            }}
+          />
         )}
       </ScrollView>
       
