@@ -164,14 +164,18 @@ export default function NameGenerator({
 
   const getEntityTypeLabel = () => {
     const labels: Record<EntityType, string> = {
-      character: 'Character',
-      location: 'Location',
-      item: 'Item',
-      faction: 'Faction',
-      lore: 'Lore',
-      timeline: 'Timeline',
-      snapshot: 'Snapshot'
-    };
+  character: 'Character',
+  location: 'Location',
+  item: 'Item',
+  faction: 'Faction',
+  lore: 'Lore',
+  timeline: 'Timeline',
+  snapshot: 'Snapshot',
+  mythology: 'Mythology',
+  magicSystem: 'Magic System',
+  template: 'Template',
+  research: 'Research',
+};
     return labels[entityType] || 'Entity';
   };
 
@@ -347,3 +351,4 @@ const styles = StyleSheet.create({
     color: theme.colors.background,
   },
 });
+
