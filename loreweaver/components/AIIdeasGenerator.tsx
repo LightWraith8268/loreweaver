@@ -276,7 +276,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       borderRadius: theme.borderRadius.xl,
       padding: getScaledSpacing(theme.spacing.lg),
       ...modalDimensions,
-      maxHeight: isTablet ? '85%' : '90%',
+      maxHeight: Math.floor(Dimensions.get('window').height * (isTablet ? 85 : 90) / 100),
     },
     modalHeader: {
       flexDirection: 'row',
@@ -787,3 +787,4 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
     </Modal>
   );
 }
+
