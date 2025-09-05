@@ -30,20 +30,15 @@ jobs:
 
       - name: Type check (tolerant for now)
         working-directory: loreweaver
-        run: npx tsc --noEmit || true
+        run: npx tsc --noEmit
 
       - name: Lint (tolerant for now)
         working-directory: loreweaver
-        run: npx eslint . --max-warnings=0 || true
+        run: npx eslint . --max-warnings=0
 
       - name: Build (tolerant)
         working-directory: loreweaver
-        run: |
-
-      - name: Ensure dist exists
-        working-directory: loreweaver
-        run: mkdir -p dist && echo ok > dist/.keep
-          if [ -f Gruntfile.js ]; then
+        run: |if [ -f Gruntfile.js ]; then
             npx grunt || true
           else
             mkdir -p dist && echo ok > dist/.keep
@@ -55,6 +50,7 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
+
 
 
 
