@@ -1,0 +1,224 @@
+build	Set up job	∩╗┐2025-09-05T16:18:22.3776433Z Current runner version: '2.328.0'
+build	Set up job	2025-09-05T16:18:22.3800790Z ##[group]Runner Image Provisioner
+build	Set up job	2025-09-05T16:18:22.3801613Z Hosted Compute Agent
+build	Set up job	2025-09-05T16:18:22.3802189Z Version: 20250829.383
+build	Set up job	2025-09-05T16:18:22.3802801Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+build	Set up job	2025-09-05T16:18:22.3803448Z Build Date: 2025-08-29T13:48:48Z
+build	Set up job	2025-09-05T16:18:22.3804097Z ##[endgroup]
+build	Set up job	2025-09-05T16:18:22.3804638Z ##[group]Operating System
+build	Set up job	2025-09-05T16:18:22.3805197Z Ubuntu
+build	Set up job	2025-09-05T16:18:22.3805620Z 24.04.3
+build	Set up job	2025-09-05T16:18:22.3806145Z LTS
+build	Set up job	2025-09-05T16:18:22.3806558Z ##[endgroup]
+build	Set up job	2025-09-05T16:18:22.3807028Z ##[group]Runner Image
+build	Set up job	2025-09-05T16:18:22.3807653Z Image: ubuntu-24.04
+build	Set up job	2025-09-05T16:18:22.3808114Z Version: 20250831.1.0
+build	Set up job	2025-09-05T16:18:22.3809077Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250831.1/images/ubuntu/Ubuntu2404-Readme.md
+build	Set up job	2025-09-05T16:18:22.3810603Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250831.1
+build	Set up job	2025-09-05T16:18:22.3811692Z ##[endgroup]
+build	Set up job	2025-09-05T16:18:22.3812854Z ##[group]GITHUB_TOKEN Permissions
+build	Set up job	2025-09-05T16:18:22.3815026Z Contents: read
+build	Set up job	2025-09-05T16:18:22.3815714Z Metadata: read
+build	Set up job	2025-09-05T16:18:22.3816183Z Packages: read
+build	Set up job	2025-09-05T16:18:22.3816668Z ##[endgroup]
+build	Set up job	2025-09-05T16:18:22.3819275Z Secret source: Actions
+build	Set up job	2025-09-05T16:18:22.3820013Z Prepare workflow directory
+build	Set up job	2025-09-05T16:18:22.4198261Z Prepare all required actions
+build	Set up job	2025-09-05T16:18:22.4235926Z Getting action download info
+build	Set up job	2025-09-05T16:18:23.1155492Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+build	Set up job	2025-09-05T16:18:23.1797469Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+build	Set up job	2025-09-05T16:18:23.3794609Z Complete job name: build
+build	Checkout	∩╗┐2025-09-05T16:18:23.4473451Z ##[group]Run actions/checkout@v4
+build	Checkout	2025-09-05T16:18:23.4474315Z with:
+build	Checkout	2025-09-05T16:18:23.4474692Z   fetch-depth: 0
+build	Checkout	2025-09-05T16:18:23.4475096Z   submodules: false
+build	Checkout	2025-09-05T16:18:23.4475529Z   repository: LightWraith8268/loreweaver
+build	Checkout	2025-09-05T16:18:23.4476225Z   token: ***
+build	Checkout	2025-09-05T16:18:23.4476601Z   ssh-strict: true
+build	Checkout	2025-09-05T16:18:23.4476981Z   ssh-user: git
+build	Checkout	2025-09-05T16:18:23.4477371Z   persist-credentials: true
+build	Checkout	2025-09-05T16:18:23.4477803Z   clean: true
+build	Checkout	2025-09-05T16:18:23.4478195Z   sparse-checkout-cone-mode: true
+build	Checkout	2025-09-05T16:18:23.4478657Z   fetch-tags: false
+build	Checkout	2025-09-05T16:18:23.4479051Z   show-progress: true
+build	Checkout	2025-09-05T16:18:23.4479439Z   lfs: false
+build	Checkout	2025-09-05T16:18:23.4479810Z   set-safe-directory: true
+build	Checkout	2025-09-05T16:18:23.4480652Z env:
+build	Checkout	2025-09-05T16:18:23.4481055Z   npm_config_legacy_peer_deps: true
+build	Checkout	2025-09-05T16:18:23.4481534Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:23.5580719Z Syncing repository: LightWraith8268/loreweaver
+build	Checkout	2025-09-05T16:18:23.5583518Z ##[group]Getting Git version info
+build	Checkout	2025-09-05T16:18:23.5584775Z Working directory is '/home/runner/work/loreweaver/loreweaver'
+build	Checkout	2025-09-05T16:18:23.5586545Z [command]/usr/bin/git version
+build	Checkout	2025-09-05T16:18:23.5610849Z git version 2.51.0
+build	Checkout	2025-09-05T16:18:23.5637238Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:23.5653210Z Temporarily overriding HOME='/home/runner/work/_temp/e48f0423-f312-4c76-adc5-dc450e4c24cd' before making global git config changes
+build	Checkout	2025-09-05T16:18:23.5655585Z Adding repository directory to the temporary git global config as a safe directory
+build	Checkout	2025-09-05T16:18:23.5659841Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/loreweaver/loreweaver
+build	Checkout	2025-09-05T16:18:23.5693833Z Deleting the contents of '/home/runner/work/loreweaver/loreweaver'
+build	Checkout	2025-09-05T16:18:23.5697777Z ##[group]Initializing the repository
+build	Checkout	2025-09-05T16:18:23.5703057Z [command]/usr/bin/git init /home/runner/work/loreweaver/loreweaver
+build	Checkout	2025-09-05T16:18:23.5762423Z hint: Using 'master' as the name for the initial branch. This default branch name
+build	Checkout	2025-09-05T16:18:23.5764135Z hint: is subject to change. To configure the initial branch name to use in all
+build	Checkout	2025-09-05T16:18:23.5765197Z hint: of your new repositories, which will suppress this warning, call:
+build	Checkout	2025-09-05T16:18:23.5766839Z hint:
+build	Checkout	2025-09-05T16:18:23.5767701Z hint: 	git config --global init.defaultBranch <name>
+build	Checkout	2025-09-05T16:18:23.5768750Z hint:
+build	Checkout	2025-09-05T16:18:23.5769724Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build	Checkout	2025-09-05T16:18:23.5771530Z hint: 'development'. The just-created branch can be renamed via this command:
+build	Checkout	2025-09-05T16:18:23.5772786Z hint:
+build	Checkout	2025-09-05T16:18:23.5773435Z hint: 	git branch -m <name>
+build	Checkout	2025-09-05T16:18:23.5774183Z hint:
+build	Checkout	2025-09-05T16:18:23.5775219Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build	Checkout	2025-09-05T16:18:23.5777040Z Initialized empty Git repository in /home/runner/work/loreweaver/loreweaver/.git/
+build	Checkout	2025-09-05T16:18:23.5779841Z [command]/usr/bin/git remote add origin https://github.com/LightWraith8268/loreweaver
+build	Checkout	2025-09-05T16:18:23.5812696Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:23.5813907Z ##[group]Disabling automatic garbage collection
+build	Checkout	2025-09-05T16:18:23.5817506Z [command]/usr/bin/git config --local gc.auto 0
+build	Checkout	2025-09-05T16:18:23.5845768Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:23.5847078Z ##[group]Setting up auth
+build	Checkout	2025-09-05T16:18:23.5853538Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Checkout	2025-09-05T16:18:23.5884259Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Checkout	2025-09-05T16:18:23.6166715Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Checkout	2025-09-05T16:18:23.6195729Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Checkout	2025-09-05T16:18:23.6412042Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build	Checkout	2025-09-05T16:18:23.6447118Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:23.6447848Z ##[group]Fetching the repository
+build	Checkout	2025-09-05T16:18:23.6457023Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +1c84f44b85c7fba75f5c511eaf19210ad83d2898:refs/remotes/pull/5/merge
+build	Checkout	2025-09-05T16:18:24.9204623Z From https://github.com/LightWraith8268/loreweaver
+build	Checkout	2025-09-05T16:18:24.9206010Z  * [new branch]      ci-fix                                   -> origin/ci-fix
+build	Checkout	2025-09-05T16:18:24.9207224Z  * [new branch]      fix/ci-yaml                              -> origin/fix/ci-yaml
+build	Checkout	2025-09-05T16:18:24.9208550Z  * [new branch]      fix/ts-dimensions                        -> origin/fix/ts-dimensions
+build	Checkout	2025-09-05T16:18:24.9209797Z  * [new branch]      main                                     -> origin/main
+build	Checkout	2025-09-05T16:18:24.9211246Z  * [new ref]         1c84f44b85c7fba75f5c511eaf19210ad83d2898 -> pull/5/merge
+build	Checkout	2025-09-05T16:18:24.9243457Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:24.9245512Z ##[group]Determining the checkout info
+build	Checkout	2025-09-05T16:18:24.9247559Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:24.9251289Z [command]/usr/bin/git sparse-checkout disable
+build	Checkout	2025-09-05T16:18:24.9291220Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build	Checkout	2025-09-05T16:18:24.9319449Z ##[group]Checking out the ref
+build	Checkout	2025-09-05T16:18:24.9322625Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/5/merge
+build	Checkout	2025-09-05T16:18:24.9521705Z Note: switching to 'refs/remotes/pull/5/merge'.
+build	Checkout	2025-09-05T16:18:24.9522972Z 
+build	Checkout	2025-09-05T16:18:24.9524049Z You are in 'detached HEAD' state. You can look around, make experimental
+build	Checkout	2025-09-05T16:18:24.9525968Z changes and commit them, and you can discard any commits you make in this
+build	Checkout	2025-09-05T16:18:24.9528684Z state without impacting any branches by switching back to a branch.
+build	Checkout	2025-09-05T16:18:24.9530496Z 
+build	Checkout	2025-09-05T16:18:24.9531561Z If you want to create a new branch to retain commits you create, you may
+build	Checkout	2025-09-05T16:18:24.9534230Z do so (now or later) by using -c with the switch command. Example:
+build	Checkout	2025-09-05T16:18:24.9535772Z 
+build	Checkout	2025-09-05T16:18:24.9536942Z   git switch -c <new-branch-name>
+build	Checkout	2025-09-05T16:18:24.9538258Z 
+build	Checkout	2025-09-05T16:18:24.9538949Z Or undo this operation with:
+build	Checkout	2025-09-05T16:18:24.9539994Z 
+build	Checkout	2025-09-05T16:18:24.9540834Z   git switch -
+build	Checkout	2025-09-05T16:18:24.9541625Z 
+build	Checkout	2025-09-05T16:18:24.9542919Z Turn off this advice by setting config variable advice.detachedHead to false
+build	Checkout	2025-09-05T16:18:24.9544855Z 
+build	Checkout	2025-09-05T16:18:24.9546612Z HEAD is now at 1c84f44 Merge 081c31d1c5e2d4ecac00beb204c469f899a1eb69 into 9fbe69d5ee60f80981eb3a793f1bda0ffd11d96d
+build	Checkout	2025-09-05T16:18:24.9552517Z ##[endgroup]
+build	Checkout	2025-09-05T16:18:24.9573124Z [command]/usr/bin/git log -1 --format=%H
+build	Checkout	2025-09-05T16:18:24.9595281Z 1c84f44b85c7fba75f5c511eaf19210ad83d2898
+build	Setup Node.js	∩╗┐2025-09-05T16:18:24.9899391Z ##[group]Run actions/setup-node@v4
+build	Setup Node.js	2025-09-05T16:18:24.9900711Z with:
+build	Setup Node.js	2025-09-05T16:18:24.9901516Z   node-version: 20
+build	Setup Node.js	2025-09-05T16:18:24.9902432Z   cache: npm
+build	Setup Node.js	2025-09-05T16:18:24.9903282Z   always-auth: false
+build	Setup Node.js	2025-09-05T16:18:24.9904202Z   check-latest: false
+build	Setup Node.js	2025-09-05T16:18:24.9905402Z   token: ***
+build	Setup Node.js	2025-09-05T16:18:24.9906240Z env:
+build	Setup Node.js	2025-09-05T16:18:24.9907063Z   npm_config_legacy_peer_deps: true
+build	Setup Node.js	2025-09-05T16:18:24.9908183Z ##[endgroup]
+build	Setup Node.js	2025-09-05T16:18:25.1932101Z Found in cache @ /opt/hostedtoolcache/node/20.19.4/x64
+build	Setup Node.js	2025-09-05T16:18:25.1938344Z ##[group]Environment details
+build	Setup Node.js	2025-09-05T16:18:26.9174113Z node: v20.19.4
+build	Setup Node.js	2025-09-05T16:18:26.9174729Z npm: 10.8.2
+build	Setup Node.js	2025-09-05T16:18:26.9175273Z yarn: 1.22.22
+build	Setup Node.js	2025-09-05T16:18:26.9176863Z ##[endgroup]
+build	Setup Node.js	2025-09-05T16:18:26.9198998Z [command]/opt/hostedtoolcache/node/20.19.4/x64/bin/npm config get cache
+build	Setup Node.js	2025-09-05T16:18:27.1873530Z /home/runner/.npm
+build	Setup Node.js	2025-09-05T16:18:27.5126086Z npm cache is not found
+build	Install (root)	∩╗┐2025-09-05T16:18:27.5273402Z ##[group]Run if [ -f package-lock.json ]; then
+build	Install (root)	2025-09-05T16:18:27.5273845Z [36;1mif [ -f package-lock.json ]; then[0m
+build	Install (root)	2025-09-05T16:18:27.5274148Z [36;1m  npm ci --legacy-peer-deps[0m
+build	Install (root)	2025-09-05T16:18:27.5274426Z [36;1melif [ -f package.json ]; then[0m
+build	Install (root)	2025-09-05T16:18:27.5274721Z [36;1m  npm install --legacy-peer-deps[0m
+build	Install (root)	2025-09-05T16:18:27.5274988Z [36;1melse[0m
+build	Install (root)	2025-09-05T16:18:27.5275219Z [36;1m  echo "No package.json at repo root; skipping"[0m
+build	Install (root)	2025-09-05T16:18:27.5275486Z [36;1mfi[0m
+build	Install (root)	2025-09-05T16:18:27.5368708Z shell: /usr/bin/bash -e {0}
+build	Install (root)	2025-09-05T16:18:27.5368983Z env:
+build	Install (root)	2025-09-05T16:18:27.5369177Z   npm_config_legacy_peer_deps: true
+build	Install (root)	2025-09-05T16:18:27.5369417Z ##[endgroup]
+build	Install (root)	2025-09-05T16:18:31.2479173Z npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+build	Install (root)	2025-09-05T16:18:31.7735788Z npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+build	Install (root)	2025-09-05T16:18:32.8058963Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+build	Install (root)	2025-09-05T16:18:35.5631743Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+build	Install (root)	2025-09-05T16:18:35.6423121Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+build	Install (root)	2025-09-05T16:18:35.8721349Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+build	Install (root)	2025-09-05T16:18:36.1214872Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+build	Install (root)	2025-09-05T16:18:42.2273918Z 
+build	Install (root)	2025-09-05T16:18:42.2274724Z added 1035 packages, and audited 1036 packages in 15s
+build	Install (root)	2025-09-05T16:18:42.2275126Z 
+build	Install (root)	2025-09-05T16:18:42.2281206Z 196 packages are looking for funding
+build	Install (root)	2025-09-05T16:18:42.2281734Z   run `npm fund` for details
+build	Install (root)	2025-09-05T16:18:42.2293713Z 
+build	Install (root)	2025-09-05T16:18:42.2293974Z found 0 vulnerabilities
+build	Type check (root)	∩╗┐2025-09-05T16:18:42.2692050Z ##[group]Run if [ -f tsconfig.json ]; then
+build	Type check (root)	2025-09-05T16:18:42.2692413Z [36;1mif [ -f tsconfig.json ]; then[0m
+build	Type check (root)	2025-09-05T16:18:42.2692677Z [36;1m  npx tsc --noEmit[0m
+build	Type check (root)	2025-09-05T16:18:42.2692880Z [36;1melse[0m
+build	Type check (root)	2025-09-05T16:18:42.2693372Z [36;1m  echo "No tsconfig.json at repo root; skipping typecheck"[0m
+build	Type check (root)	2025-09-05T16:18:42.2693690Z [36;1mfi[0m
+build	Type check (root)	2025-09-05T16:18:42.2724826Z shell: /usr/bin/bash -e {0}
+build	Type check (root)	2025-09-05T16:18:42.2725059Z env:
+build	Type check (root)	2025-09-05T16:18:42.2725231Z   npm_config_legacy_peer_deps: true
+build	Type check (root)	2025-09-05T16:18:42.2725469Z ##[endgroup]
+build	Type check (root)	2025-09-05T16:18:50.1707344Z ##[error]app/(tabs)/index.tsx(506,46): error TS2322: Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle | Falsy | RegisteredStyle<ViewStyle> | RecursiveArray<ViewStyle | Falsy | RegisteredStyle<ViewStyle>> | readonly (ViewStyle | ... 1 more ... | RegisteredStyle<...>)[]'.
+build	Type check (root)	2025-09-05T16:18:50.1721080Z   Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1722158Z     Types of property 'maxHeight' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1722949Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1727443Z ##[error]app/(tabs)/index.tsx(580,46): error TS2322: Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle | Falsy | RegisteredStyle<ViewStyle> | RecursiveArray<ViewStyle | Falsy | RegisteredStyle<ViewStyle>> | readonly (ViewStyle | ... 1 more ... | RegisteredStyle<...>)[]'.
+build	Type check (root)	2025-09-05T16:18:50.1730757Z   Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1731694Z     Types of property 'maxHeight' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1732436Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1736570Z ##[error]app/(tabs)/index.tsx(643,48): error TS2322: Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle | Falsy | RegisteredStyle<ViewStyle> | RecursiveArray<ViewStyle | Falsy | RegisteredStyle<ViewStyle>> | readonly (ViewStyle | ... 1 more ... | RegisteredStyle<...>)[]'.
+build	Type check (root)	2025-09-05T16:18:50.1739558Z   Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1740626Z     Types of property 'maxHeight' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1741346Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1744797Z ##[error]components/AIIdeasGenerator.tsx(274,5): error TS2322: Type '{ maxHeight: number; width: string; maxWidth: number; backgroundColor: string; borderRadius: number; padding: number; }' is not assignable to type 'ViewStyle | TextStyle | ImageStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1747865Z   Type '{ maxHeight: number; width: string; maxWidth: number; backgroundColor: string; borderRadius: number; padding: number; }' is not assignable to type 'ImageStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1749076Z     Types of property 'width' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1749793Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1754042Z ##[error]components/NameGenerator.tsx(166,11): error TS2739: Type '{ character: string; location: string; item: string; faction: string; lore: string; timeline: string; snapshot: string; }' is missing the following properties from type 'Record<EntityType, string>': mythology, magicSystem, template, research
+build	Type check (root)	2025-09-05T16:18:50.1760788Z ##[error]loreweaver/app/(tabs)/index.tsx(506,46): error TS2322: Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle | Falsy | RegisteredStyle<ViewStyle> | RecursiveArray<ViewStyle | Falsy | RegisteredStyle<ViewStyle>> | readonly (ViewStyle | ... 1 more ... | RegisteredStyle<...>)[]'.
+build	Type check (root)	2025-09-05T16:18:50.1763828Z   Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1764659Z     Types of property 'maxHeight' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1765804Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1769977Z ##[error]loreweaver/app/(tabs)/index.tsx(580,46): error TS2322: Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle | Falsy | RegisteredStyle<ViewStyle> | RecursiveArray<ViewStyle | Falsy | RegisteredStyle<ViewStyle>> | readonly (ViewStyle | ... 1 more ... | RegisteredStyle<...>)[]'.
+build	Type check (root)	2025-09-05T16:18:50.1773622Z   Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1774506Z     Types of property 'maxHeight' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1775242Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1779380Z ##[error]loreweaver/app/(tabs)/index.tsx(643,48): error TS2322: Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle | Falsy | RegisteredStyle<ViewStyle> | RecursiveArray<ViewStyle | Falsy | RegisteredStyle<ViewStyle>> | readonly (ViewStyle | ... 1 more ... | RegisteredStyle<...>)[]'.
+build	Type check (root)	2025-09-05T16:18:50.1782844Z   Type '{ width: string; maxWidth: number; maxHeight: string; }' is not assignable to type 'ViewStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1783769Z     Types of property 'maxHeight' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1784510Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1788021Z ##[error]loreweaver/components/AIIdeasGenerator.tsx(274,5): error TS2322: Type '{ maxHeight: number; width: string; maxWidth: number; backgroundColor: string; borderRadius: number; padding: number; }' is not assignable to type 'ViewStyle | TextStyle | ImageStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1791589Z   Type '{ maxHeight: number; width: string; maxWidth: number; backgroundColor: string; borderRadius: number; padding: number; }' is not assignable to type 'ImageStyle'.
+build	Type check (root)	2025-09-05T16:18:50.1793221Z     Types of property 'width' are incompatible.
+build	Type check (root)	2025-09-05T16:18:50.1794094Z       Type 'string' is not assignable to type 'DimensionValue | undefined'.
+build	Type check (root)	2025-09-05T16:18:50.1798219Z ##[error]loreweaver/components/NameGenerator.tsx(166,11): error TS2739: Type '{ character: string; location: string; item: string; faction: string; lore: string; timeline: string; snapshot: string; }' is missing the following properties from type 'Record<EntityType, string>': mythology, magicSystem, template, research
+build	Type check (root)	2025-09-05T16:18:50.2159220Z ##[error]Process completed with exit code 2.
+build	Post Checkout	∩╗┐2025-09-05T16:18:50.2266592Z Post job cleanup.
+build	Post Checkout	2025-09-05T16:18:50.3198989Z [command]/usr/bin/git version
+build	Post Checkout	2025-09-05T16:18:50.3234421Z git version 2.51.0
+build	Post Checkout	2025-09-05T16:18:50.3277605Z Temporarily overriding HOME='/home/runner/work/_temp/33be4998-8fcf-4337-9ebf-6087bf471dfa' before making global git config changes
+build	Post Checkout	2025-09-05T16:18:50.3279136Z Adding repository directory to the temporary git global config as a safe directory
+build	Post Checkout	2025-09-05T16:18:50.3291455Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/loreweaver/loreweaver
+build	Post Checkout	2025-09-05T16:18:50.3325060Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Post Checkout	2025-09-05T16:18:50.3356953Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Post Checkout	2025-09-05T16:18:50.3578083Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Post Checkout	2025-09-05T16:18:50.3598900Z http.https://github.com/.extraheader
+build	Post Checkout	2025-09-05T16:18:50.3612456Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build	Post Checkout	2025-09-05T16:18:50.3642926Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Complete job	∩╗┐2025-09-05T16:18:50.3983637Z Cleaning up orphan processes
