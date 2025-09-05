@@ -1,4 +1,4 @@
-name: CI (vendored, no cache)
+name: CI (vendored, cached)
 
 on:
   push:
@@ -13,14 +13,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (no cache)
+      - name: Setup Node (with npm cache)
         uses: actions/setup-node@v4
         with:
           node-version: "18.x"
+          cache: "npm"
+          cache-dependency-path: "loreweaver/package-lock.json"
 
       - name: Install deps
         working-directory: loreweaver
-        run: npm install
+        run: npm ci
+
+      - name: Type check (tolerant for now)
+        working-directory: loreweaver
+        run: npx tsc --noEmit || true
+
+      - name: Lint (tolerant for now)
+        working-directory: loreweaver
+        run: npx eslint . --max-warnings=0 || true
 
       - name: Build (tolerant)
         working-directory: loreweaver
