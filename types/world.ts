@@ -360,6 +360,7 @@ export interface Chapter {
 
 export interface AISettings {
   providers: {
+    rork?: { apiKey: string; enabled: boolean };
     openai?: { apiKey: string; enabled: boolean };
     anthropic?: { apiKey: string; enabled: boolean };
     google?: { apiKey: string; enabled: boolean };
@@ -369,6 +370,11 @@ export interface AISettings {
     together?: { apiKey: string; enabled: boolean };
     replicate?: { apiKey: string; enabled: boolean };
     fireworks?: { apiKey: string; enabled: boolean };
+    perplexity?: { apiKey: string; enabled: boolean };
+    mistral?: { apiKey: string; enabled: boolean };
+    deepseek?: { apiKey: string; enabled: boolean };
+    ollama?: { apiKey: string; enabled: boolean };
+    lmstudio?: { apiKey: string; enabled: boolean };
   };
   defaultModels: {
     textGeneration: string;
@@ -379,12 +385,19 @@ export interface AISettings {
     summarization: string;
   };
   freeKeys: {
+    rork: string;
     huggingface: string;
     cohere: string;
     groq: string;
     together: string;
     replicate: string;
     fireworks: string;
+    perplexity: string;
+    mistral: string;
+    google: string;
+    deepseek: string;
+    ollama: string;
+    lmstudio: string;
   };
 }
 

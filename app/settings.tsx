@@ -27,11 +27,21 @@ import type { AISettings } from '@/types/world';
 import CrashLogsViewer from '@/components/CrashLogsViewer';
 
 const AI_PROVIDERS = [
-  { key: 'openai', name: 'OpenAI', description: 'GPT models for text generation' },
-  { key: 'anthropic', name: 'Anthropic', description: 'Claude models for advanced reasoning' },
-  { key: 'google', name: 'Google', description: 'Gemini models for multimodal AI' },
-  { key: 'cohere', name: 'Cohere', description: 'Command models for text generation' },
-  { key: 'huggingface', name: 'Hugging Face', description: 'Open source models' },
+  { key: 'rork', name: 'Rork AI (Free)', description: 'Free AI API with GPT-4o-mini, DALL-E 3, Whisper' },
+  { key: 'huggingface', name: 'Hugging Face (Free)', description: 'Open source models with generous free tier' },
+  { key: 'groq', name: 'Groq (Free)', description: 'Ultra-fast inference with free tier' },
+  { key: 'cohere', name: 'Cohere (Free Trial)', description: 'Command models with free trial credits' },
+  { key: 'together', name: 'Together AI (Free)', description: 'Open source models with free credits' },
+  { key: 'fireworks', name: 'Fireworks AI (Free)', description: 'Fast inference with free tier' },
+  { key: 'perplexity', name: 'Perplexity (Free)', description: 'Search-augmented AI with free tier' },
+  { key: 'mistral', name: 'Mistral AI (Free)', description: 'European AI with free tier access' },
+  { key: 'google', name: 'Google AI (Free)', description: 'Gemini models with free tier' },
+  { key: 'deepseek', name: 'DeepSeek (Free)', description: 'Chinese AI models with free access' },
+  { key: 'ollama', name: 'Ollama (Local)', description: 'Run AI models locally, completely free' },
+  { key: 'lmstudio', name: 'LM Studio (Local)', description: 'Local AI inference, completely free' },
+  { key: 'replicate', name: 'Replicate', description: 'Pay-per-use with free credits' },
+  { key: 'anthropic', name: 'Anthropic', description: 'Claude models (limited free tier)' },
+  { key: 'openai', name: 'OpenAI', description: 'GPT models (requires paid account)' },
 ] as const;
 
 const AI_MODEL_TYPES = [
@@ -711,11 +721,17 @@ export default function SettingsScreen() {
                 const providerKey = provider.key as keyof AISettings['providers'];
                 const isEnabled = tempAISettings.providers[providerKey]?.enabled || false;
                 const hasKey = (tempAISettings.providers[providerKey]?.apiKey?.length || 0) > 0;
+                const isFreeProvider = ['rork', 'huggingface', 'groq', 'cohere', 'together', 'fireworks', 'perplexity', 'mistral', 'google', 'deepseek', 'ollama', 'lmstudio'].includes(provider.key);
                 
                 return (
                   <View key={provider.key} style={styles.providerCard}>
                     <View style={styles.providerHeader}>
-                      <Text style={styles.providerName}>{provider.name}</Text>
+                      <View style={styles.providerStatusContainer}>
+                        <Text style={styles.providerName}>{provider.name}</Text>
+                        {isFreeProvider && (
+                          <Text style={styles.freeKeyBadge}>FREE</Text>
+                        )}
+                      </View>
                       <View style={styles.providerStatus}>
                         <Text style={[
                           styles.providerStatus,
@@ -726,13 +742,20 @@ export default function SettingsScreen() {
                       </View>
                     </View>
                     <Text style={styles.providerDescription}>{provider.description}</Text>
+                    {isFreeProvider && (
+                      <View style={styles.freeKeyNotice}>
+                        <Text style={styles.freeKeyNoticeText}>
+                          ✨ This provider offers free access! {provider.key === 'rork' ? 'Uses Rork\'s own free AI API.' : 'No API key required for basic usage.'}
+                        </Text>
+                      </View>
+                    )}
                     <TouchableOpacity
                       style={styles.configureButton}
                       onPress={() => openProviderModal(providerKey)}
                     >
                       <Key size={12} color={theme.colors.primary} />
                       <Text style={styles.configureButtonText}>
-                        {hasKey ? 'Update API Key' : 'Add API Key'}
+                        {hasKey ? 'Update API Key' : (isFreeProvider ? 'Configure (Optional)' : 'Add API Key')}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -856,15 +879,50 @@ export default function SettingsScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false}>
               {[
-                'gpt-4o-mini',
-                'gpt-4o',
-                'gpt-4-turbo',
-                'claude-3-5-sonnet-20241022',
-                'claude-3-5-haiku-20241022',
-                'gemini-1.5-flash',
-                'gemini-1.5-pro',
-                'command-r-plus',
-                'llama-3.1-70b-versatile'
+                // Rork's free models
+                'rork/gpt-4o-mini',
+                'rork/gpt-4o',
+                'rork/claude-3-5-sonnet',
+                'rork/claude-3-5-haiku',
+                'rork/gemini-1.5-flash',
+                'rork/gemini-1.5-pro',
+                'rork/dall-e-3',
+                'rork/whisper-large-v3',
+                'rork/tts-1',
+                // Free tier models
+                'groq/llama-3.1-70b-versatile',
+                'groq/llama-3.1-8b-instant',
+                'groq/mixtral-8x7b-32768',
+                'groq/whisper-large-v3',
+                'huggingface/microsoft/DialoGPT-large',
+                'huggingface/facebook/blenderbot-400M-distill',
+                'huggingface/Helsinki-NLP/opus-mt-en-de',
+                'cohere/command-r',
+                'cohere/command-r-plus',
+                'together/meta-llama/Llama-2-7b-chat-hf',
+                'together/meta-llama/Llama-2-13b-chat-hf',
+                'together/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                'fireworks/accounts/fireworks/models/llama-v2-7b-chat',
+                'fireworks/accounts/fireworks/models/mixtral-8x7b-instruct',
+                'perplexity/llama-3.1-sonar-small-128k-online',
+                'perplexity/llama-3.1-sonar-large-128k-online',
+                'mistral/mistral-7b-instruct',
+                'mistral/mixtral-8x7b-instruct',
+                'google/gemini-1.5-flash',
+                'google/gemini-1.5-pro',
+                'deepseek/deepseek-chat',
+                'deepseek/deepseek-coder',
+                'ollama/llama3.1:8b',
+                'ollama/codellama:7b',
+                'ollama/mistral:7b',
+                'lmstudio/local-model',
+                // Paid models
+                'openai/gpt-4o-mini',
+                'openai/gpt-4o',
+                'openai/gpt-4-turbo',
+                'anthropic/claude-3-5-sonnet-20241022',
+                'anthropic/claude-3-5-haiku-20241022',
+                'replicate/stability-ai/stable-diffusion'
               ].map((model) => {
                 const isSelected = selectedModelType && tempAISettings.defaultModels[selectedModelType] === model;
                 
@@ -896,11 +954,22 @@ export default function SettingsScreen() {
                       {model}
                     </Text>
                     <Text style={styles.providerDescription}>
-                      {model.includes('gpt') ? 'OpenAI GPT Model' :
-                       model.includes('claude') ? 'Anthropic Claude Model' :
-                       model.includes('gemini') ? 'Google Gemini Model' :
-                       model.includes('command') ? 'Cohere Command Model' :
-                       model.includes('llama') ? 'Meta Llama Model' : 'AI Model'}
+                      {model.includes('rork/') ? '🆓 Rork Free AI Model' :
+                       model.includes('groq/') ? '🆓 Groq Fast Inference' :
+                       model.includes('huggingface/') ? '🆓 Hugging Face Open Source' :
+                       model.includes('cohere/') ? '🆓 Cohere Free Trial' :
+                       model.includes('together/') ? '🆓 Together AI Free Credits' :
+                       model.includes('fireworks/') ? '🆓 Fireworks AI Free Tier' :
+                       model.includes('perplexity/') ? '🆓 Perplexity Search AI' :
+                       model.includes('mistral/') ? '🆓 Mistral AI Free Tier' :
+                       model.includes('google/') ? '🆓 Google AI Free Tier' :
+                       model.includes('deepseek/') ? '🆓 DeepSeek Free Access' :
+                       model.includes('ollama/') ? '🆓 Ollama Local AI' :
+                       model.includes('lmstudio/') ? '🆓 LM Studio Local AI' :
+                       model.includes('openai/') ? '💰 OpenAI (Paid)' :
+                       model.includes('anthropic/') ? '💰 Anthropic (Paid)' :
+                       model.includes('replicate/') ? '💰 Replicate (Pay-per-use)' :
+                       'AI Model'}
                     </Text>
                   </TouchableOpacity>
                 );

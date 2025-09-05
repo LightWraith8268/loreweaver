@@ -54,15 +54,25 @@ Mythologies: ${mythologies.map(m => m.name).join(', ')}`;
   };
   
   const makeAIRequest = async (messages: any[]) => {
-    const response = await fetch('https://toolkit.rork.com/text/llm/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages }),
-    });
-    
-    if (!response.ok) throw new Error('AI request failed');
-    const data = await response.json();
-    return data.completion;
+    try {
+      const response = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('AI request failed:', response.status, errorText);
+        throw new Error(`AI request failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.completion;
+    } catch (error) {
+      console.error('AI request error:', error);
+      throw error;
+    }
   };
   
   const expandCharacter = async (character: Character): Promise<Partial<Character>> => {
