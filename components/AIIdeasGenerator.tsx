@@ -279,6 +279,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       padding: getScaledSpacing(theme.spacing.lg),
       ...modalDimensions,
       maxHeight: isTablet ? '85%' : '90%',
+      position: 'relative',
     },
     modalHeader: {
       flexDirection: 'row',
@@ -293,10 +294,14 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
     },
     closeButton: {
       position: 'absolute',
-      top: getScaledSpacing(theme.spacing.md),
-      right: getScaledSpacing(theme.spacing.md),
+      top: 8,
+      right: 8,
       padding: theme.spacing.sm,
       borderRadius: theme.borderRadius.full,
+      zIndex: 10,
+      backgroundColor: theme.colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
     },
     content: {
       flex: 1,
@@ -553,13 +558,20 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
     >
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, isTablet && isLandscape && { flexDirection: 'row', gap: getScaledSpacing(theme.spacing.lg) }]}>
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+            accessibilityLabel="Close ideas generator"
+            testID="ai-ideas-close"
+            hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+          >
+            <X size={24} color={theme.colors.text} />
+          </TouchableOpacity>
+
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {contextType === 'world' && currentWorld ? `${currentWorld.name} - AI Ideas` : 'AI Ideas Generator'}
             </Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityLabel="Close ideas generator">
-              <X size={24} color={theme.colors.text} />
-            </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
