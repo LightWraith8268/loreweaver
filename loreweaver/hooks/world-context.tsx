@@ -265,7 +265,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
   });
   
   // Generic entity mutations
-  const createEntityMutation = (type: EntityType) => useMutation({
+  export const useCreateEntityMutation = (type: EntityType) => useMutation({
     mutationFn: async (entity: any) => {
       if (!currentWorld) throw new Error('No world selected');
       const key = `${type}s_${currentWorld.id}`;
@@ -287,7 +287,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     },
   });
   
-  const updateEntityMutation = (type: EntityType) => useMutation({
+  export const useUpdateEntityMutation = (type: EntityType) => useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
       if (!currentWorld) throw new Error('No world selected');
       const key = `${type}s_${currentWorld.id}`;
@@ -304,7 +304,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     },
   });
   
-  const deleteEntityMutation = (type: EntityType) => useMutation({
+  export const useDeleteEntityMutation = (type: EntityType) => useMutation({
     mutationFn: async (id: string) => {
       if (!currentWorld) throw new Error('No world selected');
       const key = `${type}s_${currentWorld.id}`;
@@ -672,3 +672,4 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     isLoading: worldsQuery.isLoading || charactersQuery.isLoading || locationsQuery.isLoading,
   };
 });
+
