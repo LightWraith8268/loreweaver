@@ -86,31 +86,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="entities"
-        options={{
-          title: "Entities",
-          tabBarIcon: ({ color }) => <Users size={isTablet ? 28 : 24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="world"
         options={{
           title: "World",
           tabBarIcon: ({ color }) => <MapPin size={isTablet ? 28 : 24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="systems"
-        options={{
-          title: "Systems",
-          tabBarIcon: ({ color }) => <Sparkles size={isTablet ? 28 : 24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="lore"
-        options={{
-          title: "Lore",
-          tabBarIcon: ({ color }) => <ScrollText size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -128,10 +107,31 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="systems"
+        options={{
+          title: "Systems",
+          tabBarIcon: ({ color }) => <Sparkles size={isTablet ? 28 : 24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="lore"
+        options={{
+          title: "Lore",
+          tabBarIcon: ({ color }) => <ScrollText size={isTablet ? 28 : 24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="plot"
         options={{
           title: "Plot",
           tabBarIcon: ({ color }) => <Layers size={isTablet ? 28 : 24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="entities"
+        options={{
+          title: "Entities",
+          tabBarIcon: ({ color }) => <Users size={isTablet ? 28 : 24} color={color} />,
         }}
       />
       <Tabs.Screen
