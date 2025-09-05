@@ -488,6 +488,7 @@ export default function DashboardScreen() {
               icon: <Lightbulb size={20} color={theme.colors.text} />,
             }}
             variant="page"
+            size="compact"
             testID="dashboard-select-world"
           />
         )}

@@ -25,6 +25,7 @@ type SelectWorldPromptProps = {
     icon?: React.ReactNode;
   };
   variant?: PromptVariant;
+  size?: 'default' | 'compact';
   testID?: string;
 };
 
@@ -36,6 +37,7 @@ export function SelectWorldPrompt({
   customIcon,
   customAction,
   variant = 'page',
+  size = 'default',
   testID,
 }: SelectWorldPromptProps) {
   const { settings } = useSettings();
@@ -57,6 +59,7 @@ export function SelectWorldPrompt({
   };
 
   const isInline = variant === 'inline';
+  const compact = size === 'compact';
 
   const styles = StyleSheet.create({
     container: {
@@ -65,44 +68,53 @@ export function SelectWorldPrompt({
       paddingHorizontal: getScaledSpacing(isInline ? theme.spacing.md : theme.spacing.xl),
       paddingVertical: getScaledSpacing(isInline ? theme.spacing.lg : theme.spacing.xxl),
       backgroundColor: theme.colors.background,
-      ...(isInline ? {} : { flex: 1 }),
+      ...(isInline ? { width: '100%' } : { flex: 1 }),
     },
     iconContainer: {
       marginBottom: getScaledSpacing(isInline ? theme.spacing.md : theme.spacing.xl),
       opacity: 0.6,
     },
     title: {
-      fontSize: getScaledSize(isInline ? theme.fontSize.lg : (isTablet ? theme.fontSize.xxl : theme.fontSize.xl)),
+      fontSize: getScaledSize(
+        compact
+          ? theme.fontSize.lg
+          : isInline
+          ? theme.fontSize.lg
+          : isTablet
+          ? theme.fontSize.xxl
+          : theme.fontSize.xl
+      ),
       fontWeight: theme.fontWeight.bold,
       color: theme.colors.text,
       textAlign: 'center',
       marginBottom: getScaledSpacing(isInline ? theme.spacing.xs : theme.spacing.md),
     },
     description: {
-      fontSize: getScaledSize(isInline ? theme.fontSize.sm : theme.fontSize.md),
+      fontSize: getScaledSize(compact ? theme.fontSize.sm : isInline ? theme.fontSize.sm : theme.fontSize.md),
       color: theme.colors.textSecondary,
       textAlign: 'center',
-      lineHeight: getScaledSize((isInline ? theme.fontSize.sm : theme.fontSize.md) * 1.5),
+      lineHeight: getScaledSize(((compact ? theme.fontSize.sm : isInline ? theme.fontSize.sm : theme.fontSize.md) as number) * 1.5),
       marginBottom: getScaledSpacing(isInline ? theme.spacing.md : theme.spacing.xl),
-      maxWidth: isTablet ? 600 : 320,
+      maxWidth: 520,
     },
     buttonsContainer: {
-      flexDirection: isTablet && isLandscape ? 'row' : 'column',
+      flexDirection: (isTablet && isLandscape && !compact) ? 'row' : 'column',
       gap: getScaledSpacing(isInline ? theme.spacing.sm : theme.spacing.md),
       alignItems: 'center',
+      justifyContent: 'center',
       width: '100%',
-      maxWidth: isTablet ? 420 : 320,
+      maxWidth: 420,
     },
     primaryButton: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: getScaledSpacing(isInline ? theme.spacing.lg : theme.spacing.xl),
-      paddingVertical: getScaledSpacing(isInline ? theme.spacing.md : theme.spacing.lg),
+      paddingHorizontal: getScaledSpacing(compact ? theme.spacing.lg : isInline ? theme.spacing.lg : theme.spacing.xl),
+      paddingVertical: getScaledSpacing(compact ? theme.spacing.sm : isInline ? theme.spacing.md : theme.spacing.lg),
       borderRadius: theme.borderRadius.full,
-      minHeight: isTablet ? 52 : theme.mobile.buttonMinHeight,
-      minWidth: isTablet && isLandscape ? 180 : '100%',
+      minHeight: compact ? 44 : isTablet ? 52 : theme.mobile.buttonMinHeight,
+      minWidth: (isTablet && isLandscape && !compact) ? 180 : '100%',
       gap: getScaledSpacing(theme.spacing.sm),
       ...theme.shadows.large,
     },
@@ -113,20 +125,20 @@ export function SelectWorldPrompt({
       backgroundColor: 'transparent',
       borderWidth: 2,
       borderColor: theme.colors.border,
-      paddingHorizontal: getScaledSpacing(isInline ? theme.spacing.lg : theme.spacing.xl),
-      paddingVertical: getScaledSpacing(isInline ? theme.spacing.md : theme.spacing.lg),
+      paddingHorizontal: getScaledSpacing(compact ? theme.spacing.lg : isInline ? theme.spacing.lg : theme.spacing.xl),
+      paddingVertical: getScaledSpacing(compact ? theme.spacing.sm : isInline ? theme.spacing.md : theme.spacing.lg),
       borderRadius: theme.borderRadius.full,
-      minHeight: isTablet ? 52 : theme.mobile.buttonMinHeight,
-      minWidth: isTablet && isLandscape ? 180 : '100%',
+      minHeight: compact ? 44 : isTablet ? 52 : theme.mobile.buttonMinHeight,
+      minWidth: (isTablet && isLandscape && !compact) ? 180 : '100%',
       gap: getScaledSpacing(theme.spacing.sm),
     },
     primaryButtonText: {
-      fontSize: getScaledSize(isInline ? theme.fontSize.sm : theme.fontSize.md),
+      fontSize: getScaledSize(compact ? theme.fontSize.sm : isInline ? theme.fontSize.sm : theme.fontSize.md),
       fontWeight: theme.fontWeight.semibold,
       color: theme.colors.background,
     },
     secondaryButtonText: {
-      fontSize: getScaledSize(isInline ? theme.fontSize.sm : theme.fontSize.md),
+      fontSize: getScaledSize(compact ? theme.fontSize.sm : isInline ? theme.fontSize.sm : theme.fontSize.md),
       fontWeight: theme.fontWeight.medium,
       color: theme.colors.text,
     },
