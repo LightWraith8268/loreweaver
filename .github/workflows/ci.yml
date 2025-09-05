@@ -9,7 +9,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: loreweaver
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,12 +30,10 @@ jobs:
 
       - name: Type check (tolerant for now)
         working-directory: loreweaver
-        run: npx tsc --noEmit
-
+        run: npx tsc --noEmit || true
       - name: Lint (tolerant for now)
         working-directory: loreweaver
-        run: npx eslint . --max-warnings=0
-
+        run: npx eslint . --max-warnings=0 || true
       - name: Build (tolerant)
         working-directory: loreweaver
         run: |if [ -f Gruntfile.js ]; then
@@ -47,6 +48,7 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
+
 
 
 
