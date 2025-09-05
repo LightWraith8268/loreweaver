@@ -1,0 +1,69 @@
+# Node modules
+node_modules/
+.bun/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Expo & React Native specific
+.expo/
+.expo-shared/
+.expo-dev/
+.expo/*
+.expo-shared/*
+web-build/
+android/
+ios/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun-debug.log*
+*.log
+
+# Lockfiles (keep only ONE: npm, yarn, pnpm, bun)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Local environment files
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.iml
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+coverage/
+*.lcov
+
+# Expo credentials (don’t commit these!)
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.pem
+*.key
+google-services.json
+GoogleService-Info.plist
+
+# Mac specific
+*.swp
+*~
