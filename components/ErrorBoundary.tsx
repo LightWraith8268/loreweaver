@@ -1,8 +1,8 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
-import { AlertTriangle, RefreshCw, Send } from 'lucide-react-native';
+import { AlertTriangle, RefreshCw, Send, X } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { theme } from '@/constants/theme';
+import { createTheme } from '@/constants/theme';
 
 interface Props {
   children: ReactNode;
@@ -13,6 +13,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: any;
+  isDismissed: boolean;
 }
 
 interface CrashLog {
@@ -40,14 +41,16 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
+      isDismissed: false,
     };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return {
       hasError: true,
       error,
       errorInfo: null,
+      isDismissed: false,
     };
   }
 
@@ -106,6 +109,13 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
+      isDismissed: false,
+    });
+  };
+  
+  private handleDismiss = () => {
+    this.setState({
+      isDismissed: true,
     });
   };
 
@@ -155,15 +165,23 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.hasError && !this.state.isDismissed) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
+      
+      const theme = createTheme('dark'); // Use dark theme for error boundary
+      const styles = this.getStyles(theme);
 
       return (
         <View style={styles.container}>
           <View style={styles.content}>
-            <AlertTriangle size={64} color={theme.colors.error} style={styles.icon} />
+            <View style={styles.header}>
+              <AlertTriangle size={64} color={theme.colors.error} style={styles.icon} />
+              <TouchableOpacity style={styles.closeButton} onPress={this.handleDismiss}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
             
             <Text style={styles.title}>Something went wrong</Text>
             
@@ -199,98 +217,111 @@ class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
+  
+  private getStyles = (theme: ReturnType<typeof createTheme>) => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.lg,
+    },
+    content: {
+      alignItems: 'center',
+      maxWidth: 400,
+      width: '100%',
+    },
+    header: {
+      width: '100%',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.lg,
+    },
+    closeButton: {
+      padding: theme.spacing.sm,
+      borderRadius: theme.borderRadius.full,
+      backgroundColor: theme.colors.surface,
+    },
+    icon: {
+      flex: 1,
+      textAlign: 'center',
+    },
+    title: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: theme.fontWeight.bold,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.md,
+      textAlign: 'center',
+    },
+    message: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 24,
+      marginBottom: theme.spacing.xl,
+    },
+    errorDetails: {
+      backgroundColor: theme.colors.surface,
+      padding: theme.spacing.md,
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing.xl,
+      width: '100%',
+      maxHeight: 200,
+    },
+    errorTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: theme.fontWeight.semibold,
+      color: theme.colors.error,
+      marginBottom: theme.spacing.sm,
+    },
+    errorText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.text,
+      marginBottom: theme.spacing.sm,
+    },
+    stackTrace: {
+      fontSize: theme.fontSize.xs,
+      color: theme.colors.textSecondary,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    },
+    buttonContainer: {
+      width: '100%',
+      gap: theme.spacing.md,
+    },
+    primaryButton: {
+      backgroundColor: theme.colors.primary,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      borderRadius: theme.borderRadius.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+    },
+    primaryButtonText: {
+      color: theme.colors.background,
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold,
+    },
+    secondaryButton: {
+      backgroundColor: 'transparent',
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+    },
+    secondaryButtonText: {
+      color: theme.colors.primary,
+      fontSize: theme.fontSize.md,
+      fontWeight: theme.fontWeight.semibold,
+    },
+  });
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-  },
-  content: {
-    alignItems: 'center',
-    maxWidth: 400,
-    width: '100%',
-  },
-  icon: {
-    marginBottom: theme.spacing.lg,
-  },
-  title: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: theme.spacing.xl,
-  },
-  errorDetails: {
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.xl,
-    width: '100%',
-    maxHeight: 200,
-  },
-  errorTitle: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.error,
-    marginBottom: theme.spacing.sm,
-  },
-  errorText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  stackTrace: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-  },
-  buttonContainer: {
-    width: '100%',
-    gap: theme.spacing.md,
-  },
-  primaryButton: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-  },
-  primaryButtonText: {
-    color: theme.colors.background,
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-  },
-  secondaryButtonText: {
-    color: theme.colors.primary,
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-  },
-});
 
 export default ErrorBoundary;

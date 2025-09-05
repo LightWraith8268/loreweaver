@@ -472,7 +472,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
     }
   };
 
-  const styles = StyleSheet.create({
+  const styles = React.useMemo(() => StyleSheet.create({
     modalOverlay: {
       flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -709,7 +709,7 @@ export const EnhancedExportSystem: React.FC<EnhancedExportSystemProps> = ({
       fontWeight: theme.fontWeight.medium as any,
       color: theme.colors.surface,
     },
-  });
+  }), [theme]);
 
 
 

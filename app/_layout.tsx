@@ -1,14 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Platform, StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { WorldProvider } from "@/hooks/world-context";
 import { AIProvider } from "@/hooks/ai-context";
-import { SettingsProvider } from "@/hooks/settings-context";
-import { theme } from "@/constants/theme";
+import { SettingsProvider, useSettings } from "@/hooks/settings-context";
+import { createTheme } from "@/constants/theme";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { crashLogger } from "@/utils/crash-logger";
 
@@ -33,6 +33,24 @@ const queryClient = new QueryClient({
 });
 
 function RootLayoutNav() {
+  const { settings } = useSettings();
+  const theme = createTheme(settings.theme);
+  
+  // Apply global font settings
+  const getFontSize = useCallback((baseSize: number) => {
+    const multiplier = {
+      'small': 0.85,
+      'medium': 1,
+      'large': 1.15,
+      'extra-large': 1.3
+    }[settings.typography.fontSize];
+    return Math.round(baseSize * multiplier);
+  }, [settings.typography.fontSize]);
+  
+  const getFontFamily = useCallback(() => {
+    return settings.typography.fontFamily === 'System' ? undefined : settings.typography.fontFamily;
+  }, [settings.typography.fontFamily]);
+  
   return (
     <Stack screenOptions={{ 
       headerBackTitle: Platform.OS === 'ios' ? "Back" : "",
@@ -49,7 +67,8 @@ function RootLayoutNav() {
       headerTintColor: theme.colors.text,
       headerTitleStyle: {
         fontWeight: theme.fontWeight.semibold,
-        fontSize: Platform.OS === 'ios' ? theme.fontSize.lg : theme.fontSize.lg + 1,
+        fontSize: getFontSize(Platform.OS === 'ios' ? theme.fontSize.lg : theme.fontSize.lg + 1),
+        fontFamily: getFontFamily(),
       },
       contentStyle: {
         backgroundColor: theme.colors.background,
@@ -101,14 +120,32 @@ function RootLayoutNav() {
   );
 }
 
-export default function RootLayout() {
+function ThemedRootLayout() {
+  const { settings } = useSettings();
+  const theme = createTheme(settings.theme);
+  
   useEffect(() => {
     // Configure status bar for mobile
     if (Platform.OS === 'android') {
       StatusBar.setBackgroundColor(theme.colors.surface, true);
-      StatusBar.setBarStyle('light-content', true);
+      StatusBar.setBarStyle(settings.theme === 'light' ? 'dark-content' : 'light-content', true);
     }
-    
+  }, [theme.colors.surface, settings.theme]);
+  
+  return (
+    <>
+      <StatusBar 
+        barStyle={settings.theme === 'light' ? 'dark-content' : 'light-content'} 
+        backgroundColor={theme.colors.surface}
+        translucent={Platform.OS === 'android'}
+      />
+      <RootLayoutNav />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  useEffect(() => {
     // Initialize crash logger with app info
     crashLogger.setUserInfo('anonymous', '1.0.0', '1');
     
@@ -119,16 +156,11 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <StatusBar 
-            barStyle="light-content" 
-            backgroundColor={theme.colors.surface}
-            translucent={Platform.OS === 'android'}
-          />
           <ErrorBoundary>
             <SettingsProvider>
               <WorldProvider>
                 <AIProvider>
-                  <RootLayoutNav />
+                  <ThemedRootLayout />
                 </AIProvider>
               </WorldProvider>
             </SettingsProvider>

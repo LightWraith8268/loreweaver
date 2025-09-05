@@ -545,6 +545,21 @@ export const deviceInfo = {
   getResponsiveValue,
 };
 
+// Font utilities
+export const getFontSize = (baseSize: number, fontSize: 'small' | 'medium' | 'large' | 'extra-large') => {
+  const multiplier = {
+    'small': 0.85,
+    'medium': 1,
+    'large': 1.15,
+    'extra-large': 1.3
+  }[fontSize];
+  return Math.round(baseSize * multiplier);
+};
+
+export const getFontFamily = (fontFamily: 'System' | 'Raleway' | 'Georgia' | 'Times' | 'Helvetica' | 'Arial') => {
+  return fontFamily === 'System' ? undefined : fontFamily;
+};
+
 // Export responsive utilities
 export const responsive = {
   getResponsiveValue,
@@ -552,4 +567,10 @@ export const responsive = {
   getResponsiveSpacing,
   getGridLayout,
   getOrientationDimensions,
+};
+
+// Typography utilities
+export const typography = {
+  getFontSize,
+  getFontFamily,
 };

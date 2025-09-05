@@ -22,7 +22,7 @@ import {
   Bug,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
-import { createTheme, type ThemeMode } from '@/constants/theme';
+import { createTheme, getFontSize, getFontFamily, type ThemeMode } from '@/constants/theme';
 import type { AISettings } from '@/types/world';
 import CrashLogsViewer from '@/components/CrashLogsViewer';
 
@@ -137,7 +137,11 @@ export default function SettingsScreen() {
     setShowProviderModal(true);
   };
 
-  const styles = React.useMemo(() => StyleSheet.create({
+  const styles = React.useMemo(() => {
+    const fontFamily = getFontFamily(settings.typography.fontFamily);
+    const getScaledFontSize = (baseSize: number) => getFontSize(baseSize, settings.typography.fontSize);
+    
+    return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -152,10 +156,11 @@ export default function SettingsScreen() {
       marginBottom: theme.spacing.xl,
     },
     sectionTitle: {
-      fontSize: theme.fontSize.lg,
+      fontSize: getScaledFontSize(theme.fontSize.lg),
       fontWeight: theme.fontWeight.bold,
       color: theme.colors.text,
       marginBottom: theme.spacing.md,
+      fontFamily,
     },
     settingCard: {
       backgroundColor: theme.colors.surface,
@@ -175,14 +180,16 @@ export default function SettingsScreen() {
       marginRight: theme.spacing.md,
     },
     settingTitle: {
-      fontSize: theme.fontSize.md,
+      fontSize: getScaledFontSize(theme.fontSize.md),
       fontWeight: theme.fontWeight.semibold,
       color: theme.colors.text,
       marginBottom: 4,
+      fontFamily,
     },
     settingDescription: {
-      fontSize: theme.fontSize.sm,
+      fontSize: getScaledFontSize(theme.fontSize.sm),
       color: theme.colors.textSecondary,
+      fontFamily,
     },
     themeButtons: {
       flexDirection: 'row',
@@ -260,9 +267,10 @@ export default function SettingsScreen() {
       marginBottom: theme.spacing.lg,
     },
     modalTitle: {
-      fontSize: theme.fontSize.xl,
+      fontSize: getScaledFontSize(theme.fontSize.xl),
       fontWeight: theme.fontWeight.bold,
       color: theme.colors.text,
+      fontFamily,
     },
     providerCard: {
       backgroundColor: theme.colors.surfaceLight,
@@ -476,7 +484,8 @@ export default function SettingsScreen() {
       borderRadius: theme.borderRadius.sm,
       marginTop: theme.spacing.sm,
     },
-  }), [theme]);
+  });
+  }, [theme, settings.typography]);
 
   return (
     <View style={styles.container}>
@@ -558,9 +567,16 @@ export default function SettingsScreen() {
                         styles.fontSizeButton,
                         settings.typography.fontSize === size && styles.fontSizeButtonActive,
                       ]}
-                      onPress={() => updateSettings({ 
-                        typography: { ...settings.typography, fontSize: size }
-                      })}
+                      onPress={async () => {
+                        try {
+                          await updateSettings({ 
+                            typography: { ...settings.typography, fontSize: size }
+                          });
+                        } catch (error) {
+                          console.error('Failed to update font size:', error);
+                          Alert.alert('Error', 'Failed to update font size');
+                        }
+                      }}
                     >
                       <Text style={[
                         styles.fontSizeButtonText,
