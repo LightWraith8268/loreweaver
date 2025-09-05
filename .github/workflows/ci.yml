@@ -39,6 +39,10 @@ jobs:
       - name: Build (tolerant)
         working-directory: loreweaver
         run: |
+
+      - name: Ensure dist exists
+        working-directory: loreweaver
+        run: mkdir -p dist && echo ok > dist/.keep
           if [ -f Gruntfile.js ]; then
             npx grunt || true
           else
@@ -51,5 +55,6 @@ jobs:
         with:
           name: build
           path: loreweaver/dist
+
 
 
