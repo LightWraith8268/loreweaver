@@ -12,19 +12,17 @@ import {
 } from 'react-native';
 import { Stack, router } from 'expo-router';
 import {
-  Moon,
-  Sun,
   Bot,
   Key,
   RotateCcw,
   X,
   ChevronRight,
   Type,
-
+  Palette,
   Bug,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
-import { createTheme } from '@/constants/theme';
+import { createTheme, type ThemeMode } from '@/constants/theme';
 import type { AISettings } from '@/types/world';
 import CrashLogsViewer from '@/components/CrashLogsViewer';
 
@@ -56,13 +54,27 @@ export default function SettingsScreen() {
   const [tempAISettings, setTempAISettings] = useState<AISettings>(settings.ai);
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [selectedModelType, setSelectedModelType] = useState<keyof AISettings['defaultModels'] | null>(null);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const [showFontSelector, setShowFontSelector] = useState(false);
 
-  const handleThemeChange = async (newTheme: 'dark' | 'light') => {
+  const handleThemeChange = async (newTheme: ThemeMode) => {
     try {
       await updateSettings({ theme: newTheme });
     } catch (error) {
       console.error('Failed to update theme:', error);
       Alert.alert('Error', 'Failed to update theme');
+    }
+  };
+
+  const handleFontChange = async (fontFamily: 'System' | 'Raleway' | 'Georgia' | 'Times' | 'Helvetica' | 'Arial') => {
+    try {
+      await updateSettings({ 
+        typography: { ...settings.typography, fontFamily }
+      });
+      setShowFontSelector(false);
+    } catch (error) {
+      console.error('Failed to update font:', error);
+      Alert.alert('Error', 'Failed to update font');
     }
   };
 
@@ -490,42 +502,19 @@ export default function SettingsScreen() {
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Theme</Text>
                   <Text style={styles.settingDescription}>
-                    Choose between light and dark mode
+                    Choose from multiple beautiful themes
                   </Text>
                 </View>
-                <View style={styles.themeButtons}>
-                  <TouchableOpacity
-                    style={[
-                      styles.themeButton,
-                      settings.theme === 'light' && styles.themeButtonActive,
-                    ]}
-                    onPress={() => handleThemeChange('light')}
-                  >
-                    <Sun size={16} color={settings.theme === 'light' ? theme.colors.background : theme.colors.text} />
-                    <Text style={[
-                      styles.themeButtonText,
-                      settings.theme === 'light' && styles.themeButtonTextActive,
-                    ]}>
-                      Light
-                    </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={[
-                      styles.themeButton,
-                      settings.theme === 'dark' && styles.themeButtonActive,
-                    ]}
-                    onPress={() => handleThemeChange('dark')}
-                  >
-                    <Moon size={16} color={settings.theme === 'dark' ? theme.colors.background : theme.colors.text} />
-                    <Text style={[
-                      styles.themeButtonText,
-                      settings.theme === 'dark' && styles.themeButtonTextActive,
-                    ]}>
-                      Dark
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                  style={styles.dropdownButton}
+                  onPress={() => setShowThemeSelector(true)}
+                >
+                  <Palette size={16} color={theme.colors.textSecondary} />
+                  <Text style={styles.dropdownText}>
+                    {settings.theme.charAt(0).toUpperCase() + settings.theme.slice(1)}
+                  </Text>
+                  <ChevronRight size={16} color={theme.colors.textSecondary} />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -544,12 +533,7 @@ export default function SettingsScreen() {
                 </View>
                 <TouchableOpacity
                   style={styles.dropdownButton}
-                  onPress={() => {
-                    Alert.alert(
-                      'Font Selection',
-                      'Available fonts: System (default), Raleway, Georgia, Times, Helvetica, Arial. Font selection UI coming soon!'
-                    );
-                  }}
+                  onPress={() => setShowFontSelector(true)}
                 >
                   <Type size={16} color={theme.colors.textSecondary} />
                   <Text style={styles.dropdownText}>{settings.typography.fontFamily}</Text>
@@ -916,6 +900,137 @@ export default function SettingsScreen() {
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Theme Selector Modal */}
+      <Modal
+        visible={showThemeSelector}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowThemeSelector(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Choose Theme</Text>
+              <TouchableOpacity onPress={() => setShowThemeSelector(false)}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {([
+                { key: 'dark', name: 'Dark', description: 'Classic dark theme for comfortable reading' },
+                { key: 'light', name: 'Light', description: 'Clean light theme for bright environments' },
+                { key: 'sepia', name: 'Sepia', description: 'Warm, paper-like theme for extended reading' },
+                { key: 'forest', name: 'Forest', description: 'Nature-inspired green theme' },
+                { key: 'ocean', name: 'Ocean', description: 'Deep blue theme inspired by the sea' },
+                { key: 'sunset', name: 'Sunset', description: 'Warm orange and red tones' },
+                { key: 'cyberpunk', name: 'Cyberpunk', description: 'Neon colors for sci-fi worlds' },
+                { key: 'royal', name: 'Royal', description: 'Rich purple theme for fantasy settings' },
+                { key: 'mint', name: 'Mint', description: 'Fresh green theme for a clean look' },
+              ] as const).map((themeOption) => {
+                const isSelected = settings.theme === themeOption.key;
+                
+                return (
+                  <TouchableOpacity
+                    key={themeOption.key}
+                    style={[
+                      styles.providerCard,
+                      isSelected && { borderColor: theme.colors.primary, borderWidth: 2 }
+                    ]}
+                    onPress={() => {
+                      handleThemeChange(themeOption.key as ThemeMode);
+                      setShowThemeSelector(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.providerName,
+                      isSelected && { color: theme.colors.primary }
+                    ]}>
+                      {themeOption.name}
+                    </Text>
+                    <Text style={styles.providerDescription}>
+                      {themeOption.description}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowThemeSelector(false)}
+              >
+                <Text style={styles.cancelButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Font Selector Modal */}
+      <Modal
+        visible={showFontSelector}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowFontSelector(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Choose Font</Text>
+              <TouchableOpacity onPress={() => setShowFontSelector(false)}>
+                <X size={24} color={theme.colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {([
+                { key: 'System', name: 'System Default', description: 'Use the device\'s default font' },
+                { key: 'Raleway', name: 'Raleway', description: 'Modern, elegant sans-serif font' },
+                { key: 'Georgia', name: 'Georgia', description: 'Classic serif font, great for reading' },
+                { key: 'Times', name: 'Times', description: 'Traditional serif font' },
+                { key: 'Helvetica', name: 'Helvetica', description: 'Clean, professional sans-serif' },
+                { key: 'Arial', name: 'Arial', description: 'Widely used sans-serif font' },
+              ] as const).map((fontOption) => {
+                const isSelected = settings.typography.fontFamily === fontOption.key;
+                
+                return (
+                  <TouchableOpacity
+                    key={fontOption.key}
+                    style={[
+                      styles.providerCard,
+                      isSelected && { borderColor: theme.colors.primary, borderWidth: 2 }
+                    ]}
+                    onPress={() => handleFontChange(fontOption.key)}
+                  >
+                    <Text style={[
+                      styles.providerName,
+                      isSelected && { color: theme.colors.primary },
+                      { fontFamily: fontOption.key === 'System' ? undefined : fontOption.key }
+                    ]}>
+                      {fontOption.name}
+                    </Text>
+                    <Text style={styles.providerDescription}>
+                      {fontOption.description}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowFontSelector(false)}
+              >
+                <Text style={styles.cancelButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -395,7 +395,7 @@ export interface TypographySettings {
 }
 
 export interface AppSettings {
-  theme: 'dark' | 'light';
+  theme: 'dark' | 'light' | 'sepia' | 'forest' | 'ocean' | 'sunset' | 'cyberpunk' | 'royal' | 'mint';
   ai: AISettings;
   offlineMode: boolean;
   autoSave: boolean;

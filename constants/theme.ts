@@ -77,9 +77,172 @@ const lightColors = {
   mythology: '#EAB308',
 };
 
+// Additional theme variants
+const sepiaColors = {
+  background: '#F4F1E8',
+  surface: '#EDE6D3',
+  surfaceLight: '#E6DCC6',
+  primary: '#8B4513',
+  primaryDark: '#654321',
+  secondary: '#CD853F',
+  accent: '#D2691E',
+  text: '#3C2415',
+  textSecondary: '#5D4037',
+  textTertiary: '#795548',
+  border: '#BCAAA4',
+  success: '#689F38',
+  warning: '#FF8F00',
+  error: '#D32F2F',
+  fantasy: '#7B1FA2',
+  scifi: '#0277BD',
+  cyberpunk: '#E65100',
+  mythology: '#F57C00',
+};
+
+const forestColors = {
+  background: '#0D1B0F',
+  surface: '#1A2E1D',
+  surfaceLight: '#243529',
+  primary: '#4CAF50',
+  primaryDark: '#388E3C',
+  secondary: '#8BC34A',
+  accent: '#CDDC39',
+  text: '#E8F5E8',
+  textSecondary: '#A5D6A7',
+  textTertiary: '#81C784',
+  border: '#2E7D32',
+  success: '#66BB6A',
+  warning: '#FFA726',
+  error: '#EF5350',
+  fantasy: '#9C27B0',
+  scifi: '#03DAC6',
+  cyberpunk: '#FF6F00',
+  mythology: '#FFB300',
+};
+
+const oceanColors = {
+  background: '#0A1929',
+  surface: '#1E3A5F',
+  surfaceLight: '#2D4A6B',
+  primary: '#0288D1',
+  primaryDark: '#0277BD',
+  secondary: '#29B6F6',
+  accent: '#4FC3F7',
+  text: '#E3F2FD',
+  textSecondary: '#90CAF9',
+  textTertiary: '#64B5F6',
+  border: '#1976D2',
+  success: '#26A69A',
+  warning: '#FFB74D',
+  error: '#EF5350',
+  fantasy: '#AB47BC',
+  scifi: '#00BCD4',
+  cyberpunk: '#FF7043',
+  mythology: '#FFCA28',
+};
+
+const sunsetColors = {
+  background: '#2D1B1B',
+  surface: '#3D2B2B',
+  surfaceLight: '#4A3535',
+  primary: '#FF6B35',
+  primaryDark: '#E55100',
+  secondary: '#FF8A65',
+  accent: '#FFAB91',
+  text: '#FFF3E0',
+  textSecondary: '#FFCC02',
+  textTertiary: '#FFB74D',
+  border: '#BF360C',
+  success: '#66BB6A',
+  warning: '#FFC107',
+  error: '#F44336',
+  fantasy: '#E91E63',
+  scifi: '#00BCD4',
+  cyberpunk: '#FF5722',
+  mythology: '#FF9800',
+};
+
+const cyberpunkColors = {
+  background: '#0A0A0A',
+  surface: '#1A1A2E',
+  surfaceLight: '#16213E',
+  primary: '#00F5FF',
+  primaryDark: '#00E5FF',
+  secondary: '#FF0080',
+  accent: '#FFFF00',
+  text: '#00FF41',
+  textSecondary: '#00D4AA',
+  textTertiary: '#00BCD4',
+  border: '#0F3460',
+  success: '#00FF00',
+  warning: '#FFFF00',
+  error: '#FF0040',
+  fantasy: '#FF00FF',
+  scifi: '#00FFFF',
+  cyberpunk: '#FF6600',
+  mythology: '#FFD700',
+};
+
+const royalColors = {
+  background: '#1A0D2E',
+  surface: '#2D1B3D',
+  surfaceLight: '#3D2B4D',
+  primary: '#9C27B0',
+  primaryDark: '#7B1FA2',
+  secondary: '#E1BEE7',
+  accent: '#FFD700',
+  text: '#F3E5F5',
+  textSecondary: '#CE93D8',
+  textTertiary: '#BA68C8',
+  border: '#4A148C',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#F44336',
+  fantasy: '#9C27B0',
+  scifi: '#3F51B5',
+  cyberpunk: '#FF5722',
+  mythology: '#FFB300',
+};
+
+const mintColors = {
+  background: '#F0FDF4',
+  surface: '#DCFCE7',
+  surfaceLight: '#BBF7D0',
+  primary: '#059669',
+  primaryDark: '#047857',
+  secondary: '#10B981',
+  accent: '#34D399',
+  text: '#064E3B',
+  textSecondary: '#065F46',
+  textTertiary: '#047857',
+  border: '#A7F3D0',
+  success: '#10B981',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  fantasy: '#8B5CF6',
+  scifi: '#06B6D4',
+  cyberpunk: '#F97316',
+  mythology: '#EAB308',
+};
+
+// Theme color map
+const themeColors = {
+  dark: darkColors,
+  light: lightColors,
+  sepia: sepiaColors,
+  forest: forestColors,
+  ocean: oceanColors,
+  sunset: sunsetColors,
+  cyberpunk: cyberpunkColors,
+  royal: royalColors,
+  mint: mintColors,
+};
+
+export type ThemeMode = keyof typeof themeColors;
+
 // Create theme function that accepts theme mode
-export const createTheme = (mode: 'dark' | 'light' = 'dark') => ({
-  colors: mode === 'dark' ? darkColors : lightColors,
+export const createTheme = (mode: ThemeMode = 'dark') => ({
+  colors: themeColors[mode] || themeColors.dark,
   spacing: {
     xs: 4,
     sm: 8,
