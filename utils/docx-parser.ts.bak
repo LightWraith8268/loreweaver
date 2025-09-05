@@ -1,0 +1,24 @@
+import * as FileSystem from 'expo-file-system';
+import mammoth from 'mammoth';
+import { Buffer } from 'buffer';
+
+/**
+ * Parse a .docx file into HTML + plain text using Expo FileSystem + mammoth.
+ * Works with file URIs (e.g. from a picker) that Expo can read.
+ */
+export async function parseDocxContent(fileUri: string): Promise<{ html: string; text: string }> {
+  // Read as base64 then convert to Uint8Array -> ArrayBuffer
+  const base64 = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
+  const buf = Buffer.from(base64, 'base64');
+  const array = new Uint8Array(buf);
+  const result = await mammoth.convertToHtml({ arrayBuffer: array.buffer });
+
+  const html = result.value || '';
+  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return { html, text };
+}
+
+// Convenience alias if some imports use parseDocx
+export const parseDocx = parseDocxContent;
+export const parseDocxFile = parseDocxContent;
+

@@ -54,9 +54,14 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@expo/ngrok": "^4.1.0",
+    "@types/node": "^24.3.1",
     "@types/react": "~19.0.10",
-    "eslint": "^9.31.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
     "eslint-config-expo": "^9.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "grunt": "^1.6.1",
     "typescript": "~5.8.3"
   },
   "private": true,

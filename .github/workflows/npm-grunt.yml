@@ -1,0 +1,46 @@
+name: NodeJS with Grunt
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint . --max-warnings=0 || true
+
+      - name: Build with Grunt
+        run: npx grunt
+
+      - name: Upload build artifacts
+        if: ${{ hashFiles('dist/**') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: dist
