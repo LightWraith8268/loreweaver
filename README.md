@@ -214,6 +214,7 @@ Manage world knowledge and background:
 
 ### 21. **AI Provider Integration** 🤖
 **Free AI Providers Included:**
+- **Rork AI**: Free tier with GPT-4o-mini, DALL-E 3, Whisper
 - **Hugging Face**: Open source models with generous limits
 - **Groq**: Ultra-fast inference with free tier
 - **Cohere**: Free trial with good limits
@@ -252,9 +253,10 @@ Manage world knowledge and background:
 
 ## 🤖 AI Integration & Providers
 
-LoreWeaver includes **14+ AI providers** with pre-configured demo keys for immediate use:
+LoreWeaver includes **15+ AI providers** with pre-configured demo keys for immediate use:
 
 ### 🆓 Free Tier Providers (Active)
+- **🚀 Rork AI**: Free tier with GPT-4o-mini access
 - **🤗 Hugging Face**: 15k tokens/month free (Inference API)
 - **⚡ Groq**: 14k tokens/day free (Ultra-fast inference)
 - **🧠 Google AI**: 60 queries/minute free (Gemini models)
