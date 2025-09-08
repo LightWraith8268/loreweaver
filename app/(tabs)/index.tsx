@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Dimensions } from 'react-native';
 import {
   StyleSheet,
   Text,
@@ -12,28 +11,27 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
+  Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown, Lightbulb } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme, getTabBarHeight, getTouchableStyle, getSafeContentPadding, deviceInfo } from '@/constants/theme';
+import { theme, getTabBarHeight, getTouchableStyle, deviceInfo, responsive } from '@/constants/theme';
 import { useResponsiveLayout, useResponsiveGrid, useResponsiveModal } from '@/hooks/responsive-layout';
-
 import NameGenerator from '@/components/NameGenerator';
 import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { World, WorldGenre } from '@/types/world';
 
+const { getResponsiveValue } = responsive;
+
 export default function DashboardScreen() {
   const { 
-    worlds, 
     currentWorld, 
-    setCurrentWorld, 
     createWorld,
     searchQuery,
-    setSearchQuery,
     searchResults,
     characters,
     locations,
@@ -48,7 +46,6 @@ export default function DashboardScreen() {
   } = useWorld();
   const { checkConsistency, isGenerating } = useAI();
   const insets = useSafeAreaInsets();
-  const { isTablet, isLargeTablet, shouldUseGrid } = useResponsiveLayout();
   const modalDimensions = useResponsiveModal();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -145,6 +142,42 @@ export default function DashboardScreen() {
     }
   };
   
+  const validateImportData = (data: any): boolean => {
+    try {
+      // Check if it's an object
+      if (!data || typeof data !== 'object') {
+        return false;
+      }
+      
+      // Check if it has expected structure for world data
+      if (data.world) {
+        // Full world export format
+        return (
+          typeof data.world.name === 'string' &&
+          typeof data.world.id === 'string' &&
+          Array.isArray(data.characters || []) &&
+          Array.isArray(data.locations || []) &&
+          Array.isArray(data.items || []) &&
+          Array.isArray(data.factions || [])
+        );
+      }
+      
+      // Partial import format - at least one valid array
+      const hasValidData = 
+        Array.isArray(data.characters) ||
+        Array.isArray(data.locations) ||
+        Array.isArray(data.items) ||
+        Array.isArray(data.factions) ||
+        Array.isArray(data.loreNotes) ||
+        Array.isArray(data.magicSystems) ||
+        Array.isArray(data.mythologies);
+        
+      return hasValidData;
+    } catch {
+      return false;
+    }
+  };
+
   const handleImportWorld = async () => {
     if (!importData.trim()) {
       Alert.alert('Error', 'Please paste the world data');
@@ -153,14 +186,33 @@ export default function DashboardScreen() {
     
     setIsImporting(true);
     try {
-      const data = JSON.parse(importData);
+      let data;
+      
+      // Safely parse JSON with validation
+      try {
+        data = JSON.parse(importData);
+      } catch (parseError) {
+        throw new Error('Invalid JSON format. Please check your data and try again.');
+      }
+      
+      // Validate data structure
+      if (!validateImportData(data)) {
+        throw new Error('Invalid world data format. The data must contain valid world entities.');
+      }
+      
+      // Additional safety checks
+      if (data.world && (!data.world.name || data.world.name.length > 100)) {
+        throw new Error('World name is required and must be less than 100 characters.');
+      }
+      
       await importWorldData(data);
       
       Alert.alert('Success', 'World data imported successfully');
       setShowImportModal(false);
       setImportData('');
     } catch (error) {
-      Alert.alert('Error', 'Invalid world data format');
+      const errorMessage = error instanceof Error ? error.message : 'Invalid world data format';
+      Alert.alert('Import Error', errorMessage);
     } finally {
       setIsImporting(false);
     }
@@ -180,6 +232,7 @@ export default function DashboardScreen() {
     }
   };
   
+  
   const stats = currentWorld ? [
     { label: 'Characters', count: characters.length, color: theme.colors.primary },
     { label: 'Locations', count: locations.length, color: theme.colors.secondary },
@@ -190,7 +243,7 @@ export default function DashboardScreen() {
     { label: 'Lore Notes', count: loreNotes.length, color: theme.colors.success },
   ] : [];
   
-  const { columns } = useResponsiveGrid(stats.length);
+  // const { columns } = useResponsiveGrid(stats.length);  // Unused for now
   
   const genreColors: Record<WorldGenre, string> = {
     fantasy: theme.colors.fantasy,
@@ -262,12 +315,18 @@ export default function DashboardScreen() {
             <TouchableOpacity 
               style={styles.iconButton}
               onPress={() => router.push('/settings' as any)}
+              accessibilityLabel="Open settings"
+              accessibilityHint="Navigate to app settings and preferences"
+              accessibilityRole="button"
             >
               <Settings size={24} color={theme.colors.text} />
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.iconButton}
               onPress={() => router.push('/world-select' as any)}
+              accessibilityLabel="Select world"
+              accessibilityHint="Choose or create a world to work with"
+              accessibilityRole="button"
             >
               <Globe size={24} color={theme.colors.text} />
             </TouchableOpacity>
@@ -276,12 +335,18 @@ export default function DashboardScreen() {
                 <TouchableOpacity 
                   style={styles.iconButton}
                   onPress={() => setShowExportModal(true)}
+                  accessibilityLabel="Export world"
+                  accessibilityHint="Export current world data to file"
+                  accessibilityRole="button"
                 >
                   <Download size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={styles.iconButton}
                   onPress={handleCreateSnapshot}
+                  accessibilityLabel="Create snapshot"
+                  accessibilityHint="Save a snapshot of current world state"
+                  accessibilityRole="button"
                 >
                   <History size={24} color={theme.colors.text} />
                 </TouchableOpacity>
@@ -290,6 +355,9 @@ export default function DashboardScreen() {
             <TouchableOpacity 
               style={styles.iconButton}
               onPress={() => setShowImportModal(true)}
+              accessibilityLabel="Import world data"
+              accessibilityHint="Import world data from file or text"
+              accessibilityRole="button"
             >
               <Upload size={24} color={theme.colors.text} />
             </TouchableOpacity>
@@ -297,16 +365,21 @@ export default function DashboardScreen() {
         </View>
         
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        <TouchableOpacity 
+          style={styles.searchContainer}
+          onPress={() => Alert.alert('Info', 'Advanced search feature coming soon')}
+          accessibilityLabel="Open search"
+          accessibilityHint="Basic search functionality"
+          accessibilityRole="button"
+        >
           <Search size={20} color={theme.colors.textTertiary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search across all content..."
-            placeholderTextColor={theme.colors.textTertiary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+          <Text style={[styles.searchPlaceholder, { color: theme.colors.textTertiary }]}>
+            Search across all content...
+          </Text>
+          <View style={[styles.searchBadge, { backgroundColor: theme.colors.primary }]}>
+            <Text style={styles.searchBadgeText}>Advanced</Text>
+          </View>
+        </TouchableOpacity>
       </View>
       
       <ScrollView 
@@ -349,6 +422,10 @@ export default function DashboardScreen() {
                 style={styles.quickExportButton}
                 onPress={() => handleExportWorld('json')}
                 disabled={isExporting}
+                accessibilityLabel="Export world as JSON"
+                accessibilityHint="Download world data in JSON format"
+                accessibilityRole="button"
+                accessibilityState={{ disabled: isExporting }}
               >
                 {isExporting ? (
                   <ActivityIndicator size="small" color={theme.colors.primary} />
@@ -362,6 +439,9 @@ export default function DashboardScreen() {
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.primary + '20' }]}
                 onPress={() => router.push('/characters')}
+                accessibilityLabel="Create new character"
+                accessibilityHint="Navigate to character creation screen"
+                accessibilityRole="button"
               >
                 <Users size={32} color={theme.colors.primary} />
                 <Text style={styles.actionText}>New Character</Text>
@@ -370,6 +450,9 @@ export default function DashboardScreen() {
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.secondary + '20' }]}
                 onPress={() => router.push('/locations')}
+                accessibilityLabel="Create new location"
+                accessibilityHint="Navigate to location creation screen"
+                accessibilityRole="button"
               >
                 <MapPin size={32} color={theme.colors.secondary} />
                 <Text style={styles.actionText}>New Location</Text>
@@ -378,6 +461,9 @@ export default function DashboardScreen() {
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.accent + '20' }]}
                 onPress={() => router.push('/items')}
+                accessibilityLabel="Create new item"
+                accessibilityHint="Navigate to item creation screen"
+                accessibilityRole="button"
               >
                 <Package size={32} color={theme.colors.accent} />
                 <Text style={styles.actionText}>New Item</Text>
@@ -386,6 +472,9 @@ export default function DashboardScreen() {
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.warning + '20' }]}
                 onPress={() => router.push('/factions')}
+                accessibilityLabel="Create new faction"
+                accessibilityHint="Navigate to faction creation screen"
+                accessibilityRole="button"
               >
                 <Shield size={32} color={theme.colors.warning} />
                 <Text style={styles.actionText}>New Faction</Text>
@@ -395,6 +484,10 @@ export default function DashboardScreen() {
                 style={[styles.actionCard, { backgroundColor: theme.colors.success + '20' }]}
                 onPress={handleCheckConsistency}
                 disabled={isGenerating}
+                accessibilityLabel="Check world consistency"
+                accessibilityHint="Analyze world for logical contradictions using AI"
+                accessibilityRole="button"
+                accessibilityState={{ disabled: isGenerating }}
               >
                 {isGenerating ? (
                   <ActivityIndicator color={theme.colors.success} />
@@ -703,6 +796,7 @@ export default function DashboardScreen() {
         contextType={currentWorld ? 'world' : 'global'}
       />
       
+      
       {/* FAB */}
       {currentWorld && (
         <TouchableOpacity 
@@ -728,9 +822,13 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: theme.colors.surface,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
+    paddingHorizontal: getResponsiveValue({ phone: theme.spacing.md, tablet: theme.spacing.lg, largeTablet: theme.spacing.xl }),
+    paddingTop: getResponsiveValue({ 
+      phone: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.md, 
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
+    paddingBottom: getResponsiveValue({ phone: theme.spacing.sm, tablet: theme.spacing.md }),
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
     elevation: Platform.OS === 'android' ? 2 : 0,
@@ -775,26 +873,52 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
+    justifyContent: 'space-between',
   },
-  searchInput: {
+  searchPlaceholder: {
     flex: 1,
     marginLeft: theme.spacing.sm,
     fontSize: theme.fontSize.md,
-    color: theme.colors.text,
+  },
+  searchBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  searchBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
   content: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    padding: theme.spacing.md,
-    paddingTop: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md, 
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
+    paddingTop: getResponsiveValue({ 
+      phone: Platform.OS === 'ios' ? theme.spacing.sm : theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   worldCard: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.lg, 
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    marginBottom: getResponsiveValue({ 
+      phone: theme.spacing.lg, 
+      tablet: theme.spacing.xl 
+    }),
     borderWidth: 2,
   },
   worldCardHeader: {
@@ -826,14 +950,26 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.sm,
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.sm, 
+      tablet: theme.spacing.md,
+      largeTablet: theme.spacing.lg 
+    }),
   },
   statCard: {
     flex: 1,
-    minWidth: Platform.OS === 'ios' ? '30%' : '32%',
+    minWidth: getResponsiveValue({ 
+      phone: Platform.OS === 'ios' ? '30%' : '32%', 
+      tablet: '22%',
+      largeTablet: '20%' 
+    }),
     backgroundColor: theme.colors.surfaceLight,
     borderRadius: theme.borderRadius.md,
-    padding: Platform.OS === 'ios' ? theme.spacing.md : theme.spacing.md + 2,
+    padding: getResponsiveValue({ 
+      phone: Platform.OS === 'ios' ? theme.spacing.md : theme.spacing.md + 2,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
     alignItems: 'center',
     elevation: Platform.OS === 'android' ? 1 : 0,
     shadowColor: Platform.OS === 'ios' ? '#000' : 'transparent',
@@ -857,14 +993,33 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   quickActions: {
-    marginBottom: theme.spacing.lg,
+    marginBottom: getResponsiveValue({ 
+      phone: theme.spacing.lg, 
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
   },
   actionCard: {
-    width: Platform.OS === 'ios' ? 120 : 130,
-    height: Platform.OS === 'ios' ? 120 : 130,
+    width: getResponsiveValue({ 
+      phone: Platform.OS === 'ios' ? 120 : 130,
+      tablet: 140,
+      largeTablet: 160 
+    }),
+    height: getResponsiveValue({ 
+      phone: Platform.OS === 'ios' ? 120 : 130,
+      tablet: 140,
+      largeTablet: 160 
+    }),
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginRight: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
+    marginRight: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
     alignItems: 'center',
     justifyContent: 'center',
     // Ensure proper touch target
@@ -962,8 +1117,16 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.xl,
-    padding: deviceInfo.isSmallScreen ? theme.spacing.md : theme.spacing.lg,
-    margin: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: deviceInfo.isSmallScreen ? theme.spacing.md : theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    margin: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
     ...theme.shadows.large,
   },
   modalScrollContent: {

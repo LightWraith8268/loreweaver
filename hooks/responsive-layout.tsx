@@ -104,24 +104,24 @@ export function useResponsiveModal() {
   const { isTablet, isLargeTablet } = useResponsiveLayout();
 
   const getModalDimensions = () => {
+    const windowWidth = Dimensions.get('window').width;
+    const windowHeight = Dimensions.get('window').height;
+    
     if (isLargeTablet) {
       return {
-        width: '60%',
-        maxWidth: 800,
-        maxHeight: '85%',
+        width: Math.min(windowWidth * 0.6, 800),
+        maxHeight: windowHeight * 0.85,
       };
     }
     if (isTablet) {
       return {
-        width: '70%',
-        maxWidth: 600,
-        maxHeight: '85%',
+        width: Math.min(windowWidth * 0.7, 600),
+        maxHeight: windowHeight * 0.85,
       };
     }
     return {
-      width: '90%',
-      maxWidth: 400,
-      maxHeight: '85%',
+      width: Math.min(windowWidth * 0.9, 400),
+      maxHeight: windowHeight * 0.85,
     };
   };
 

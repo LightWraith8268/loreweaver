@@ -1,6 +1,7 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useState } from 'react';
 import { useWorld } from '@/hooks/world-context';
+import { requireInternetConnection } from '@/utils/network';
 import type { Character, Location, Item, Faction, LoreNote, EntityType, MagicSystem, Mythology, ConsistencyWarning, PlotHook, VoiceCapture } from '@/types/world';
 import { Platform } from 'react-native';
 
@@ -54,6 +55,9 @@ Mythologies: ${mythologies.map(m => m.name).join(', ')}`;
   };
   
   const makeAIRequest = async (messages: any[]) => {
+    // Require internet connection for all AI requests
+    await requireInternetConnection();
+    
     try {
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',

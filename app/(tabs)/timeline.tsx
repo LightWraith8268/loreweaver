@@ -214,7 +214,7 @@ export default function TimelineScreen() {
             <Calendar size={48} color={theme.colors.textTertiary} />
             <Text style={styles.emptyStateTitle}>No Events Yet</Text>
             <Text style={styles.emptyStateDescription}>
-              Create your first timeline event to chronicle your world's history
+              Create your first timeline event to chronicle your world&apos;s history
             </Text>
           </View>
         )}

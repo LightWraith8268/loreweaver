@@ -14,8 +14,10 @@ import { router } from 'expo-router';
 import { Plus, Sparkles, User, Search, X, Wand2 } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme } from '@/constants/theme';
+import { theme, responsive } from '@/constants/theme';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
+
+const { getResponsiveValue } = responsive;
 
 export default function CharactersScreen() {
   const { currentWorld, characters, createCharacter } = useWorld();
@@ -345,9 +347,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    margin: theme.spacing.md,
+    paddingHorizontal: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
+    paddingVertical: getResponsiveValue({ 
+      phone: theme.spacing.sm,
+      tablet: theme.spacing.md 
+    }),
+    margin: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   searchInput: {
     flex: 1,
@@ -357,28 +369,55 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   characterGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.md,
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   characterCard: {
-    width: '47%',
+    width: getResponsiveValue({ 
+      phone: '47%',
+      tablet: '30%',
+      largeTablet: '22%' 
+    }),
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
     alignItems: 'center',
   },
   characterAvatar: {
-    width: 64,
-    height: 64,
+    width: getResponsiveValue({ 
+      phone: 64,
+      tablet: 80,
+      largeTablet: 96 
+    }),
+    height: getResponsiveValue({ 
+      phone: 64,
+      tablet: 80,
+      largeTablet: 96 
+    }),
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: getResponsiveValue({ 
+      phone: theme.spacing.sm,
+      tablet: theme.spacing.md 
+    }),
   },
   characterName: {
     fontSize: theme.fontSize.md,
@@ -407,7 +446,11 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: theme.spacing.xxl,
+    paddingVertical: getResponsiveValue({ 
+      phone: theme.spacing.xxl,
+      tablet: theme.spacing.xxl * 1.5,
+      largeTablet: theme.spacing.xxl * 2 
+    }),
   },
   emptyStateTitle: {
     fontSize: theme.fontSize.lg,
@@ -423,13 +466,32 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     position: 'absolute',
-    bottom: theme.spacing.lg,
-    right: theme.spacing.lg,
-    gap: theme.spacing.md,
+    bottom: getResponsiveValue({ 
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    right: getResponsiveValue({ 
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
   },
   fab: {
-    width: 56,
-    height: 56,
+    width: getResponsiveValue({ 
+      phone: 56,
+      tablet: 64,
+      largeTablet: 72 
+    }),
+    height: getResponsiveValue({ 
+      phone: 56,
+      tablet: 64,
+      largeTablet: 72 
+    }),
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.primary,
     alignItems: 'center',

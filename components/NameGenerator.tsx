@@ -9,9 +9,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Sparkles, RefreshCw, Copy, X } from 'lucide-react-native';
+import { Sparkles, RefreshCw, Copy, X, WifiOff } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useAI } from '@/hooks/ai-context';
+import { checkInternetConnection } from '@/utils/network';
 import type { EntityType } from '@/types/world';
 
 interface NameGeneratorProps {
@@ -107,6 +108,7 @@ export default function NameGenerator({
   const { generateName, isGenerating } = useAI();
   const [generatedNames, setGeneratedNames] = useState<string[]>([]);
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
 
   const getRandomNames = () => {
     const supportedTypes = ['character', 'location', 'item', 'faction'] as const;
@@ -145,8 +147,19 @@ export default function NameGenerator({
     setGeneratedNames(getRandomNames());
   };
 
-  const handleAIGenerate = () => {
+  const handleAIGenerate = async () => {
     if (isGenerating || isGeneratingBatch) return;
+    
+    const connected = await checkInternetConnection();
+    if (!connected) {
+      Alert.alert(
+        'No Internet Connection', 
+        'AI name generation requires an internet connection. Please check your network and try again.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     generateAINames();
   };
 
@@ -161,6 +174,17 @@ export default function NameGenerator({
       setGeneratedNames(names);
     }
   }, [visible, entityType, genre, generatedNames.length]);
+
+  React.useEffect(() => {
+    const checkConnection = async () => {
+      const connected = await checkInternetConnection();
+      setIsOnline(connected);
+    };
+    
+    if (visible) {
+      checkConnection();
+    }
+  }, [visible]);
 
   const getEntityTypeLabel = () => {
     const labels: Record<EntityType, string> = {
@@ -235,16 +259,20 @@ export default function NameGenerator({
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.aiButton}
+              style={[styles.aiButton, !isOnline && styles.aiButtonDisabled]}
               onPress={handleAIGenerate}
-              disabled={isGenerating || isGeneratingBatch}
+              disabled={isGenerating || isGeneratingBatch || !isOnline}
             >
               {isGenerating || isGeneratingBatch ? (
                 <ActivityIndicator color={theme.colors.background} />
+              ) : !isOnline ? (
+                <WifiOff size={20} color={theme.colors.textTertiary} />
               ) : (
                 <Sparkles size={20} color={theme.colors.background} />
               )}
-              <Text style={styles.aiButtonText}>AI Generate</Text>
+              <Text style={[styles.aiButtonText, !isOnline && styles.aiButtonTextDisabled]}>
+                {!isOnline ? 'No Internet' : 'AI Generate'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -349,6 +377,14 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
     color: theme.colors.background,
+  },
+  aiButtonDisabled: {
+    backgroundColor: theme.colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  aiButtonTextDisabled: {
+    color: theme.colors.textTertiary,
   },
 });
 

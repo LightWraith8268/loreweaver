@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Dimensions } from 'react-native';
 import {
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import {
   Modal,
   ActivityIndicator,
   Platform,
+  Dimensions,
 } from 'react-native';
 import {
   Lightbulb,
@@ -24,6 +24,7 @@ import {
 import { useSettings } from '@/hooks/settings-context';
 import { useWorld } from '@/hooks/world-context';
 import { createTheme } from '@/constants/theme';
+import { requireInternetConnection } from '@/utils/network';
 import { useResponsiveLayout, useResponsiveModal, useResponsiveSpacing, useResponsiveFontSize } from '@/hooks/responsive-layout';
 import type { WorldGenre } from '@/types/world';
 
@@ -163,6 +164,8 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
 
     setIsGenerating(true);
     try {
+      // Check internet connection first
+      await requireInternetConnection();
       const genreText = selectedGenres.map(g => GENRE_OPTIONS.find(opt => opt.value === g)?.label || g).join(', ');
       const authorText = selectedAuthors.length > 0 ? `\nInfluenced by authors: ${selectedAuthors.join(', ')}` : '';
       const contextText = contextType === 'world' && currentWorld 
@@ -195,7 +198,12 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       setGeneratedIdeas(ideas);
     } catch (error) {
       console.error('Error generating ideas:', error);
-      Alert.alert('Error', 'Failed to generate ideas. Please try again.');
+      const errorMessage = error instanceof Error 
+        ? error.message.includes('Internet connection required')
+          ? error.message
+          : 'Failed to generate ideas. Please check your internet connection and try again.'
+        : 'Failed to generate ideas. Please check your internet connection and try again.';
+      Alert.alert('Error', errorMessage);
     } finally {
       setIsGenerating(false);
     }

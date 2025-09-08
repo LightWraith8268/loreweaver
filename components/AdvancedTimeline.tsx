@@ -104,7 +104,7 @@ const AlternateTimeline: React.FC<AlternateTimelineProps> = ({ baseEvent, onCrea
   return (
     <View style={styles.alternateContainer}>
       <Text style={styles.alternateTitle}>Alternate Timelines</Text>
-      <Text style={styles.alternateSubtitle}>What if "{baseEvent.title}" happened differently?</Text>
+      <Text style={styles.alternateSubtitle}>What if &quot;{baseEvent.title}&quot; happened differently?</Text>
       
       {baseEvent.alternateVersions?.map((alternate, index) => (
         <View key={alternate.id} style={styles.alternateEvent}>

@@ -6,12 +6,20 @@
     "start": "bunx rork start -p 30y02utmvl8n9rx3krk3d --tunnel",
     "start-web": "bunx rork start -p 30y02utmvl8n9rx3krk3d --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p 30y02utmvl8n9rx3krk3d --web --tunnel",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build:web": "npx expo export --platform web",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"npm start\" \"wait-on http://localhost:8083 && electron .\"",
+    "build:electron": "npm run build:web && electron-builder",
+    "dist": "npm run build:web && electron-builder --publish=never"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@nkzw/create-context-hook": "^1.1.0",
     "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^7.1.6",
     "@stardazed/streams-text-encoding": "^1.0.2",
     "@tanstack/react-query": "^5.83.0",
@@ -50,9 +58,36 @@
     "@babel/core": "^7.25.2",
     "@expo/ngrok": "^4.1.0",
     "@types/react": "~19.0.10",
+    "concurrently": "^8.2.2",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-is-dev": "^2.0.0",
     "eslint": "^9.31.0",
     "eslint-config-expo": "^9.2.0",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "wait-on": "^7.2.0"
   },
-  "private": true
+  "private": true,
+  "build": {
+    "appId": "com.loreweaver.app",
+    "productName": "LoreWeaver",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "web-build/**/*",
+      "node_modules/**/*",
+      "public/electron.js"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
 }
