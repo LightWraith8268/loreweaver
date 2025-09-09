@@ -41,8 +41,18 @@ if errorlevel 1 (
 )
 
 echo Checking EAS login status...
-echo Note: Skipping login check to prevent hanging. If build fails, run: eas login
-timeout /t 1 /nobreak >nul
+eas whoami
+if errorlevel 1 (
+    echo.
+    echo You need to login to Expo to build mobile apps.
+    echo Starting login process...
+    eas login
+    if errorlevel 1 (
+        echo ERROR: Login failed or was cancelled
+        pause
+        goto done
+    )
+)
 
 echo Checking if project is configured for EAS...
 if not exist "eas.json" (
@@ -54,7 +64,7 @@ echo Installing dependencies...
 call npm install
 
 echo Starting Android build...
-call eas build --platform android --profile preview --non-interactive
+call eas build --platform android --profile preview
 goto done
 
 :desktop_quick
@@ -98,8 +108,18 @@ if errorlevel 1 (
 )
 
 echo Checking EAS login status...
-echo Note: Skipping login check to prevent hanging. If build fails, run: eas login
-timeout /t 1 /nobreak >nul
+eas whoami
+if errorlevel 1 (
+    echo.
+    echo You need to login to Expo to build mobile apps.
+    echo Starting login process...
+    eas login
+    if errorlevel 1 (
+        echo ERROR: Login failed or was cancelled
+        pause
+        goto done
+    )
+)
 
 echo 1/3 Building Web PWA...
 call npm run build:web
@@ -108,7 +128,7 @@ echo 2/3 Building Windows EXE...
 call npx electron-builder --win --x64  
 echo.
 echo 3/3 Building Android APK...
-call eas build --platform android --profile preview --non-interactive
+call eas build --platform android --profile preview
 goto done
 
 :done
