@@ -51,6 +51,9 @@ goto menu
 echo.
 echo Launching Quick Mobile Build...
 call scripts\quick-build.bat
+echo.
+echo Mobile build process completed.
+pause
 goto restart
 
 :quick_desktop

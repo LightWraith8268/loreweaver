@@ -226,6 +226,7 @@ echo ================================
 echo Quick Build Complete!
 echo ================================
 pause
+exit /b
 
 :exit
-exit
+exit /b
