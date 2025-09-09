@@ -25,14 +25,24 @@ echo This will take about 5 minutes...
 echo.
 
 echo Checking EAS CLI installation...
-eas --version >nul 2>&1
+timeout /t 1 /nobreak >nul
+where eas >nul 2>&1
 if errorlevel 1 (
-    echo Installing EAS CLI...
+    echo EAS CLI not found. Installing...
     call npm install -g @expo/eas-cli
+    if errorlevel 1 (
+        echo ERROR: Failed to install EAS CLI
+        pause
+        goto done
+    )
+    echo EAS CLI installed successfully.
+) else (
+    echo EAS CLI found.
 )
 
 echo Checking EAS login status...
-eas whoami >nul 2>&1
+timeout /t 1 /nobreak >nul
+eas whoami --non-interactive >nul 2>&1
 if errorlevel 1 (
     echo.
     echo WARNING: You need to login to Expo to build mobile apps.
@@ -40,6 +50,8 @@ if errorlevel 1 (
     echo Then try the build again.
     pause
     goto done
+) else (
+    echo Logged in to EAS.
 )
 
 echo Checking if project is configured for EAS...
@@ -80,14 +92,24 @@ echo Building all quick formats...
 echo.
 
 echo Checking EAS CLI installation...
-eas --version >nul 2>&1
+timeout /t 1 /nobreak >nul
+where eas >nul 2>&1
 if errorlevel 1 (
-    echo Installing EAS CLI...
+    echo EAS CLI not found. Installing...
     call npm install -g @expo/eas-cli
+    if errorlevel 1 (
+        echo ERROR: Failed to install EAS CLI
+        pause
+        goto done
+    )
+    echo EAS CLI installed successfully.
+) else (
+    echo EAS CLI found.
 )
 
 echo Checking EAS login status...
-eas whoami >nul 2>&1
+timeout /t 1 /nobreak >nul
+eas whoami --non-interactive >nul 2>&1
 if errorlevel 1 (
     echo.
     echo WARNING: You need to login to Expo to build mobile apps.
@@ -95,6 +117,8 @@ if errorlevel 1 (
     echo Then try the build again.
     pause
     goto done
+) else (
+    echo Logged in to EAS.
 )
 
 echo 1/3 Building Web PWA...
