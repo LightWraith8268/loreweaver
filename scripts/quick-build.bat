@@ -5,10 +5,10 @@ echo ================================
 echo.
 echo Choose your quick build option:
 echo.
-echo 1. 📱 Mobile APK (Android - 5 min)
-echo 2. 💻 Windows EXE (Desktop - 2 min)
-echo 3. 🌐 Web PWA (Web App - 1 min)
-echo 4. 🚀 All Quick Builds (8 min total)
+echo 1. Mobile APK (Android - 5 min)
+echo 2. Windows EXE (Desktop - 2 min)
+echo 3. Web PWA (Web App - 1 min)
+echo 4. All Quick Builds (8 min total)
 echo.
 set /p choice="Enter choice (1-4): "
 
@@ -35,7 +35,7 @@ echo Checking EAS login status...
 eas whoami >nul 2>&1
 if errorlevel 1 (
     echo.
-    echo ⚠️  You need to login to Expo to build mobile apps.
+    echo WARNING: You need to login to Expo to build mobile apps.
     echo Please run: eas login
     echo Then try the build again.
     pause
@@ -48,8 +48,11 @@ if not exist "eas.json" (
     call eas build:configure --platform android
 )
 
+echo Installing dependencies...
+call npm install
+
 echo Starting Android build...
-call eas build --platform android --profile preview
+call eas build --platform android --profile preview --non-interactive
 goto done
 
 :desktop_quick
@@ -67,7 +70,7 @@ echo.
 echo Building web PWA...
 call npm run build:web
 echo.
-echo ✅ Web app built! Deploy the 'web-build' folder to any hosting service.
+echo Web app built! Deploy the 'web-build' folder to any hosting service.
 echo Can be installed as PWA on mobile and desktop browsers.
 goto done
 
@@ -87,7 +90,7 @@ echo Checking EAS login status...
 eas whoami >nul 2>&1
 if errorlevel 1 (
     echo.
-    echo ⚠️  You need to login to Expo to build mobile apps.
+    echo WARNING: You need to login to Expo to build mobile apps.
     echo Please run: eas login
     echo Then try the build again.
     pause
@@ -101,13 +104,13 @@ echo 2/3 Building Windows EXE...
 call npx electron-builder --win --x64  
 echo.
 echo 3/3 Building Android APK...
-call eas build --platform android --profile preview
+call eas build --platform android --profile preview --non-interactive
 goto done
 
 :done
 echo.
 echo ================================
-echo ✅ Quick Build Complete!
+echo Quick Build Complete!
 echo ================================
 pause
 

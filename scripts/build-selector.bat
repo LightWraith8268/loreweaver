@@ -29,38 +29,38 @@ set "web_pwa=0"
 
 :main_menu
 cls
-echo ╔══════════════════════════════════════════════════════════════════════╗
-echo ║                                                                      ║
-echo ║                  🎯 LoreWeaver Platform Builder 🎯                  ║
-echo ║                                                                      ║
-echo ║           Select platforms to build with checkboxes below:          ║
-echo ║                                                                      ║
-echo ╚══════════════════════════════════════════════════════════════════════╝
+echo ======================================================================
+echo                                                                      
+echo                   LoreWeaver Platform Builder                  
+echo                                                                      
+echo           Select platforms to build with checkboxes below:          
+echo                                                                      
+echo ======================================================================
 echo.
-echo 📱 MOBILE PLATFORMS:
+echo MOBILE PLATFORMS:
 call :show_option android_apk "1" "Android APK (Preview/Testing)"
 call :show_option android_aab "2" "Android AAB (Play Store)"
 call :show_option ios_sim "3" "iOS Simulator"
 call :show_option ios_store "4" "iOS App Store"
 echo.
-echo 💻 DESKTOP PLATFORMS:
+echo DESKTOP PLATFORMS:
 call :show_option windows_exe "5" "Windows EXE"
 call :show_option windows_msi "6" "Windows MSI Installer"
 call :show_option macos_dmg "7" "macOS DMG"
 call :show_option linux_appimage "8" "Linux AppImage"
 call :show_option linux_snap "9" "Linux Snap"
 echo.
-echo 🌐 WEB PLATFORM:
+echo WEB PLATFORM:
 call :show_option web_pwa "10" "Web PWA"
 echo.
-echo ╔══════════════════════════════════════════════════════════════════════╗
-echo ║                              ⚡ QUICK PRESETS                        ║
-echo ╚══════════════════════════════════════════════════════════════════════╝
+echo ======================================================================
+echo                               QUICK PRESETS                        
+echo ======================================================================
 echo   A. All Mobile Platforms        D. All Desktop Platforms
 echo   B. Mobile Production           E. Essential Builds (APK+EXE+PWA)
 echo   C. Mobile Testing              F. Everything (All Platforms)
 echo.
-echo 🛠️  ACTIONS:
+echo ACTIONS:
 echo   X. Clear All Selections        S. Start Building
 echo   Q. Quit                        H. Help
 echo.
@@ -232,20 +232,20 @@ echo █████████████████████████
 echo.
 echo PLATFORM DESCRIPTIONS:
 echo.
-echo 📱 MOBILE:
+echo MOBILE:
 echo   • Android APK    - Direct install file for testing
 echo   • Android AAB    - Google Play Store format
 echo   • iOS Simulator  - For testing on iOS Simulator
 echo   • iOS App Store  - For App Store submission
 echo.
-echo 💻 DESKTOP:
+echo  DESKTOP:
 echo   • Windows EXE    - Portable executable
 echo   • Windows MSI    - Professional installer
 echo   • macOS DMG      - Mac disk image installer
 echo   • Linux AppImage - Portable Linux executable
 echo   • Linux Snap     - Ubuntu Snap package
 echo.
-echo 🌐 WEB:
+echo  WEB:
 echo   • Web PWA        - Progressive Web App (works everywhere)
 echo.
 echo QUICK PRESETS:
@@ -271,16 +271,15 @@ echo [%date% %time%] Selected platforms: %selected_count% >> "%ERROR_LOG%"
 
 if %selected_count%==0 (
     echo.
-    echo ❌ No platforms selected! Please select at least one platform.
+    echo X No platforms selected! Please select at least one platform.
     echo [%date% %time%] ERROR: No platforms selected >> "%ERROR_LOG%"
     pause
     goto main_menu
 )
 
 cls
-echo ╔══════════════════════════════════════════════════════════════════════╗
-echo ║                      🚀 STARTING BUILD PROCESS 🚀                   ║
-echo ╚══════════════════════════════════════════════════════════════════════╝
+echo ========================================================================
+echo ║                       STARTING BUILD PROCESS                    echo ========================================================================
 echo.
 echo Selected platforms: %selected_count%
 echo Estimated time: %estimated_time% minutes
@@ -404,18 +403,18 @@ echo Successfully built %selected_count% platform(s) in approximately %estimated
 echo.
 echo 📁 YOUR APPS ARE READY:
 echo.
-if "!android_apk!"=="1" echo   📱 Android APK: Check https://expo.dev/builds
-if "!android_aab!"=="1" echo   📱 Android AAB: Check https://expo.dev/builds
-if "!ios_sim!"=="1" echo   📱 iOS Simulator: Check https://expo.dev/builds
-if "!ios_store!"=="1" echo   📱 iOS App Store: Check https://expo.dev/builds
-if "!windows_exe!"=="1" echo   💻 Windows EXE: dist\LoreWeaver.exe
-if "!windows_msi!"=="1" echo   💻 Windows MSI: dist\LoreWeaver Setup.exe
-if "!macos_dmg!"=="1" echo   💻 macOS DMG: dist\LoreWeaver.dmg
-if "!linux_appimage!"=="1" echo   💻 Linux AppImage: dist\LoreWeaver.AppImage
-if "!linux_snap!"=="1" echo   💻 Linux Snap: dist\loreweaver_*.snap
-if "!web_pwa!"=="1" echo   🌐 Web PWA: web-build\ folder (deploy to hosting)
+if "!android_apk!"=="1" echo    Android APK: Check https://expo.dev/builds
+if "!android_aab!"=="1" echo    Android AAB: Check https://expo.dev/builds
+if "!ios_sim!"=="1" echo    iOS Simulator: Check https://expo.dev/builds
+if "!ios_store!"=="1" echo    iOS App Store: Check https://expo.dev/builds
+if "!windows_exe!"=="1" echo    Windows EXE: dist\LoreWeaver.exe
+if "!windows_msi!"=="1" echo    Windows MSI: dist\LoreWeaver Setup.exe
+if "!macos_dmg!"=="1" echo    macOS DMG: dist\LoreWeaver.dmg
+if "!linux_appimage!"=="1" echo    Linux AppImage: dist\LoreWeaver.AppImage
+if "!linux_snap!"=="1" echo    Linux Snap: dist\loreweaver_*.snap
+if "!web_pwa!"=="1" echo    Web PWA: web-build\ folder (deploy to hosting)
 echo.
-echo 🚀 NEXT STEPS:
+echo  NEXT STEPS:
 echo   • Test your apps on target devices
 echo   • Set up code signing for production distribution
 echo   • Submit to app stores if building for production
@@ -432,7 +431,7 @@ set description=%description:"=%
 echo [%date% %time%] Executing: %command% >> "%ERROR_LOG%"
 echo [%date% %time%] Description: %description% >> "%ERROR_LOG%"
 
-echo   ⚡ %description%...
+echo    %description%...
 %command% 2>>"%ERROR_LOG%"
 set exit_code=%errorlevel%
 
@@ -447,9 +446,8 @@ exit /b %exit_code%
 
 :error
 echo.
-echo ╔══════════════════════════════════════════════════════════════════════╗
-echo ║                           ❌ BUILD FAILED ❌                           ║
-echo ╚══════════════════════════════════════════════════════════════════════╝
+echo ========================================================================
+echo ║                           X BUILD FAILED X                           echo ========================================================================
 echo.
 echo Error details have been logged to:
 echo %ERROR_LOG%
@@ -473,9 +471,8 @@ goto quit
 :quit
 echo [%date% %time%] Build session ended by user >> "%ERROR_LOG%"
 echo.
-echo ╔══════════════════════════════════════════════════════════════════════╗
-echo ║            Thanks for using LoreWeaver Platform Builder! 🚀          ║
-echo ╚══════════════════════════════════════════════════════════════════════╝
+echo ========================================================================
+echo ║            Thanks for using LoreWeaver Platform Builder!           echo ========================================================================
 echo.
 if exist "%ERROR_LOG%" (
     echo Build log saved to: %ERROR_LOG%

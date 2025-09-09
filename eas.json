@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 3.0.0"
+    "version": ">= 3.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -31,7 +32,7 @@
         "resourceClass": "m1-medium"
       },
       "android": {
-        "buildType": "aab"
+        "buildType": "app-bundle"
       }
     }
   },

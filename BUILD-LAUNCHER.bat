@@ -2,37 +2,33 @@
 :start
 color 0A
 echo.
-echo ████████████████████████████████████████████████████████████████
-echo ██                                                            ██
-echo ██            🌟 LoreWeaver Build Launcher 🌟                ██
-echo ██                                                            ██  
-echo ██        Choose your build adventure below!                  ██
-echo ██                                                            ██
-echo ████████████████████████████████████████████████████████████████
+echo ================================================================
+echo                   LoreWeaver Build Launcher                    
+echo ================================================================
 echo.
-echo 🚀 QUICK START OPTIONS:
+echo QUICK START OPTIONS:
 echo.
-echo   1. 📱 Quick Mobile Build     (Android APK - 5 min)
-echo   2. 💻 Quick Desktop Build    (Windows EXE - 2 min)  
-echo   3. 🌐 Quick Web Build        (PWA - 1 min)
-echo   4. ⚡ All Quick Builds       (Essential apps - 8 min)
+echo   1. Quick Mobile Build     (Android APK - 5 min)
+echo   2. Quick Desktop Build    (Windows EXE - 2 min)  
+echo   3. Quick Web Build        (PWA - 1 min)
+echo   4. All Quick Builds       (Essential apps - 8 min)
 echo.
-echo 🎯 ADVANCED BUILD OPTIONS:
+echo ADVANCED BUILD OPTIONS:
 echo.
-echo   5. 🎯 Platform Selector      (Choose multiple platforms)
-echo   6. 📱 Mobile Builder         (All mobile formats)
-echo   7. 💻 Desktop Builder        (All desktop formats)
-echo   8. 🌍 Universal Builder      (ALL platforms - 60 min)
+echo   5. Platform Selector      (Choose multiple platforms)
+echo   6. Mobile Builder         (All mobile formats)
+echo   7. Desktop Builder        (All desktop formats)
+echo   8. Universal Builder      (ALL platforms - 60 min)
 echo.
-echo 🛠️  SETUP & TOOLS:
+echo SETUP AND TOOLS:
 echo.
-echo   9. ⚙️  Setup Environment     (Install build tools)
-echo  10. 🔧 Development Mode       (Live testing)
-echo  11. 📚 Build Documentation    (How-to guides)
+echo   9. Setup Environment      (Install build tools)
+echo  10. Development Mode       (Live testing)
+echo  11. Build Documentation    (How-to guides)
 echo.
-echo  12. ❌ Exit
+echo  12. Exit
 echo.
-echo ████████████████████████████████████████████████████████████████
+echo ================================================================
 echo.
 set /p choice="Enter your choice (1-12): "
 
@@ -53,34 +49,34 @@ goto menu
 
 :quick_mobile
 echo.
-echo 📱 Launching Quick Mobile Build...
+echo Launching Quick Mobile Build...
 call scripts\quick-build.bat
 goto restart
 
 :quick_desktop
 echo.
-echo 💻 Launching Quick Desktop Build...
+echo Launching Quick Desktop Build...
 call scripts\build-desktop.bat
 goto restart
 
 :quick_web
 echo.
-echo 🌐 Building Web PWA...
+echo Building Web PWA...
 call npm run build:web
 echo.
-echo ✅ Web build complete! Check 'web-build' folder.
+echo Web build complete! Check 'web-build' folder.
 pause
 goto restart
 
 :quick_all
 echo.
-echo ⚡ Launching All Quick Builds...
+echo Launching All Quick Builds...
 call scripts\quick-build.bat
 goto restart
 
 :platform_selector
 echo.
-echo 🎯 Launching Platform Selector...
+echo Launching Platform Selector...
 if exist scripts\build-selector.bat (
     call scripts\build-selector.bat
 ) else (
@@ -91,7 +87,7 @@ goto restart
 
 :mobile_builder
 echo.
-echo 📱 Launching Mobile Builder...
+echo Launching Mobile Builder...
 if exist scripts\build-mobile.bat (
     call scripts\build-mobile.bat
 ) else (
@@ -102,7 +98,7 @@ goto restart
 
 :desktop_builder
 echo.
-echo 💻 Launching Desktop Builder...  
+echo Launching Desktop Builder...  
 if exist scripts\build-desktop.bat (
     call scripts\build-desktop.bat
 ) else (
@@ -113,13 +109,13 @@ goto restart
 
 :universal_builder
 echo.
-echo 🌍 Launching Universal Builder...
+echo Launching Universal Builder...
 call scripts\build-all.bat
 goto restart
 
 :setup
 echo.
-echo ⚙️ Setting up build environment...
+echo Setting up build environment...
 if exist scripts\setup-build-environment.bat (
     call scripts\setup-build-environment.bat
 ) else (
@@ -130,7 +126,7 @@ goto restart
 
 :dev_mode
 echo.
-echo 🔧 Starting development mode...
+echo Starting development mode...
 echo Choose development option:
 echo 1. Mobile (Expo)
 echo 2. Desktop (Electron)  
@@ -153,7 +149,7 @@ goto restart
 
 :documentation
 echo.
-echo 📚 Opening build documentation...
+echo Opening build documentation...
 start "" "BUILD_GUIDE.md"
 start "" "scripts\README.md"
 echo Documentation opened in your default editor.
@@ -162,7 +158,7 @@ goto restart
 
 :restart
 echo.
-echo ████████████████████████████████████████████████████████████████
+echo ================================================================
 echo.
 set /p continue="Return to main menu? (Y/n): "
 if /i "%continue%"=="n" goto exit
@@ -171,8 +167,8 @@ goto menu
 
 :exit
 echo.
-echo Thanks for using LoreWeaver Build Launcher! 🚀
-echo Your worlds await across all platforms! 🌟
+echo Thanks for using LoreWeaver Build Launcher!
+echo Your worlds await across all platforms!
 echo.
 pause
 exit

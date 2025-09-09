@@ -8,7 +8,7 @@
     "start-web-dev": "DEBUG=expo* bunx rork start -p 30y02utmvl8n9rx3krk3d --web --tunnel",
     "lint": "expo lint",
     "build:web": "npx expo export --platform web",
-    "build:android": "eas build --platform android",
+    "build:android": "eas build --platform android --profile preview --non-interactive",
     "build:ios": "eas build --platform ios",
     "electron": "electron .",
     "electron:dev": "concurrently \"npm start\" \"wait-on http://localhost:8083 && electron .\"",
