@@ -13,7 +13,9 @@
     "electron": "electron .",
     "electron:dev": "concurrently \"npm start\" \"wait-on http://localhost:8083 && electron .\"",
     "build:electron": "npm run build:web && electron-builder",
-    "dist": "npm run build:web && electron-builder --publish=never"
+    "dist": "npm run build:web && electron-builder --publish=never",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -68,6 +70,9 @@
     "eslint-config-expo": "^9.2.0",
     "typescript": "~5.8.3",
     "wait-on": "^7.2.0"
+  },
+  "overrides": {
+    "ajv": "^8.17.1"
   },
   "private": true,
   "build": {

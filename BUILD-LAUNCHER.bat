@@ -8,42 +8,44 @@ echo ================================================================
 echo.
 echo QUICK START OPTIONS:
 echo.
-echo   1. Quick Mobile Build     (Android APK - 5 min)
+echo   1. Quick Mobile Build     (Android APK - Cloud - 5 min)
 echo   2. Quick Desktop Build    (Windows EXE - 2 min)  
 echo   3. Quick Web Build        (PWA - 1 min)
 echo   4. All Quick Builds       (Essential apps - 8 min)
+echo   5. Local Android Build    (APK on your PC - 10 min)
 echo.
 echo ADVANCED BUILD OPTIONS:
 echo.
-echo   5. Platform Selector      (Choose multiple platforms)
-echo   6. Mobile Builder         (All mobile formats)
-echo   7. Desktop Builder        (All desktop formats)
-echo   8. Universal Builder      (ALL platforms - 60 min)
+echo   6. Platform Selector      (Choose multiple platforms)
+echo   7. Mobile Builder         (All mobile formats)
+echo   8. Desktop Builder        (All desktop formats)
+echo   9. Universal Builder      (ALL platforms - 60 min)
 echo.
 echo SETUP AND TOOLS:
 echo.
-echo   9. Setup Environment      (Install build tools)
-echo  10. Development Mode       (Live testing)
-echo  11. Build Documentation    (How-to guides)
+echo  10. Setup Environment      (Install build tools)
+echo  11. Development Mode       (Live testing)
+echo  12. Build Documentation    (How-to guides)
 echo.
-echo  12. Exit
+echo  13. Exit
 echo.
 echo ================================================================
 echo.
-set /p choice="Enter your choice (1-12): "
+set /p choice="Enter your choice (1-13): "
 
 if "%choice%"=="1" goto quick_mobile
 if "%choice%"=="2" goto quick_desktop
 if "%choice%"=="3" goto quick_web
 if "%choice%"=="4" goto quick_all
-if "%choice%"=="5" goto platform_selector
-if "%choice%"=="6" goto mobile_builder
-if "%choice%"=="7" goto desktop_builder
-if "%choice%"=="8" goto universal_builder
-if "%choice%"=="9" goto setup
-if "%choice%"=="10" goto dev_mode
-if "%choice%"=="11" goto documentation
-if "%choice%"=="12" goto exit
+if "%choice%"=="5" goto local_android
+if "%choice%"=="6" goto platform_selector
+if "%choice%"=="7" goto mobile_builder
+if "%choice%"=="8" goto desktop_builder
+if "%choice%"=="9" goto universal_builder
+if "%choice%"=="10" goto setup
+if "%choice%"=="11" goto dev_mode
+if "%choice%"=="12" goto documentation
+if "%choice%"=="13" goto exit
 echo Invalid choice. Please try again.
 goto menu
 
@@ -75,6 +77,17 @@ goto restart
 echo.
 echo Launching All Quick Builds...
 call scripts\quick-build.bat
+goto restart
+
+:local_android
+echo.
+echo Launching Local Android Build...
+echo This will build the APK on your local machine.
+echo.
+call scripts\build-local-android.bat
+echo.
+echo Local Android build process completed.
+pause
 goto restart
 
 :platform_selector
@@ -178,3 +191,4 @@ exit
 
 :menu
 cls
+goto start
