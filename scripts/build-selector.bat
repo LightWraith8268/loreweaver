@@ -4,16 +4,11 @@ color 0F
 cls
 title LoreWeaver Platform Builder
 
-REM Initialize error logging
-set "LOG_DIR=%~dp0..\logs"
-set "ERROR_LOG=%LOG_DIR%\build-errors-%date:~-4,4%%date:~-10,2%%date:~-7,2%-%time:~0,2%%time:~3,2%%time:~6,2%.log"
-set "ERROR_LOG=%ERROR_LOG: =0%"
-
-if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
-echo [%date% %time%] Build session started > "%ERROR_LOG%"
-echo [%date% %time%] Platform: Windows Batch Script >> "%ERROR_LOG%"
-echo [%date% %time%] Working Directory: %CD% >> "%ERROR_LOG%"
-echo. >> "%ERROR_LOG%"
+REM Simplified logging - no file locking issues
+echo [%date% %time%] Build session started
+echo [%date% %time%] Platform: Windows Batch Script  
+echo [%date% %time%] Working Directory: %CD%
+echo.
 
 :init_vars
 set "android_apk=0"
@@ -266,13 +261,13 @@ goto main_menu
 
 :start_building
 call :calculate_stats
-echo [%date% %time%] Starting build process >> "%ERROR_LOG%"
-echo [%date% %time%] Selected platforms: %selected_count% >> "%ERROR_LOG%"
+echo [%date% %time%] Starting build process
+echo [%date% %time%] Selected platforms: %selected_count%
 
 if %selected_count%==0 (
     echo.
     echo X No platforms selected! Please select at least one platform.
-    echo [%date% %time%] ERROR: No platforms selected >> "%ERROR_LOG%"
+    echo [%date% %time%] ERROR: No platforms selected
     pause
     goto main_menu
 )
@@ -428,18 +423,18 @@ set description=%2
 set command=%command:"=%
 set description=%description:"=%
 
-echo [%date% %time%] Executing: %command% >> "%ERROR_LOG%"
-echo [%date% %time%] Description: %description% >> "%ERROR_LOG%"
+echo [%date% %time%] Executing: %command%
+echo [%date% %time%] Description: %description%
 
 echo    %description%...
-%command% 2>>"%ERROR_LOG%"
+%command%
 set exit_code=%errorlevel%
 
 if %exit_code% neq 0 (
-    echo [%date% %time%] ERROR: Command failed with exit code %exit_code% >> "%ERROR_LOG%"
-    echo [%date% %time%] Command: %command% >> "%ERROR_LOG%"
+    echo [%date% %time%] ERROR: Command failed with exit code %exit_code%
+    echo [%date% %time%] Command: %command%
 ) else (
-    echo [%date% %time%] SUCCESS: %description% completed >> "%ERROR_LOG%"
+    echo [%date% %time%] SUCCESS: %description% completed
 )
 
 exit /b %exit_code%
@@ -450,11 +445,9 @@ echo ========================================================================
 echo ║                           X BUILD FAILED X                           echo ========================================================================
 echo.
 echo Error details have been logged to:
-echo %ERROR_LOG%
+echo build.log
 echo.
-echo [%date% %time%] Build process failed >> "%ERROR_LOG%"
-echo [%date% %time%] Error details logged above >> "%ERROR_LOG%"
-echo.
+echo [%date% %time%] Build process failed echo [%date% %time%] Error details logged above echo.
 echo Common solutions:
 echo   1. Check if all dependencies are installed (npm install)
 echo   2. Verify EAS CLI is logged in (eas login)
@@ -469,13 +462,12 @@ if /i "%continue%"=="Y" goto main_menu
 goto quit
 
 :quit
-echo [%date% %time%] Build session ended by user >> "%ERROR_LOG%"
-echo.
+echo [%date% %time%] Build session ended by user echo.
 echo ========================================================================
 echo ║            Thanks for using LoreWeaver Platform Builder!           echo ========================================================================
 echo.
-if exist "%ERROR_LOG%" (
-    echo Build log saved to: %ERROR_LOG%
+if exist "build.log" (
+    echo Build log saved to: build.log
     echo.
 )
 pause
