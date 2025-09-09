@@ -1,0 +1,11 @@
+[Mon 09/08/2025 18:14:55.29] Build session started 
+[Mon 09/08/2025 18:14:55.30] Platform: Windows Batch Script 
+[Mon 09/08/2025 18:14:55.30] Working Directory: D:\Downloads\loreweaver-main\scripts 
+ 
+[Mon 09/08/2025 18:15:05.89] Starting build process 
+[Mon 09/08/2025 18:15:05.89] Selected platforms: 1 
+[Mon 09/08/2025 18:15:09.00] Executing: npm install 
+[Mon 09/08/2025 18:15:09.00] Description: Installing dependencies 
+The system cannot find the batch label specified - run_command
+The process cannot access the file because it is being used by another process.
+The process cannot access the file because it is being used by another process.
