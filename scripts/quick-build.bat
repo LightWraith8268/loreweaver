@@ -41,18 +41,8 @@ if errorlevel 1 (
 )
 
 echo Checking EAS login status...
+echo Note: Skipping login check to prevent hanging. If build fails, run: eas login
 timeout /t 1 /nobreak >nul
-eas whoami --non-interactive >nul 2>&1
-if errorlevel 1 (
-    echo.
-    echo WARNING: You need to login to Expo to build mobile apps.
-    echo Please run: eas login
-    echo Then try the build again.
-    pause
-    goto done
-) else (
-    echo Logged in to EAS.
-)
 
 echo Checking if project is configured for EAS...
 if not exist "eas.json" (
@@ -108,18 +98,8 @@ if errorlevel 1 (
 )
 
 echo Checking EAS login status...
+echo Note: Skipping login check to prevent hanging. If build fails, run: eas login
 timeout /t 1 /nobreak >nul
-eas whoami --non-interactive >nul 2>&1
-if errorlevel 1 (
-    echo.
-    echo WARNING: You need to login to Expo to build mobile apps.
-    echo Please run: eas login
-    echo Then try the build again.
-    pause
-    goto done
-) else (
-    echo Logged in to EAS.
-)
 
 echo 1/3 Building Web PWA...
 call npm run build:web
