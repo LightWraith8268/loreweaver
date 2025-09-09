@@ -1,4 +1,5 @@
 @echo off
+:menu
 :start
 color 0A
 echo.
@@ -47,7 +48,7 @@ if "%choice%"=="11" goto dev_mode
 if "%choice%"=="12" goto documentation
 if "%choice%"=="13" goto exit
 echo Invalid choice. Please try again.
-goto menu
+goto start
 
 :quick_mobile
 echo.
@@ -84,10 +85,17 @@ echo.
 echo Launching Local Android Build...
 echo This will build the APK on your local machine.
 echo.
-call scripts\build-local-android.bat
-echo.
-echo Local Android build process completed.
-pause
+call scripts\build-local-android-simple.bat
+if errorlevel 1 (
+    echo.
+    echo Local Android build was cancelled or failed.
+    echo Check the messages above for details.
+    pause
+) else (
+    echo.
+    echo Local Android build process completed.
+    pause
+)
 goto restart
 
 :platform_selector
@@ -179,7 +187,7 @@ echo.
 set /p continue="Return to main menu? (Y/n): "
 if /i "%continue%"=="n" goto exit
 cls
-goto menu
+goto start
 
 :exit
 echo.

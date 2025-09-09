@@ -1,8 +1,11 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal EnableDelayedExpansion
+echo Starting build-local-android.bat
+timeout /t 2 /nobreak >nul
 echo ================================
 echo    LOCAL ANDROID APK BUILD
 echo ================================
+echo DEBUG: Script started successfully
 echo.
 echo This will build the APK locally on your machine.
 echo The APK file will be created in: android\app\build\outputs\apk\release\
@@ -16,8 +19,11 @@ echo.
 echo CHECKING ANDROID SDK CONFIGURATION...
 echo ================================
 echo.
+echo DEBUG: About to check Android SDK
 
 call :check_android_sdk
+echo DEBUG: Returned from check_android_sdk with errorlevel: %errorlevel%
+
 if errorlevel 1 (
     echo.
     echo MANUAL SETUP INSTRUCTIONS (if auto-detection failed):
@@ -26,16 +32,22 @@ if errorlevel 1 (
     echo 3. Set ANDROID_HOME environment variable
     echo 4. Add Android SDK tools to PATH
     echo.
+    echo DEBUG: SDK check failed, but continuing...
+    pause
 )
 
 echo.
+echo DEBUG: About to ask user to continue...
 set /p continue_local="Continue with local build? (Y/n): "
+echo DEBUG: User response: "%continue_local%"
 if "%continue_local%"=="" set continue_local=Y
+echo DEBUG: Processed response: "%continue_local%"
 if /i "%continue_local%"=="n" (
     echo Build cancelled by user.
     pause
     exit /b
 )
+echo DEBUG: User chose to continue, proceeding with build...
 
 echo.
 echo ================================
@@ -185,10 +197,15 @@ if %gradle_exit_code% equ 0 (
 :: ================================
 :check_android_sdk
 echo DEBUG: Starting Android SDK detection...
+echo DEBUG: Inside check_android_sdk function
 
 :: Check if ANDROID_HOME is already set
+echo DEBUG: Checking ANDROID_HOME variable...
 if defined ANDROID_HOME (
+    echo DEBUG: ANDROID_HOME is defined
     echo ✓ Found ANDROID_HOME: %ANDROID_HOME%
+    echo DEBUG: About to validate SDK
+    pause
     call :validate_sdk "%ANDROID_HOME%"
     if errorlevel 1 (
         echo ✗ ANDROID_HOME is set but SDK is invalid
@@ -199,33 +216,43 @@ if defined ANDROID_HOME (
         exit /b 0
     )
 ) else (
+    echo DEBUG: ANDROID_HOME is not defined
     echo ⚠ ANDROID_HOME not set, attempting auto-detection...
+    echo DEBUG: About to call auto_detect_sdk
     call :auto_detect_sdk
 )
 exit /b %errorlevel%
 
 :auto_detect_sdk
 echo DEBUG: Attempting to auto-detect Android SDK...
+echo DEBUG: Inside auto_detect_sdk function
 
-:: Common Android SDK locations
-set "sdk_paths[0]=%LOCALAPPDATA%\Android\Sdk"
-set "sdk_paths[1]=%USERPROFILE%\AppData\Local\Android\Sdk"
-set "sdk_paths[2]=C:\Android\Sdk"
-set "sdk_paths[3]=%PROGRAMFILES%\Android\Android Studio\sdk"
-set "sdk_paths[4]=%PROGRAMFILES(X86)%\Android\android-sdk"
+:: Test common Android SDK locations one by one
+echo DEBUG: Testing path 1: %LOCALAPPDATA%\Android\Sdk
+if exist "%LOCALAPPDATA%\Android\Sdk" (
+    echo Found potential SDK at: %LOCALAPPDATA%\Android\Sdk
+    set "ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk"
+    call :set_android_paths "%LOCALAPPDATA%\Android\Sdk"
+    echo DEBUG: SDK setup completed, returning from auto_detect_sdk
+    exit /b 0
+)
 
-for /l %%i in (0,1,4) do (
-    call set "sdk_path=%%sdk_paths[%%i]%%"
-    if exist "!sdk_path!" (
-        echo ⚠ Testing SDK path: !sdk_path!
-        call :validate_sdk "!sdk_path!"
-        if not errorlevel 1 (
-            echo ✓ Found valid Android SDK at: !sdk_path!
-            set "ANDROID_HOME=!sdk_path!"
-            call :set_android_paths "!sdk_path!"
-            exit /b 0
-        )
-    )
+echo DEBUG: Testing path 2: %USERPROFILE%\AppData\Local\Android\Sdk
+if exist "%USERPROFILE%\AppData\Local\Android\Sdk" (
+    echo Found potential SDK at: %USERPROFILE%\AppData\Local\Android\Sdk
+    set "ANDROID_HOME=%USERPROFILE%\AppData\Local\Android\Sdk"
+    call :set_android_paths "%USERPROFILE%\AppData\Local\Android\Sdk"
+    echo DEBUG: SDK setup completed, returning from auto_detect_sdk
+    exit /b 0
+)
+
+echo DEBUG: Testing path 3: C:\Android\Sdk
+if exist "C:\Android\Sdk" (
+    echo Found potential SDK at: C:\Android\Sdk
+    set "ANDROID_HOME=C:\Android\Sdk"
+    call :set_android_paths "C:\Android\Sdk"
+    echo DEBUG: SDK setup completed, returning from auto_detect_sdk
+    exit /b 0
 )
 
 echo ✗ Could not auto-detect Android SDK
@@ -235,6 +262,8 @@ echo 1. Install Android Studio (recommended): https://developer.android.com/stud
 echo 2. Install command-line tools only: https://developer.android.com/studio/index.html#command-tools
 echo 3. Set ANDROID_HOME manually if SDK is installed elsewhere
 echo.
+echo DEBUG: About to exit auto_detect_sdk with error code 1
+pause
 exit /b 1
 
 :validate_sdk
@@ -284,6 +313,7 @@ exit /b 0
 :set_android_paths
 set "sdk_path=%~1"
 echo DEBUG: Setting up Android SDK environment...
+echo DEBUG: Inside set_android_paths function with path: %sdk_path%
 
 :: Set environment variables for this session
 set "ANDROID_HOME=%sdk_path%"
@@ -298,6 +328,7 @@ echo   Platform tools: %sdk_path%\platform-tools
 echo   Build tools: %sdk_path%\build-tools
 
 :: Test ADB
+echo DEBUG: About to test ADB...
 "%sdk_path%\platform-tools\adb.exe" version >nul 2>&1
 if errorlevel 1 (
     echo ⚠ Warning: ADB test failed
@@ -305,6 +336,7 @@ if errorlevel 1 (
     echo ✓ ADB is working correctly
 )
 
+echo DEBUG: ADB test completed, about to exit set_android_paths function
 exit /b 0
 
 :offer_component_install
