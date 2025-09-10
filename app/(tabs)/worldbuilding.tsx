@@ -27,6 +27,7 @@ import {
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 
 interface WorldbuildingItem {
   id: string;
@@ -280,12 +281,11 @@ const WorldbuildingScreen: React.FC = () => {
 
   if (!currentWorld) {
     return (
-      <View style={styles.container}>
-        <View style={styles.noWorldContainer}>
-          <Text style={styles.noWorldText}>No world selected</Text>
-          <Text style={styles.noWorldSubtext}>Please select a world to manage worldbuilding</Text>
-        </View>
-      </View>
+      <SelectWorldPrompt
+        title="No World Selected"
+        description="Select a world to build detailed worldbuilding elements"
+        showCreateButton={false}
+      />
     );
   }
 

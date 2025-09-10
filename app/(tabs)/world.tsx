@@ -54,6 +54,7 @@ export default function WorldScreen() {
       <SelectWorldPrompt
         title="No World Selected"
         description="Select or create a world to manage locations, timeline, and relationships"
+        showCreateButton={false}
       />
     );
   }

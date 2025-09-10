@@ -9,6 +9,7 @@ import {
   FileText, 
   Database,
   Settings,
+  Wrench,
   Mic,
   Lightbulb
 } from 'lucide-react-native';
@@ -357,7 +358,8 @@ export default function ToolsScreen() {
       <SelectWorldPrompt
         title="No World Selected"
         description="Select or create a world to access powerful worldbuilding tools and utilities"
-        customIcon={<Settings size={64} color={theme.colors.textTertiary} />}
+        customIcon={<Wrench size={64} color={theme.colors.textTertiary} />}
+        showCreateButton={false}
       />
     );
   }

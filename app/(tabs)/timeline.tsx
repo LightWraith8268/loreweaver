@@ -136,6 +136,7 @@ export default function TimelineScreen() {
         title="No World Selected"
         description="Select or create a world to build and manage your timeline"
         customIcon={<Clock size={64} color={theme.colors.textTertiary} />}
+        showCreateButton={false}
       />
     );
   }

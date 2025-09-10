@@ -56,6 +56,7 @@ export default function EntitiesScreen() {
       <SelectWorldPrompt
         title="No World Selected"
         description="Select or create a world to manage your characters, items, and factions"
+        showCreateButton={false}
       />
     );
   }

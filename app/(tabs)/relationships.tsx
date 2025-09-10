@@ -57,6 +57,7 @@ export default function RelationshipsScreen() {
       <SelectWorldPrompt
         title="No World Selected"
         description="Select or create a world to view character relationships and networks"
+        showCreateButton={false}
       />
     );
   }

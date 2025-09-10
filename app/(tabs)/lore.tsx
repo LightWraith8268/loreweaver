@@ -71,6 +71,7 @@ export default function LoreScreen() {
       <SelectWorldPrompt
         title="No World Selected"
         description="Select or create a world to manage lore notes, timeline, and story relationships"
+        showCreateButton={false}
       />
     );
   }
