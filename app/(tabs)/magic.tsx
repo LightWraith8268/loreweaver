@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, ActivityIndicator } from 'react-native';
 import { Stack, router } from 'expo-router';
-import { Plus, Sparkles, Wand2, BookOpen, Users, X } from 'lucide-react-native';
+import { Plus, Sparkles, Wand2, BookOpen, Users } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
+import { StandardModal } from '@/components/StandardModal';
 import type { MagicSystem } from '@/types/world';
 
 export default function MagicSystemsScreen() {
@@ -263,80 +264,72 @@ Generate:
       )}
       
       {/* AI Generation Modal */}
-      <Modal
+      <StandardModal
         visible={showAIModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAIModal(false)}
+        onClose={() => setShowAIModal(false)}
+        title="AI Magic System Generator"
+        size="large"
+        scrollable={true}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>AI Magic System Generator</Text>
-              <TouchableOpacity onPress={() => setShowAIModal(false)}>
-                <X size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.sectionLabel}>Magic Type</Text>
-            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
-              {magicTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.typeOption,
-                    selectedMagicType === type.id && styles.selectedTypeOption
-                  ]}
-                  onPress={() => setSelectedMagicType(type.id)}
-                >
-                  <Text style={[
-                    styles.typeLabel,
-                    selectedMagicType === type.id && styles.selectedTypeLabel
-                  ]}>
-                    {type.label}
-                  </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            
-            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
-            <TextInput
-              style={styles.promptInput}
-              placeholder="e.g., requires rare crystals, has dangerous side effects, limited by moon phases..."
-              placeholderTextColor={theme.colors.textTertiary}
-              value={customPrompt}
-              onChangeText={setCustomPrompt}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setShowAIModal(false)}
+        <View style={styles.modalBody}>
+          <Text style={styles.sectionLabel}>Magic Type</Text>
+          <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+            {magicTypes.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                style={[
+                  styles.typeOption,
+                  selectedMagicType === type.id && styles.selectedTypeOption
+                ]}
+                onPress={() => setSelectedMagicType(type.id)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[
+                  styles.typeLabel,
+                  selectedMagicType === type.id && styles.selectedTypeLabel
+                ]}>
+                  {type.label}
+                </Text>
+                <Text style={styles.typeDescription}>{type.description}</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.generateButton}
-                onPress={handleAIGenerate}
-                disabled={isCreating || isGenerating}
-              >
-                {isCreating || isGenerating ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <>
-                    <Wand2 size={16} color={theme.colors.background} />
-                    <Text style={styles.generateButtonText}>Generate</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            ))}
+          </ScrollView>
+          
+          <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+          <TextInput
+            style={styles.promptInput}
+            placeholder="e.g., requires rare crystals, has dangerous side effects, limited by moon phases..."
+            placeholderTextColor={theme.colors.textTertiary}
+            value={customPrompt}
+            onChangeText={setCustomPrompt}
+            multiline
+            numberOfLines={3}
+          />
+          
+          <View style={styles.modalActions}>
+            <TouchableOpacity 
+              style={styles.cancelButton}
+              onPress={() => setShowAIModal(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.generateButton}
+              onPress={handleAIGenerate}
+              disabled={isCreating || isGenerating}
+            >
+              {isCreating || isGenerating ? (
+                <ActivityIndicator color={theme.colors.background} />
+              ) : (
+                <>
+                  <Wand2 size={16} color={theme.colors.background} />
+                  <Text style={styles.generateButtonText}>Generate</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </StandardModal>
     </View>
   );
 }
@@ -503,30 +496,8 @@ const styles = StyleSheet.create({
   manualButtonText: {
     color: theme.colors.primary,
   },
-  modalOverlay: {
+  modalBody: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
   },
   sectionLabel: {
     fontSize: theme.fontSize.md,

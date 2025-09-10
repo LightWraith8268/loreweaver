@@ -8,23 +8,33 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Modal,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Sparkles, Package, Search, X, Wand2 } from 'lucide-react-native';
+import { Plus, Sparkles, Package, Search, Wand2, Zap, Shield, Coins } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme } from '@/constants/theme';
+import { theme, responsive } from '@/constants/theme';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
+import { TabLayout, TabItem } from '@/components/TabLayout';
+import { StandardModal } from '@/components/StandardModal';
+
+const { getResponsiveValue } = responsive;
 
 export default function ItemsScreen() {
   const { currentWorld, items, createItem } = useWorld();
   const { isGenerating, generateName, generateContent } = useAI();
+  const [activeTab, setActiveTab] = useState<string>('artifacts');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [selectedItemType, setSelectedItemType] = useState<string>('weapon');
   const [customPrompt, setCustomPrompt] = useState('');
+  
+  const tabs: TabItem[] = [
+    { key: 'artifacts', label: 'Artifacts', icon: Zap },
+    { key: 'equipment', label: 'Equipment', icon: Shield },
+    { key: 'resources', label: 'Resources', icon: Coins },
+  ];
   
   const itemTypes = [
     { id: 'weapon', label: 'Weapon', description: 'Sword, bow, staff, or other combat tool' },
@@ -44,6 +54,19 @@ export default function ItemsScreen() {
     item.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
+  // Filter items by category for each tab
+  const artifactItems = filteredItems.filter(item => 
+    ['artifact', 'cursed', 'jewelry', 'book'].includes(item.type.toLowerCase())
+  );
+  
+  const equipmentItems = filteredItems.filter(item => 
+    ['weapon', 'armor', 'tool'].includes(item.type.toLowerCase())
+  );
+  
+  const resourceItems = filteredItems.filter(item => 
+    ['potion', 'treasure', 'mundane'].includes(item.type.toLowerCase())
+  );
+  
   const handleQuickCreate = async () => {
     if (!currentWorld) {
       Alert.alert('Error', 'Please select a world first');
@@ -58,8 +81,8 @@ export default function ItemsScreen() {
         name,
         type: 'Artifact',
         description: '',
-        powers: '',
-        history: '',
+        rarity: 'common',
+        properties: [],
         notes: '',
       });
       Alert.alert('Success', `Created item: ${name}`);
@@ -90,13 +113,13 @@ Item Type: ${typeDescription}
       
 Generate:
       1. Name (appropriate for the world's genre and item type)
-      2. Detailed physical description
-      3. Magical or special properties (if any)
-      4. Historical background or creation story
-      5. Previous owners or legends
-      6. Current condition and rarity
+      2. Detailed description of appearance and function
+      3. Rarity level (common, uncommon, rare, epic, legendary)
+      4. Special properties or abilities
+      5. History or origin story
+      6. Material composition
       
-      Return as JSON with fields: name, description, powers, history, notes`;
+      Return as JSON with fields: name, type, description, rarity, properties (array), notes`;
       
       const generated = await generateContent(prompt);
       const itemData = JSON.parse(generated);
@@ -104,10 +127,10 @@ Generate:
       await createItem({
         worldId: currentWorld.id,
         name: itemData.name || 'Generated Item',
-        type: selectedType?.label || 'Artifact',
+        type: itemData.type || selectedType?.label || 'Artifact',
         description: itemData.description || '',
-        powers: itemData.powers || '',
-        history: itemData.history || '',
+        rarity: itemData.rarity || 'common',
+        properties: itemData.properties || [],
         notes: itemData.notes || '',
       });
       
@@ -122,18 +145,8 @@ Generate:
     }
   };
   
-  if (!currentWorld) {
-    return (
-      <SelectWorldPrompt
-        title="Items & Artifacts"
-        description="Select a world to create and manage items and artifacts for your stories"
-        customIcon={<Package size={64} color={theme.colors.textTertiary} />}
-      />
-    );
-  }
-  
-  return (
-    <View style={styles.container}>
+  const renderItemsList = (itemsList: any[], emptyMessage: string) => (
+    <>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Search size={20} color={theme.colors.textTertiary} />
@@ -147,9 +160,9 @@ Generate:
       </View>
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {filteredItems.length > 0 ? (
+        {itemsList.length > 0 ? (
           <View style={styles.itemGrid}>
-            {filteredItems.map((item) => (
+            {itemsList.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 style={styles.itemCard}
@@ -159,18 +172,19 @@ Generate:
                 })}
               >
                 <View style={styles.itemIcon}>
-                  <Package size={32} color={theme.colors.accent} />
+                  <Package size={32} color={theme.colors.primary} />
                 </View>
                 <Text style={styles.itemName} numberOfLines={1}>
                   {item.name}
                 </Text>
-                <Text style={styles.itemType}>{item.type}</Text>
-                {item.powers && (
-                  <View style={styles.powerIndicator}>
-                    <Sparkles size={12} color={theme.colors.warning} />
-                    <Text style={styles.powerText}>Enchanted</Text>
-                  </View>
-                )}
+                <Text style={styles.itemType} numberOfLines={1}>
+                  {item.type}
+                </Text>
+                <View style={styles.rarityBadge}>
+                  <Text style={styles.rarityText}>
+                    {item.rarity?.toUpperCase() || 'COMMON'}
+                  </Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -179,168 +193,186 @@ Generate:
             <Package size={48} color={theme.colors.textTertiary} />
             <Text style={styles.emptyStateTitle}>No Items Yet</Text>
             <Text style={styles.emptyStateDescription}>
-              Create legendary artifacts and treasures for your world
+              {emptyMessage}
             </Text>
           </View>
         )}
       </ScrollView>
       
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        <TouchableOpacity 
-          style={[styles.fab, styles.tertiaryFab]}
-          onPress={() => setShowAIModal(true)}
-          disabled={isCreating || isGenerating}
-        >
-          <Wand2 size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.fab, styles.secondaryFab]}
-          onPress={handleQuickCreate}
-          disabled={isCreating || isGenerating}
-        >
-          {isCreating || isGenerating ? (
-            <ActivityIndicator color={theme.colors.text} />
-          ) : (
-            <Sparkles size={24} color={theme.colors.text} />
-          )}
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.fab}
-          onPress={() => router.push({
-            pathname: '/item-edit',
-            params: { id: 'new' }
-          })}
-        >
-          <Plus size={28} color={theme.colors.background} />
-        </TouchableOpacity>
-      </View>
+      {/* Action Buttons - Only show for active tab */}
+      {(activeTab === 'artifacts' || itemsList.length > 0) && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={[styles.fab, styles.tertiaryFab]}
+            onPress={handleQuickCreate}
+            disabled={isCreating}
+          >
+            {isCreating ? (
+              <ActivityIndicator color={theme.colors.surface} />
+            ) : (
+              <Sparkles size={getResponsiveValue({ phone: 24, tablet: 28 })} color={theme.colors.surface} />
+            )}
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.fab, styles.secondaryFab]}
+            onPress={() => setShowAIModal(true)}
+            disabled={isCreating || isGenerating}
+          >
+            <Wand2 size={getResponsiveValue({ phone: 24, tablet: 28 })} color={theme.colors.surface} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.fab}
+            onPress={() => router.push({
+              pathname: '/item-edit',
+              params: { id: 'new' }
+            })}
+          >
+            <Plus size={getResponsiveValue({ phone: 28, tablet: 32 })} color={theme.colors.background} />
+          </TouchableOpacity>
+        </View>
+      )}
+    </>
+  );
+  
+  const renderArtifactsTab = () => renderItemsList(
+    artifactItems, 
+    'Create magical artifacts, ancient relics, and powerful items'
+  );
+  
+  const renderEquipmentTab = () => renderItemsList(
+    equipmentItems,
+    'Create weapons, armor, and tools for your characters'
+  );
+  
+  const renderResourcesTab = () => renderItemsList(
+    resourceItems,
+    'Create potions, treasures, and consumable items'
+  );
+  
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'artifacts':
+        return renderArtifactsTab();
+      case 'equipment':
+        return renderEquipmentTab();
+      case 'resources':
+        return renderResourcesTab();
+      default:
+        return renderArtifactsTab();
+    }
+  };
+  
+  if (!currentWorld) {
+    return (
+      <SelectWorldPrompt
+        title="Items"
+        description="Select a world to create and manage items for your stories"
+        customIcon={<Package size={64} color={theme.colors.textTertiary} />}
+      />
+    );
+  }
+  
+  return (
+    <TabLayout
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {renderTabContent()}
       
       {/* AI Generation Modal */}
-      <Modal
+      <StandardModal
         visible={showAIModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAIModal(false)}
+        onClose={() => setShowAIModal(false)}
+        title="Generate Item"
+        size="large"
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>AI Item Generator</Text>
-              <TouchableOpacity onPress={() => setShowAIModal(false)}>
-                <X size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.sectionLabel}>Item Type</Text>
-            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
-              {itemTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.typeOption,
-                    selectedItemType === type.id && styles.selectedTypeOption
-                  ]}
-                  onPress={() => setSelectedItemType(type.id)}
-                >
-                  <Text style={[
-                    styles.typeLabel,
-                    selectedItemType === type.id && styles.selectedTypeLabel
-                  ]}>
-                    {type.label}
-                  </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            
-            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
-            <TextInput
-              style={styles.promptInput}
-              placeholder="e.g., forged by dragons, glows in moonlight, once belonged to a king..."
-              placeholderTextColor={theme.colors.textTertiary}
-              value={customPrompt}
-              onChangeText={setCustomPrompt}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setShowAIModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.generateButton}
-                onPress={handleAIGenerate}
-                disabled={isCreating || isGenerating}
-              >
-                {isCreating || isGenerating ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <>
-                    <Wand2 size={16} color={theme.colors.background} />
-                    <Text style={styles.generateButtonText}>Generate</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
+        <Text style={styles.sectionLabel}>Item Type</Text>
+        <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+          {itemTypes.map((type) => (
+            <TouchableOpacity
+              key={type.id}
+              style={[
+                styles.typeOption,
+                selectedItemType === type.id && styles.selectedTypeOption
+              ]}
+              onPress={() => setSelectedItemType(type.id)}
+            >
+              <Text style={[
+                styles.typeLabel,
+                selectedItemType === type.id && styles.selectedTypeLabel
+              ]}>
+                {type.label}
+              </Text>
+              <Text style={styles.typeDescription}>{type.description}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        
+        <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+        <TextInput
+          style={styles.promptInput}
+          placeholder="e.g., glows with inner light, forged by ancient dwarves, cursed with dark magic..."
+          placeholderTextColor={theme.colors.textTertiary}
+          value={customPrompt}
+          onChangeText={setCustomPrompt}
+          multiline
+          numberOfLines={3}
+        />
+        
+        <View style={styles.modalActions}>
+          <TouchableOpacity 
+            style={styles.cancelButton}
+            onPress={() => setShowAIModal(false)}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.generateButton}
+            onPress={handleAIGenerate}
+            disabled={isCreating || isGenerating}
+          >
+            {isCreating || isGenerating ? (
+              <ActivityIndicator color={theme.colors.background} />
+            ) : (
+              <>
+                <Wand2 size={16} color={theme.colors.background} />
+                <Text style={styles.generateButtonText}>Generate</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </StandardModal>
+    </TabLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  tabContent: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  emptyContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: theme.spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-  },
-  emptyDescription: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  selectWorldButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.full,
-    marginTop: theme.spacing.lg,
-  },
-  selectWorldButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    margin: theme.spacing.md,
+    paddingHorizontal: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
+    paddingVertical: getResponsiveValue({ 
+      phone: theme.spacing.sm,
+      tablet: theme.spacing.md 
+    }),
+    margin: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   searchInput: {
     flex: 1,
@@ -350,52 +382,87 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   itemGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.md,
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   itemCard: {
-    width: '47%',
+    width: getResponsiveValue({ 
+      phone: '47%',
+      tablet: '30%',
+      largeTablet: '22%' 
+    }),
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
     alignItems: 'center',
   },
   itemIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.accent + '20',
+    width: getResponsiveValue({ 
+      phone: 64,
+      tablet: 80,
+      largeTablet: 96 
+    }),
+    height: getResponsiveValue({ 
+      phone: 64,
+      tablet: 80,
+      largeTablet: 96 
+    }),
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: getResponsiveValue({ 
+      phone: theme.spacing.sm,
+      tablet: theme.spacing.md 
+    }),
   },
   itemName: {
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
     color: theme.colors.text,
     marginBottom: theme.spacing.xs,
+    textAlign: 'center',
   },
   itemType: {
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.sm,
+    textAlign: 'center',
   },
-  powerIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: theme.spacing.sm,
-    gap: theme.spacing.xs,
+  rarityBadge: {
+    backgroundColor: theme.colors.secondary + '30',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.borderRadius.sm,
   },
-  powerText: {
+  rarityText: {
     fontSize: theme.fontSize.xs,
-    color: theme.colors.warning,
+    fontWeight: theme.fontWeight.medium,
+    color: theme.colors.secondary,
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: theme.spacing.xxl,
+    paddingVertical: getResponsiveValue({ 
+      phone: theme.spacing.xxl,
+      tablet: theme.spacing.xxl * 1.5,
+      largeTablet: theme.spacing.xxl * 2 
+    }),
   },
   emptyStateTitle: {
     fontSize: theme.fontSize.lg,
@@ -408,16 +475,36 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.sm,
     textAlign: 'center',
+    paddingHorizontal: theme.spacing.lg,
   },
   actionButtons: {
     position: 'absolute',
-    bottom: theme.spacing.lg,
-    right: theme.spacing.lg,
-    gap: theme.spacing.md,
+    bottom: getResponsiveValue({ 
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    right: getResponsiveValue({ 
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
   },
   fab: {
-    width: 56,
-    height: 56,
+    width: getResponsiveValue({ 
+      phone: 56,
+      tablet: 64,
+      largeTablet: 72 
+    }),
+    height: getResponsiveValue({ 
+      phone: 56,
+      tablet: 64,
+      largeTablet: 72 
+    }),
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.primary,
     alignItems: 'center',
@@ -429,37 +516,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   secondaryFab: {
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.secondary,
     marginBottom: theme.spacing.md,
   },
   tertiaryFab: {
-    backgroundColor: theme.colors.warning,
+    backgroundColor: theme.colors.accent,
     marginBottom: theme.spacing.md,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
   },
   sectionLabel: {
     fontSize: theme.fontSize.md,

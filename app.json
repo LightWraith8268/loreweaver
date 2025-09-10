@@ -17,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.lightwraith8268.loreweaver",
       "requireFullScreen": false,
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown"],
         "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown", "UIInterfaceOrientationLandscapeLeft", "UIInterfaceOrientationLandscapeRight"]
@@ -28,14 +29,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "app.lightwraith8268.loreweaver",
-      "statusBar": {
-        "translucent": false,
-        "backgroundColor": "#141824",
-        "barStyle": "light-content"
-      },
-      "softwareKeyboardLayoutMode": "pan",
-      "windowSoftInputMode": "adjustResize",
-      "screenOrientation": "default"
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -52,7 +46,8 @@
         {
           "initialOrientation": "DEFAULT"
         }
-      ]
+      ],
+      "@react-native-firebase/app"
     ],
     "experiments": {
       "typedRoutes": true

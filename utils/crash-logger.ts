@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { firebaseService } from '@/services/firebase-advanced';
 
 export interface CrashLog {
   id: string;
@@ -37,6 +38,7 @@ class CrashLogger {
   private userId?: string;
   private appVersion?: string;
   private buildNumber?: string;
+  private syncEnabled: boolean = false;
 
   private constructor() {
     this.sessionId = Date.now().toString();
@@ -54,6 +56,10 @@ class CrashLogger {
     this.userId = userId;
     this.appVersion = appVersion;
     this.buildNumber = buildNumber;
+  }
+
+  public enableSync(enabled: boolean) {
+    this.syncEnabled = enabled;
   }
 
   private setupGlobalErrorHandlers() {
@@ -111,6 +117,16 @@ class CrashLogger {
       };
 
       await this.storeCrashLog(crashLog);
+      
+      // Sync to Firebase if enabled and user is authenticated
+      if (this.syncEnabled && this.userId) {
+        try {
+          await firebaseService.syncCrashLog(crashLog);
+        } catch (syncError) {
+          console.error('Failed to sync crash log:', syncError);
+        }
+      }
+      
       console.log('Crash logged:', crashLog.id, error.message);
       
       return crashLog;
@@ -150,8 +166,28 @@ class CrashLogger {
 
   public async getCrashLogs(): Promise<CrashLog[]> {
     try {
-      const logs = await AsyncStorage.getItem('crash_logs');
-      return logs ? JSON.parse(logs) : [];
+      // Get local logs
+      const localLogs = await AsyncStorage.getItem('crash_logs');
+      const logs: CrashLog[] = localLogs ? JSON.parse(localLogs) : [];
+      
+      // Get Firebase logs if sync is enabled and user is authenticated
+      if (this.syncEnabled && this.userId) {
+        try {
+          const firebaseLogs = await firebaseService.getCrashLogs();
+          
+          // Merge and deduplicate logs
+          const allLogs = [...logs, ...firebaseLogs];
+          const uniqueLogs = allLogs.filter((log, index, self) => 
+            index === self.findIndex(l => l.id === log.id)
+          );
+          
+          return uniqueLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        } catch (syncError) {
+          console.error('Failed to get Firebase crash logs:', syncError);
+        }
+      }
+      
+      return logs;
     } catch (error) {
       console.error('Failed to retrieve crash logs:', error);
       return [];

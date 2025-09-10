@@ -8,25 +8,33 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Modal,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Sparkles, User, Search, X, Wand2 } from 'lucide-react-native';
+import { Plus, Sparkles, User, Search, Wand2, Users, Network } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme, responsive } from '@/constants/theme';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
+import { TabLayout, TabItem } from '@/components/TabLayout';
+import { StandardModal } from '@/components/StandardModal';
 
 const { getResponsiveValue } = responsive;
 
 export default function CharactersScreen() {
   const { currentWorld, characters, createCharacter } = useWorld();
   const { isGenerating, generateName, generateContent } = useAI();
+  const [activeTab, setActiveTab] = useState<string>('characters');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [selectedCharacterType, setSelectedCharacterType] = useState<string>('main-character');
   const [customPrompt, setCustomPrompt] = useState('');
+  
+  const tabs: TabItem[] = [
+    { key: 'characters', label: 'Characters', icon: User },
+    { key: 'relationships', label: 'Relations', icon: Users },
+    { key: 'groups', label: 'Groups', icon: Network },
+  ];
   
   const characterTypes = [
     { id: 'main-character', label: 'Main Character', description: 'Protagonist or central figure' },
@@ -128,18 +136,8 @@ Generate:
     }
   };
   
-  if (!currentWorld) {
-    return (
-      <SelectWorldPrompt
-        title="Characters"
-        description="Select a world to create and manage characters for your stories"
-        customIcon={<User size={64} color={theme.colors.textTertiary} />}
-      />
-    );
-  }
-  
-  return (
-    <View style={styles.container}>
+  const renderCharactersTab = () => (
+    <>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Search size={20} color={theme.colors.textTertiary} />
@@ -194,26 +192,26 @@ Generate:
         )}
       </ScrollView>
       
-      {/* Action Buttons */}
+      {/* Action Buttons - Only show for characters tab */}
       <View style={styles.actionButtons}>
         <TouchableOpacity 
           style={[styles.fab, styles.tertiaryFab]}
-          onPress={() => setShowAIModal(true)}
-          disabled={isCreating || isGenerating}
+          onPress={handleQuickCreate}
+          disabled={isCreating}
         >
-          <Wand2 size={24} color={theme.colors.text} />
+          {isCreating ? (
+            <ActivityIndicator color={theme.colors.surface} />
+          ) : (
+            <Sparkles size={getResponsiveValue({ phone: 24, tablet: 28 })} color={theme.colors.surface} />
+          )}
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[styles.fab, styles.secondaryFab]}
-          onPress={handleQuickCreate}
+          onPress={() => setShowAIModal(true)}
           disabled={isCreating || isGenerating}
         >
-          {isCreating || isGenerating ? (
-            <ActivityIndicator color={theme.colors.text} />
-          ) : (
-            <Sparkles size={24} color={theme.colors.text} />
-          )}
+          <Wand2 size={getResponsiveValue({ phone: 24, tablet: 28 })} color={theme.colors.surface} />
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -223,124 +221,139 @@ Generate:
             params: { id: 'new' }
           })}
         >
-          <Plus size={28} color={theme.colors.background} />
+          <Plus size={getResponsiveValue({ phone: 28, tablet: 32 })} color={theme.colors.background} />
         </TouchableOpacity>
       </View>
+    </>
+  );
+  
+  const renderRelationshipsTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.emptyState}>
+        <Users size={48} color={theme.colors.textTertiary} />
+        <Text style={styles.emptyStateTitle}>Character Relationships</Text>
+        <Text style={styles.emptyStateDescription}>
+          View and manage relationships between characters
+        </Text>
+      </View>
+    </View>
+  );
+  
+  const renderGroupsTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.emptyState}>
+        <Network size={48} color={theme.colors.textTertiary} />
+        <Text style={styles.emptyStateTitle}>Character Groups</Text>
+        <Text style={styles.emptyStateDescription}>
+          Organize characters into groups, parties, and organizations
+        </Text>
+      </View>
+    </View>
+  );
+  
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'characters':
+        return renderCharactersTab();
+      case 'relationships':
+        return renderRelationshipsTab();
+      case 'groups':
+        return renderGroupsTab();
+      default:
+        return renderCharactersTab();
+    }
+  };
+  
+  if (!currentWorld) {
+    return (
+      <SelectWorldPrompt
+        title="Characters"
+        description="Select a world to create and manage characters for your stories"
+        customIcon={<User size={64} color={theme.colors.textTertiary} />}
+      />
+    );
+  }
+  
+  return (
+    <TabLayout
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {renderTabContent()}
       
       {/* AI Generation Modal */}
-      <Modal
+      <StandardModal
         visible={showAIModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAIModal(false)}
+        onClose={() => setShowAIModal(false)}
+        title="Generate Character"
+        size="large"
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>AI Character Generator</Text>
-              <TouchableOpacity onPress={() => setShowAIModal(false)}>
-                <X size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.sectionLabel}>Character Type</Text>
-            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
-              {characterTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.typeOption,
-                    selectedCharacterType === type.id && styles.selectedTypeOption
-                  ]}
-                  onPress={() => setSelectedCharacterType(type.id)}
-                >
-                  <Text style={[
-                    styles.typeLabel,
-                    selectedCharacterType === type.id && styles.selectedTypeLabel
-                  ]}>
-                    {type.label}
-                  </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            
-            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
-            <TextInput
-              style={styles.promptInput}
-              placeholder="e.g., has a mysterious past, skilled in magic, comes from a noble family..."
-              placeholderTextColor={theme.colors.textTertiary}
-              value={customPrompt}
-              onChangeText={setCustomPrompt}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setShowAIModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.generateButton}
-                onPress={handleAIGenerate}
-                disabled={isCreating || isGenerating}
-              >
-                {isCreating || isGenerating ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <>
-                    <Wand2 size={16} color={theme.colors.background} />
-                    <Text style={styles.generateButtonText}>Generate</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
+        <Text style={styles.sectionLabel}>Character Type</Text>
+        <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+          {characterTypes.map((type) => (
+            <TouchableOpacity
+              key={type.id}
+              style={[
+                styles.typeOption,
+                selectedCharacterType === type.id && styles.selectedTypeOption
+              ]}
+              onPress={() => setSelectedCharacterType(type.id)}
+            >
+              <Text style={[
+                styles.typeLabel,
+                selectedCharacterType === type.id && styles.selectedTypeLabel
+              ]}>
+                {type.label}
+              </Text>
+              <Text style={styles.typeDescription}>{type.description}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        
+        <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+        <TextInput
+          style={styles.promptInput}
+          placeholder="e.g., has a mysterious past, skilled in magic, comes from a noble family..."
+          placeholderTextColor={theme.colors.textTertiary}
+          value={customPrompt}
+          onChangeText={setCustomPrompt}
+          multiline
+          numberOfLines={3}
+        />
+        
+        <View style={styles.modalActions}>
+          <TouchableOpacity 
+            style={styles.cancelButton}
+            onPress={() => setShowAIModal(false)}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.generateButton}
+            onPress={handleAIGenerate}
+            disabled={isCreating || isGenerating}
+          >
+            {isCreating || isGenerating ? (
+              <ActivityIndicator color={theme.colors.background} />
+            ) : (
+              <>
+                <Wand2 size={16} color={theme.colors.background} />
+                <Text style={styles.generateButtonText}>Generate</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </StandardModal>
+    </TabLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  tabContent: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  emptyContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: theme.spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-  },
-  emptyDescription: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  selectWorldButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.full,
-    marginTop: theme.spacing.lg,
-  },
-  selectWorldButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -509,31 +522,6 @@ const styles = StyleSheet.create({
   tertiaryFab: {
     backgroundColor: theme.colors.accent,
     marginBottom: theme.spacing.md,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
   },
   sectionLabel: {
     fontSize: theme.fontSize.md,

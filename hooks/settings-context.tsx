@@ -1,7 +1,8 @@
 import createContextHook from '@nkzw/create-context-hook';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
+import { firebaseService } from '@/services/firebase-advanced';
+import { useAuth } from './auth-context';
 import type { AppSettings, AISettings } from '@/types/world';
 
 const DEFAULT_AI_SETTINGS: AISettings = {
@@ -87,49 +88,85 @@ interface SettingsContextType {
 
 export const [SettingsProvider, useSettings] = createContextHook<SettingsContextType>(() => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   const settingsQuery = useQuery({
-    queryKey: ['settings'],
+    queryKey: ['settings', user?.uid],
     queryFn: async () => {
-      const data = await AsyncStorage.getItem('app_settings');
-      return data ? { ...DEFAULT_SETTINGS, ...JSON.parse(data) } : DEFAULT_SETTINGS;
+      if (!user) return DEFAULT_SETTINGS;
+      try {
+        // Load general settings and encrypted AI settings separately
+        const [generalSettings, aiSettings] = await Promise.all([
+          firebaseService.getUserSettings(),
+          firebaseService.getAISettings()
+        ]);
+        
+        const settings = generalSettings ? { ...DEFAULT_SETTINGS, ...generalSettings } : DEFAULT_SETTINGS;
+        
+        // Merge encrypted AI settings if available, otherwise use settings.ai or default
+        if (aiSettings) {
+          settings.ai = aiSettings;
+        }
+        
+        return settings;
+      } catch (error) {
+        console.error('Failed to load settings from Firebase:', error);
+        return DEFAULT_SETTINGS;
+      }
     },
+    enabled: !!user,
   });
   
   const updateSettingsMutation = useMutation({
     mutationFn: async (updates: Partial<AppSettings>) => {
+      if (!user) throw new Error('User not authenticated');
       const current = settingsQuery.data || DEFAULT_SETTINGS;
       const updated = { ...current, ...updates };
-      await AsyncStorage.setItem('app_settings', JSON.stringify(updated));
+      await firebaseService.syncUserSettings(updated);
       return updated;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['settings'], data);
+      queryClient.setQueryData(['settings', user?.uid], data);
     },
   });
   
   const updateAISettingsMutation = useMutation({
     mutationFn: async (updates: Partial<AISettings>) => {
+      if (!user) throw new Error('User not authenticated');
       const current = settingsQuery.data || DEFAULT_SETTINGS;
+      const updatedAISettings = { ...current.ai, ...updates };
+      
+      // Store AI settings separately with encryption
+      await firebaseService.syncAISettings(updatedAISettings);
+      
+      // Also update the main settings to maintain consistency
       const updated = { 
         ...current, 
-        ai: { ...current.ai, ...updates }
+        ai: updatedAISettings
       };
-      await AsyncStorage.setItem('app_settings', JSON.stringify(updated));
+      await firebaseService.syncUserSettings(updated);
+      
       return updated;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['settings'], data);
+      queryClient.setQueryData(['settings', user?.uid], data);
     },
   });
   
   const resetSettingsMutation = useMutation({
     mutationFn: async () => {
-      await AsyncStorage.setItem('app_settings', JSON.stringify(DEFAULT_SETTINGS));
+      if (!user) throw new Error('User not authenticated');
+      
+      // Reset both general settings and AI settings
+      await Promise.all([
+        firebaseService.syncUserSettings(DEFAULT_SETTINGS),
+        firebaseService.syncAISettings(DEFAULT_SETTINGS.ai)
+      ]);
+      
       return DEFAULT_SETTINGS;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['settings'], data);
+      queryClient.setQueryData(['settings', user?.uid], data);
     },
   });
   

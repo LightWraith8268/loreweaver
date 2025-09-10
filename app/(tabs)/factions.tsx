@@ -8,18 +8,26 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Modal,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Sparkles, Shield, Search, X, Wand2 } from 'lucide-react-native';
+import { Plus, Sparkles, Shield, Search, Wand2, Users, Crown, Swords } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
+import { TabLayout, TabItem } from '@/components/TabLayout';
+import { StandardModal } from '@/components/StandardModal';
+
+const tabs: TabItem[] = [
+  { key: 'organizations', label: 'Organizations', icon: Users },
+  { key: 'politics', label: 'Politics', icon: Crown },
+  { key: 'conflicts', label: 'Conflicts', icon: Swords },
+];
 
 export default function FactionsScreen() {
   const { currentWorld, factions, createFaction } = useWorld();
   const { isGenerating, generateName, generateContent } = useAI();
+  const [activeTab, setActiveTab] = useState('organizations');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
@@ -39,10 +47,34 @@ export default function FactionsScreen() {
     { id: 'secret', label: 'Secret Society', description: 'Hidden organization with agenda' },
   ];
   
-  const filteredFactions = factions.filter(faction => 
-    faction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    faction.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const getFactionsForTab = (tabKey: string) => {
+    let filtered = factions;
+    
+    switch (tabKey) {
+      case 'organizations':
+        filtered = factions.filter(f => 
+          ['guild', 'scholarly', 'criminal', 'mercenary', 'secret'].includes(f.type.toLowerCase().replace(' ', '-'))
+        );
+        break;
+      case 'politics':
+        filtered = factions.filter(f => 
+          ['kingdom', 'noble-house', 'military', 'rebel'].includes(f.type.toLowerCase().replace(' ', '-'))
+        );
+        break;
+      case 'conflicts':
+        filtered = factions.filter(f => 
+          f.enemies.length > 0 || f.allies.length > 0
+        );
+        break;
+    }
+    
+    return filtered.filter(faction => 
+      faction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faction.type.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const filteredFactions = getFactionsForTab(activeTab);
   
   const handleQuickCreate = async () => {
     if (!currentWorld) {
@@ -138,21 +170,37 @@ Generate:
     );
   }
   
-  return (
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Search size={20} color={theme.colors.textTertiary} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search factions..."
-          placeholderTextColor={theme.colors.textTertiary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
-      
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+  const renderTabContent = () => {
+    const emptyMessages = {
+      organizations: {
+        title: 'No Organizations Yet',
+        description: 'Create guilds, societies, and groups that shape your world'
+      },
+      politics: {
+        title: 'No Political Entities Yet',
+        description: 'Build kingdoms, houses, and governing bodies'
+      },
+      conflicts: {
+        title: 'No Active Conflicts Yet',
+        description: 'Factions with allies or enemies will appear here'
+      }
+    };
+
+    return (
+      <View style={styles.tabContent}>
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <Search size={20} color={theme.colors.textTertiary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={`Search ${activeTab}...`}
+            placeholderTextColor={theme.colors.textTertiary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+        
+        <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {filteredFactions.length > 0 ? (
           <View style={styles.factionList}>
             {filteredFactions.map((faction) => (
@@ -198,16 +246,16 @@ Generate:
         ) : (
           <View style={styles.emptyState}>
             <Shield size={48} color={theme.colors.textTertiary} />
-            <Text style={styles.emptyStateTitle}>No Factions Yet</Text>
+            <Text style={styles.emptyStateTitle}>{emptyMessages[activeTab as keyof typeof emptyMessages].title}</Text>
             <Text style={styles.emptyStateDescription}>
-              Create organizations and groups that shape your world
+              {emptyMessages[activeTab as keyof typeof emptyMessages].description}
             </Text>
           </View>
         )}
-      </ScrollView>
-      
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
+        </ScrollView>
+        
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
         <TouchableOpacity 
           style={[styles.fab, styles.tertiaryFab]}
           onPress={() => setShowAIModal(true)}
@@ -237,122 +285,98 @@ Generate:
         >
           <Plus size={28} color={theme.colors.background} />
         </TouchableOpacity>
+        </View>
       </View>
+    );
+  };
+
+  return (
+    <TabLayout
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      scrollable={false}
+    >
+      {renderTabContent()}
       
       {/* AI Generation Modal */}
-      <Modal
+      <StandardModal
         visible={showAIModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAIModal(false)}
+        onClose={() => setShowAIModal(false)}
+        title="AI Faction Generator"
+        size="large"
+        scrollable={true}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>AI Faction Generator</Text>
-              <TouchableOpacity onPress={() => setShowAIModal(false)}>
-                <X size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.sectionLabel}>Faction Type</Text>
-            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
-              {factionTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.typeOption,
-                    selectedFactionType === type.id && styles.selectedTypeOption
-                  ]}
-                  onPress={() => setSelectedFactionType(type.id)}
-                >
-                  <Text style={[
-                    styles.typeLabel,
-                    selectedFactionType === type.id && styles.selectedTypeLabel
-                  ]}>
-                    {type.label}
-                  </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            
-            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
-            <TextInput
-              style={styles.promptInput}
-              placeholder="e.g., controls the docks, worships ancient gods, seeks to overthrow the king..."
-              placeholderTextColor={theme.colors.textTertiary}
-              value={customPrompt}
-              onChangeText={setCustomPrompt}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setShowAIModal(false)}
+        <View style={styles.modalBody}>
+          <Text style={styles.sectionLabel}>Faction Type</Text>
+          <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+            {factionTypes.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                style={[
+                  styles.typeOption,
+                  selectedFactionType === type.id && styles.selectedTypeOption
+                ]}
+                onPress={() => setSelectedFactionType(type.id)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[
+                  styles.typeLabel,
+                  selectedFactionType === type.id && styles.selectedTypeLabel
+                ]}>
+                  {type.label}
+                </Text>
+                <Text style={styles.typeDescription}>{type.description}</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.generateButton}
-                onPress={handleAIGenerate}
-                disabled={isCreating || isGenerating}
-              >
-                {isCreating || isGenerating ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <>
-                    <Wand2 size={16} color={theme.colors.background} />
-                    <Text style={styles.generateButtonText}>Generate</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            ))}
+          </ScrollView>
+          
+          <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+          <TextInput
+            style={styles.promptInput}
+            placeholder="e.g., controls the docks, worships ancient gods, seeks to overthrow the king..."
+            placeholderTextColor={theme.colors.textTertiary}
+            value={customPrompt}
+            onChangeText={setCustomPrompt}
+            multiline
+            numberOfLines={3}
+          />
+          
+          <View style={styles.modalActions}>
+            <TouchableOpacity 
+              style={styles.cancelButton}
+              onPress={() => setShowAIModal(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.generateButton}
+              onPress={handleAIGenerate}
+              disabled={isCreating || isGenerating}
+            >
+              {isCreating || isGenerating ? (
+                <ActivityIndicator color={theme.colors.background} />
+              ) : (
+                <>
+                  <Wand2 size={16} color={theme.colors.background} />
+                  <Text style={styles.generateButtonText}>Generate</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-    </View>
+      </StandardModal>
+    </TabLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  tabContent: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
-  emptyContainer: {
+  scrollContent: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-  },
-  emptyDescription: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  selectWorldButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.full,
-    marginTop: theme.spacing.lg,
-  },
-  selectWorldButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
+    padding: theme.spacing.md,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -361,17 +385,13 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
-    margin: theme.spacing.md,
+    marginBottom: theme.spacing.md,
   },
   searchInput: {
     flex: 1,
     marginLeft: theme.spacing.sm,
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
-  },
-  content: {
-    flex: 1,
-    padding: theme.spacing.md,
   },
   factionList: {
     gap: theme.spacing.md,
@@ -475,30 +495,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
     marginBottom: theme.spacing.md,
   },
-  modalOverlay: {
+  modalBody: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
   },
   sectionLabel: {
     fontSize: theme.fontSize.md,

@@ -747,14 +747,14 @@ export default function DashboardScreen() {
         contextType={currentWorld ? 'world' : 'global'}
       />
       
-      {showVoiceCapture && (
-        <VoiceCaptureComponent
-          onCaptureComplete={(capture) => {
-            console.log('Voice capture completed:', capture);
-            setShowVoiceCapture(false);
-          }}
-        />
-      )}
+      <VoiceCaptureComponent
+        visible={showVoiceCapture}
+        onClose={() => setShowVoiceCapture(false)}
+        onCaptureComplete={(capture) => {
+          console.log('Voice capture completed:', capture);
+          setShowVoiceCapture(false);
+        }}
+      />
 
       <SeriesManager
         visible={showSeriesManager}

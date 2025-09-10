@@ -85,6 +85,8 @@ export interface Item {
   name: string;
   type: string;
   description: string;
+  rarity?: string;
+  properties?: string[];
   powers?: string;
   history: string;
   currentOwner?: string;

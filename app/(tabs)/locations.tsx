@@ -8,23 +8,33 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Modal,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Sparkles, MapPin, Search, X, Wand2 } from 'lucide-react-native';
+import { Plus, Sparkles, MapPin, Search, Wand2, Map, Globe } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
-import { theme } from '@/constants/theme';
+import { theme, responsive } from '@/constants/theme';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
+import { TabLayout, TabItem } from '@/components/TabLayout';
+import { StandardModal } from '@/components/StandardModal';
+
+const { getResponsiveValue } = responsive;
 
 export default function LocationsScreen() {
   const { currentWorld, locations, createLocation } = useWorld();
   const { isGenerating, generateName, generateContent } = useAI();
+  const [activeTab, setActiveTab] = useState<string>('places');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [selectedLocationType, setSelectedLocationType] = useState<string>('city');
   const [customPrompt, setCustomPrompt] = useState('');
+  
+  const tabs: TabItem[] = [
+    { key: 'places', label: 'Places', icon: MapPin },
+    { key: 'maps', label: 'Maps', icon: Map },
+    { key: 'regions', label: 'Regions', icon: Globe },
+  ];
   
   const locationTypes = [
     { id: 'city', label: 'City', description: 'Large urban settlement' },
@@ -98,7 +108,7 @@ Generate:
       5. Unique features or landmarks
       6. Atmosphere and mood
       
-      Return as JSON with fields: name, description, significance, inhabitants (array), notes`;
+      Return as JSON with fields: name, type, description, significance, notes`;
       
       const generated = await generateContent(prompt);
       const locationData = JSON.parse(generated);
@@ -106,10 +116,10 @@ Generate:
       await createLocation({
         worldId: currentWorld.id,
         name: locationData.name || 'Generated Location',
-        type: selectedType?.label || 'City',
+        type: locationData.type || selectedType?.label || 'Place',
         description: locationData.description || '',
         significance: locationData.significance || '',
-        inhabitants: locationData.inhabitants || [],
+        inhabitants: [],
         connectedLocations: [],
         notes: locationData.notes || '',
       });
@@ -125,18 +135,8 @@ Generate:
     }
   };
   
-  if (!currentWorld) {
-    return (
-      <SelectWorldPrompt
-        title="Locations"
-        description="Select a world to create and manage locations for your stories"
-        customIcon={<MapPin size={64} color={theme.colors.textTertiary} />}
-      />
-    );
-  }
-  
-  return (
-    <View style={styles.container}>
+  const renderPlacesTab = () => (
+    <>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Search size={20} color={theme.colors.textTertiary} />
@@ -151,7 +151,7 @@ Generate:
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {filteredLocations.length > 0 ? (
-          <View style={styles.locationList}>
+          <View style={styles.locationGrid}>
             {filteredLocations.map((location) => (
               <TouchableOpacity
                 key={location.id}
@@ -162,17 +162,17 @@ Generate:
                 })}
               >
                 <View style={styles.locationIcon}>
-                  <MapPin size={24} color={theme.colors.secondary} />
+                  <MapPin size={32} color={theme.colors.primary} />
                 </View>
-                <View style={styles.locationContent}>
-                  <Text style={styles.locationName}>{location.name}</Text>
-                  <Text style={styles.locationType}>{location.type}</Text>
-                  {location.description && (
-                    <Text style={styles.locationDescription} numberOfLines={2}>
-                      {location.description}
-                    </Text>
-                  )}
-                </View>
+                <Text style={styles.locationName} numberOfLines={1}>
+                  {location.name}
+                </Text>
+                <Text style={styles.locationType} numberOfLines={1}>
+                  {location.type}
+                </Text>
+                <Text style={styles.locationDescription} numberOfLines={2}>
+                  {location.description || 'No description'}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -181,7 +181,7 @@ Generate:
             <MapPin size={48} color={theme.colors.textTertiary} />
             <Text style={styles.emptyStateTitle}>No Locations Yet</Text>
             <Text style={styles.emptyStateDescription}>
-              Create your first location to map out your world
+              Create your first location to build your world
             </Text>
           </View>
         )}
@@ -191,22 +191,22 @@ Generate:
       <View style={styles.actionButtons}>
         <TouchableOpacity 
           style={[styles.fab, styles.tertiaryFab]}
-          onPress={() => setShowAIModal(true)}
-          disabled={isCreating || isGenerating}
+          onPress={handleQuickCreate}
+          disabled={isCreating}
         >
-          <Wand2 size={24} color={theme.colors.text} />
+          {isCreating ? (
+            <ActivityIndicator color={theme.colors.surface} />
+          ) : (
+            <Sparkles size={getResponsiveValue({ phone: 24, tablet: 28 })} color={theme.colors.surface} />
+          )}
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[styles.fab, styles.secondaryFab]}
-          onPress={handleQuickCreate}
+          onPress={() => setShowAIModal(true)}
           disabled={isCreating || isGenerating}
         >
-          {isCreating || isGenerating ? (
-            <ActivityIndicator color={theme.colors.text} />
-          ) : (
-            <Sparkles size={24} color={theme.colors.text} />
-          )}
+          <Wand2 size={getResponsiveValue({ phone: 24, tablet: 28 })} color={theme.colors.surface} />
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -216,133 +216,158 @@ Generate:
             params: { id: 'new' }
           })}
         >
-          <Plus size={28} color={theme.colors.background} />
+          <Plus size={getResponsiveValue({ phone: 28, tablet: 32 })} color={theme.colors.background} />
         </TouchableOpacity>
       </View>
+    </>
+  );
+  
+  const renderMapsTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.emptyState}>
+        <Map size={48} color={theme.colors.textTertiary} />
+        <Text style={styles.emptyStateTitle}>World Maps</Text>
+        <Text style={styles.emptyStateDescription}>
+          Create and manage maps of your world and regions
+        </Text>
+      </View>
+    </View>
+  );
+  
+  const renderRegionsTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.emptyState}>
+        <Globe size={48} color={theme.colors.textTertiary} />
+        <Text style={styles.emptyStateTitle}>World Regions</Text>
+        <Text style={styles.emptyStateDescription}>
+          Organize locations into regions, countries, and continents
+        </Text>
+      </View>
+    </View>
+  );
+  
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'places':
+        return renderPlacesTab();
+      case 'maps':
+        return renderMapsTab();
+      case 'regions':
+        return renderRegionsTab();
+      default:
+        return renderPlacesTab();
+    }
+  };
+  
+  if (!currentWorld) {
+    return (
+      <SelectWorldPrompt
+        title="Locations"
+        description="Select a world to create and manage locations for your stories"
+        customIcon={<MapPin size={64} color={theme.colors.textTertiary} />}
+      />
+    );
+  }
+  
+  return (
+    <TabLayout
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {renderTabContent()}
       
       {/* AI Generation Modal */}
-      <Modal
+      <StandardModal
         visible={showAIModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAIModal(false)}
+        onClose={() => setShowAIModal(false)}
+        title="Generate Location"
+        size="large"
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>AI Location Generator</Text>
-              <TouchableOpacity onPress={() => setShowAIModal(false)}>
-                <X size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.sectionLabel}>Location Type</Text>
-            <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
-              {locationTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.typeOption,
-                    selectedLocationType === type.id && styles.selectedTypeOption
-                  ]}
-                  onPress={() => setSelectedLocationType(type.id)}
-                >
-                  <Text style={[
-                    styles.typeLabel,
-                    selectedLocationType === type.id && styles.selectedTypeLabel
-                  ]}>
-                    {type.label}
-                  </Text>
-                  <Text style={styles.typeDescription}>{type.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            
-            <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
-            <TextInput
-              style={styles.promptInput}
-              placeholder="e.g., built on a floating island, haunted by spirits, center of trade..."
-              placeholderTextColor={theme.colors.textTertiary}
-              value={customPrompt}
-              onChangeText={setCustomPrompt}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setShowAIModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.generateButton}
-                onPress={handleAIGenerate}
-                disabled={isCreating || isGenerating}
-              >
-                {isCreating || isGenerating ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <>
-                    <Wand2 size={16} color={theme.colors.background} />
-                    <Text style={styles.generateButtonText}>Generate</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
+        <Text style={styles.sectionLabel}>Location Type</Text>
+        <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+          {locationTypes.map((type) => (
+            <TouchableOpacity
+              key={type.id}
+              style={[
+                styles.typeOption,
+                selectedLocationType === type.id && styles.selectedTypeOption
+              ]}
+              onPress={() => setSelectedLocationType(type.id)}
+            >
+              <Text style={[
+                styles.typeLabel,
+                selectedLocationType === type.id && styles.selectedTypeLabel
+              ]}>
+                {type.label}
+              </Text>
+              <Text style={styles.typeDescription}>{type.description}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        
+        <Text style={styles.sectionLabel}>Additional Requirements (Optional)</Text>
+        <TextInput
+          style={styles.promptInput}
+          placeholder="e.g., ancient ruins, bustling marketplace, hidden from outsiders..."
+          placeholderTextColor={theme.colors.textTertiary}
+          value={customPrompt}
+          onChangeText={setCustomPrompt}
+          multiline
+          numberOfLines={3}
+        />
+        
+        <View style={styles.modalActions}>
+          <TouchableOpacity 
+            style={styles.cancelButton}
+            onPress={() => setShowAIModal(false)}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.generateButton}
+            onPress={handleAIGenerate}
+            disabled={isCreating || isGenerating}
+          >
+            {isCreating || isGenerating ? (
+              <ActivityIndicator color={theme.colors.background} />
+            ) : (
+              <>
+                <Wand2 size={16} color={theme.colors.background} />
+                <Text style={styles.generateButtonText}>Generate</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </StandardModal>
+    </TabLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  tabContent: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  emptyContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: theme.spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginTop: theme.spacing.lg,
-  },
-  emptyDescription: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  selectWorldButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.full,
-    marginTop: theme.spacing.lg,
-  },
-  selectWorldButtonText: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.background,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    margin: theme.spacing.md,
+    paddingHorizontal: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
+    paddingVertical: getResponsiveValue({ 
+      phone: theme.spacing.sm,
+      tablet: theme.spacing.md 
+    }),
+    margin: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   searchInput: {
     flex: 1,
@@ -352,48 +377,82 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
-  locationList: {
-    gap: theme.spacing.md,
+  locationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
   },
   locationCard: {
-    flexDirection: 'row',
+    width: getResponsiveValue({ 
+      phone: '47%',
+      tablet: '30%',
+      largeTablet: '22%' 
+    }),
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
+    padding: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg,
+      largeTablet: theme.spacing.xl 
+    }),
     alignItems: 'center',
   },
   locationIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.secondary + '20',
+    width: getResponsiveValue({ 
+      phone: 64,
+      tablet: 80,
+      largeTablet: 96 
+    }),
+    height: getResponsiveValue({ 
+      phone: 64,
+      tablet: 80,
+      largeTablet: 96 
+    }),
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: theme.spacing.md,
-  },
-  locationContent: {
-    flex: 1,
+    marginBottom: getResponsiveValue({ 
+      phone: theme.spacing.sm,
+      tablet: theme.spacing.md 
+    }),
   },
   locationName: {
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
     color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
+    textAlign: 'center',
   },
   locationType: {
     fontSize: theme.fontSize.sm,
-    color: theme.colors.secondary,
-    marginTop: 2,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.sm,
+    textAlign: 'center',
   },
   locationDescription: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    marginTop: theme.spacing.xs,
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.textTertiary,
+    textAlign: 'center',
+    lineHeight: 16,
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: theme.spacing.xxl,
+    paddingVertical: getResponsiveValue({ 
+      phone: theme.spacing.xxl,
+      tablet: theme.spacing.xxl * 1.5,
+      largeTablet: theme.spacing.xxl * 2 
+    }),
   },
   emptyStateTitle: {
     fontSize: theme.fontSize.lg,
@@ -409,13 +468,32 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     position: 'absolute',
-    bottom: theme.spacing.lg,
-    right: theme.spacing.lg,
-    gap: theme.spacing.md,
+    bottom: getResponsiveValue({ 
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    right: getResponsiveValue({ 
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl 
+    }),
+    gap: getResponsiveValue({ 
+      phone: theme.spacing.md,
+      tablet: theme.spacing.lg 
+    }),
   },
   fab: {
-    width: 56,
-    height: 56,
+    width: getResponsiveValue({ 
+      phone: 56,
+      tablet: 64,
+      largeTablet: 72 
+    }),
+    height: getResponsiveValue({ 
+      phone: 56,
+      tablet: 64,
+      largeTablet: 72 
+    }),
     borderRadius: theme.borderRadius.full,
     backgroundColor: theme.colors.primary,
     alignItems: 'center',
@@ -433,31 +511,6 @@ const styles = StyleSheet.create({
   tertiaryFab: {
     backgroundColor: theme.colors.accent,
     marginBottom: theme.spacing.md,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  modalTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
   },
   sectionLabel: {
     fontSize: theme.fontSize.md,

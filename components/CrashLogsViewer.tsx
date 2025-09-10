@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Platform, 
 import { Bug, Trash2, Send, Download, RefreshCw, Clock, Smartphone, Globe, X } from 'lucide-react-native';
 import { createTheme } from '@/constants/theme';
 import { useSettings } from '@/hooks/settings-context';
+import { StandardModal } from '@/components/StandardModal';
 import { CrashLog, getCrashLogs, clearCrashLogs, exportCrashLogs, sendCrashReport } from '@/utils/crash-logger';
 
 interface CrashLogsViewerProps {
@@ -131,32 +132,8 @@ export default function CrashLogsViewer({ visible = true, onClose }: CrashLogsVi
   };
 
   const styles = React.useMemo(() => StyleSheet.create({
-    modalOverlay: {
+    modalBody: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalContent: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.xl,
-      width: '95%',
-      maxWidth: 800,
-      maxHeight: '90%',
-      overflow: 'hidden',
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: theme.spacing.lg,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    modalTitle: {
-      fontSize: theme.fontSize.lg,
-      fontWeight: theme.fontWeight.bold,
-      color: theme.colors.text,
     },
     container: {
       flex: 1,
@@ -372,19 +349,17 @@ export default function CrashLogsViewer({ visible = true, onClose }: CrashLogsVi
 
     if (onClose) {
       return (
-        <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Crash Logs</Text>
-                <TouchableOpacity onPress={onClose}>
-                  <X size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-              </View>
-              {loadingContent}
-            </View>
+        <StandardModal
+          visible={visible}
+          onClose={onClose}
+          title="Crash Logs"
+          size="large"
+          scrollable={true}
+        >
+          <View style={styles.modalBody}>
+            {loadingContent}
           </View>
-        </Modal>
+        </StandardModal>
       );
     }
 
@@ -477,19 +452,17 @@ export default function CrashLogsViewer({ visible = true, onClose }: CrashLogsVi
 
     if (onClose) {
       return (
-        <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Crash Details</Text>
-                <TouchableOpacity onPress={onClose}>
-                  <X size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-              </View>
-              {detailContent}
-            </View>
+        <StandardModal
+          visible={visible}
+          onClose={onClose}
+          title="Crash Details"
+          size="large"
+          scrollable={true}
+        >
+          <View style={styles.modalBody}>
+            {detailContent}
           </View>
-        </Modal>
+        </StandardModal>
       );
     }
 
@@ -571,19 +544,17 @@ export default function CrashLogsViewer({ visible = true, onClose }: CrashLogsVi
 
   if (onClose) {
     return (
-      <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Crash Logs ({logs.length})</Text>
-              <TouchableOpacity onPress={onClose}>
-                <X size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </View>
-            {mainContent}
-          </View>
+      <StandardModal
+        visible={visible}
+        onClose={onClose}
+        title={`Crash Logs (${logs.length})`}
+        size="fullscreen"
+        scrollable={true}
+      >
+        <View style={styles.modalBody}>
+          {mainContent}
         </View>
-      </Modal>
+      </StandardModal>
     );
   }
 

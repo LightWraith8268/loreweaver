@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  Modal,
   ActivityIndicator,
   Platform,
+  Modal,
 } from 'react-native';
 import {
   Book,
@@ -17,15 +17,16 @@ import {
   FileText,
   Upload,
   Eye,
-  X,
   BookOpen,
   PenTool,
   Sparkles,
   Wand2,
+  X,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
 import { useWorld } from '@/hooks/world-context';
 import { createTheme } from '@/constants/theme';
+import { StandardModal } from '@/components/StandardModal';
 import { analyzeNovelSeries } from '@/utils/novel-extraction';
 import type { Series, Book as BookType, Chapter } from '@/types/world';
 
@@ -312,6 +313,9 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
   };
 
   const styles = StyleSheet.create({
+    modalBody: {
+      flex: 1,
+    },
     modalOverlay: {
       flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -336,9 +340,6 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
       fontSize: theme.fontSize.xl,
       fontWeight: theme.fontWeight.bold,
       color: theme.colors.text,
-    },
-    content: {
-      flex: 1,
     },
     section: {
       marginBottom: theme.spacing.lg,
@@ -570,22 +571,14 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
   if (!visible) return null;
 
   return (
-    <Modal
+    <StandardModal
       visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
+      onClose={onClose}
+      title="Series & Books Manager"
+      size="fullscreen"
+      scrollable={true}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Series & Books Manager</Text>
-            <TouchableOpacity onPress={onClose}>
-              <X size={24} color={theme.colors.text} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.modalBody}>
             {/* Create Series Button */}
             <TouchableOpacity
               style={styles.createButton}
@@ -730,8 +723,6 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
                 </Text>
               </View>
             )}
-          </ScrollView>
-        </View>
       </View>
 
       {/* Create Series Modal */}
@@ -932,6 +923,6 @@ export function SeriesManager({ visible, onClose }: SeriesManagerProps) {
           </View>
         </View>
       </Modal>
-    </Modal>
+    </StandardModal>
   );
 }

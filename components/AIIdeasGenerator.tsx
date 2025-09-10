@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  Modal,
   ActivityIndicator,
   Platform,
   Dimensions,
@@ -16,15 +15,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Lightbulb,
   Plus,
-  X,
   Sparkles,
   Copy,
   ChevronDown,
   Check,
+  X,
 } from 'lucide-react-native';
 import { useSettings } from '@/hooks/settings-context';
 import { useWorld } from '@/hooks/world-context';
 import { createTheme } from '@/constants/theme';
+import { StandardModal } from '@/components/StandardModal';
 import { requireInternetConnection } from '@/utils/network';
 import { useResponsiveLayout, useResponsiveModal, useResponsiveSpacing, useResponsiveFontSize } from '@/hooks/responsive-layout';
 import type { WorldGenre } from '@/types/world';
@@ -274,34 +274,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
   };
 
   const styles = StyleSheet.create({
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: getScaledSpacing(theme.spacing.md),
-      paddingTop: Platform.OS === 'android' ? insets.top + getScaledSpacing(theme.spacing.md) : getScaledSpacing(theme.spacing.md),
-      paddingBottom: Platform.OS === 'android' ? insets.bottom + getScaledSpacing(theme.spacing.md) : getScaledSpacing(theme.spacing.md),
-    },
-    modalContent: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.xl,
-      padding: getScaledSpacing(theme.spacing.lg),
-      ...modalDimensions,
-      maxHeight: Math.floor(Dimensions.get('window').height * (isTablet ? 85 : 90) / 100),
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: theme.spacing.lg,
-    },
-    modalTitle: {
-      fontSize: getScaledSize(theme.fontSize.xl),
-      fontWeight: theme.fontWeight.bold,
-      color: theme.colors.text,
-    },
-    content: {
+    modalBody: {
       flex: 1,
     },
     section: {
@@ -548,24 +521,14 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
   if (!visible) return null;
 
   return (
-    <Modal
+    <StandardModal
       visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
+      onClose={onClose}
+      title={contextType === 'world' && currentWorld ? `${currentWorld.name} - AI Ideas` : 'AI Ideas Generator'}
+      size="fullscreen"
+      scrollable={true}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {contextType === 'world' && currentWorld ? `${currentWorld.name} - AI Ideas` : 'AI Ideas Generator'}
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <X size={24} color={theme.colors.text} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.modalBody}>
             {/* Category Selection */}
             <View style={styles.section}>
               <Text style={styles.inputLabel}>Idea Category</Text>
@@ -793,10 +756,8 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
                 </Text>
               </View>
             )}
-          </ScrollView>
-        </View>
       </View>
-    </Modal>
+    </StandardModal>
   );
 }
 

@@ -66,10 +66,6 @@ export default function WorldScreen() {
       return;
     }
 
-    if (Platform.OS !== 'web') {
-      Alert.alert('Import', 'File import is only available on web');
-      return;
-    }
 
     setIsImporting(true);
     

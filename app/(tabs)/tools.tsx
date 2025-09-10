@@ -233,11 +233,6 @@ export default function ToolsScreen() {
   };
 
   const handleImportWorld = async () => {
-    if (Platform.OS !== 'web') {
-      Alert.alert('Import', 'File import is only available on web');
-      return;
-    }
-
     setIsImporting(true);
     
     createFileInput('.json', async (file) => {
@@ -287,11 +282,6 @@ export default function ToolsScreen() {
   const handleImportComponents = async () => {
     if (!currentWorld) {
       Alert.alert('Error', 'Please select a world first');
-      return;
-    }
-
-    if (Platform.OS !== 'web') {
-      Alert.alert('Import', 'File import is only available on web');
       return;
     }
 
@@ -403,7 +393,7 @@ export default function ToolsScreen() {
                 description="Import complete world from JSON export"
                 icon={<Upload size={24} color={theme.colors.primary} />}
                 onPress={handleImportWorld}
-                disabled={isImporting || Platform.OS !== 'web'}
+                disabled={isImporting}
               />
               
               <ToolCard
@@ -411,7 +401,7 @@ export default function ToolsScreen() {
                 description="Import specific components from DOCX or JSON"
                 icon={<Upload size={24} color={theme.colors.secondary} />}
                 onPress={handleImportComponents}
-                disabled={!currentWorld || isImporting || Platform.OS !== 'web'}
+                disabled={!currentWorld || isImporting}
               />
             </View>
           </View>
@@ -487,13 +477,6 @@ export default function ToolsScreen() {
             </View>
           </View>
 
-          {Platform.OS !== 'web' && (
-            <View style={styles.notice}>
-              <Text style={styles.noticeText}>
-                📱 Some import/export features are only available on web due to platform limitations.
-              </Text>
-            </View>
-          )}
         </View>
       </ScrollView>
 
@@ -518,14 +501,14 @@ export default function ToolsScreen() {
         />
       )}
 
-      {showVoiceCapture && (
-        <VoiceCaptureComponent
-          onCaptureComplete={(capture: VoiceCapture) => {
-            console.log('Voice capture completed:', capture);
-            setShowVoiceCapture(false);
-          }}
-        />
-      )}
+      <VoiceCaptureComponent
+        visible={showVoiceCapture}
+        onClose={() => setShowVoiceCapture(false)}
+        onCaptureComplete={(capture: VoiceCapture) => {
+          console.log('Voice capture completed:', capture);
+          setShowVoiceCapture(false);
+        }}
+      />
 
       <EnhancedExportSystem
         visible={showEnhancedExport}

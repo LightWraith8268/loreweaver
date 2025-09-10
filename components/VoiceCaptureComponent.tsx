@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Mic, MicOff, Play, Trash2, Save, Loader } from 'lucide-react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Modal } from 'react-native';
+import { Mic, MicOff, Play, Trash2, Save, Loader, X } from 'lucide-react-native';
 import { useAI } from '@/hooks/ai-context';
 import { useWorld } from '@/hooks/world-context';
+import { useAuth } from '@/hooks/auth-context';
+import { firebaseService } from '@/services/firebase-advanced';
 import { theme } from '@/constants/theme';
 import type { VoiceCapture } from '@/types/world';
 
 interface VoiceCaptureComponentProps {
+  visible: boolean;
+  onClose: () => void;
   onCaptureComplete: (capture: VoiceCapture) => void;
 }
 
 export const VoiceCaptureComponent: React.FC<VoiceCaptureComponentProps> = ({
+  visible,
+  onClose,
   onCaptureComplete
 }) => {
-  const { currentWorld } = useWorld();
+  const { currentWorld, createVoiceCapture } = useWorld();
+  const { user } = useAuth();
   const { isGenerating, isRecording, setIsRecording } = useAI();
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -70,21 +77,41 @@ export const VoiceCaptureComponent: React.FC<VoiceCaptureComponentProps> = ({
         id: Date.now().toString(),
         worldId: currentWorld.id,
         title: `Voice Note - ${new Date().toLocaleDateString()}`,
-        transcript: 'Mock transcription text',
+        transcript: 'Transcribing...', // Will be updated after AI processing
         audioUrl: recordingUri,
-        processed: true,
+        processed: false,
         createdAt: new Date().toISOString()
       };
+
+      // Create voice capture through world context (handles local + Firebase sync)
+      await createVoiceCapture({
+        worldId: currentWorld.id,
+        title: voiceCapture.title,
+        transcript: voiceCapture.transcript,
+        audioUrl: voiceCapture.audioUrl,
+        processed: voiceCapture.processed,
+      });
+
+      // Upload to Firebase Storage if user is authenticated
+      if (user) {
+        // Note: In a real implementation, recordingUri would contain the actual audio blob
+        const mockAudioBlob = new Blob(['mock audio data'], { type: 'audio/wav' });
+        await firebaseService.syncVoiceRecording(voiceCapture, mockAudioBlob);
+      }
 
       onCaptureComplete(voiceCapture);
       
       setRecordingUri(null);
       setRecordingDuration(0);
+      onClose();
 
-      Alert.alert('Success', 'Voice note transcribed and saved!');
+      const message = user 
+        ? 'Voice note uploaded and will be transcribed!'
+        : 'Voice note saved locally!';
+      Alert.alert('Success', message);
     } catch (error) {
-      console.error('Failed to transcribe audio:', error);
-      Alert.alert('Error', 'Failed to transcribe audio. Please try again.');
+      console.error('Failed to save voice recording:', error);
+      Alert.alert('Error', 'Failed to save voice recording. Please try again.');
     }
   };
 
@@ -95,9 +122,25 @@ export const VoiceCaptureComponent: React.FC<VoiceCaptureComponentProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Quick Voice Capture</Text>
-      <Text style={styles.subtitle}>Record ideas, notes, or descriptions</Text>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>Quick Voice Capture</Text>
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+          >
+            <X size={24} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.container}>
+          <Text style={styles.subtitle}>Record ideas, notes, or descriptions</Text>
 
       <View style={styles.recordingArea}>
         {isRecording && (
@@ -126,6 +169,12 @@ export const VoiceCaptureComponent: React.FC<VoiceCaptureComponentProps> = ({
         <Text style={styles.recordButtonText}>
           {isRecording ? 'Tap to Stop' : 'Tap to Record'}
         </Text>
+        
+        {!user && (
+          <Text style={styles.offlineNote}>
+            Sign in to sync voice recordings across devices
+          </Text>
+        )}
       </View>
 
       {recordingUri && (
@@ -167,24 +216,37 @@ export const VoiceCaptureComponent: React.FC<VoiceCaptureComponentProps> = ({
           </View>
         </View>
       )}
-    </View>
+        </View>
+      </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    margin: theme.spacing.md,
-    ...theme.shadows.medium,
+  modalContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
   },
-  title: {
-    fontSize: theme.fontSize.lg,
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  modalTitle: {
+    fontSize: theme.fontSize.xl,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xs,
+  },
+  closeButton: {
+    padding: theme.spacing.xs,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing.lg,
   },
   subtitle: {
     fontSize: theme.fontSize.sm,
@@ -235,6 +297,13 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
     textAlign: 'center',
+  },
+  offlineNote: {
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    marginTop: theme.spacing.sm,
+    fontStyle: 'italic',
   },
   playbackArea: {
     borderTopWidth: 1,
