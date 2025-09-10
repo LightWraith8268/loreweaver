@@ -50,6 +50,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "44aa1966-147f-46af-892a-0db5c5375e7b"
+      }
+    },
+    "owner": "lightwriaght8268"
   }
 }
