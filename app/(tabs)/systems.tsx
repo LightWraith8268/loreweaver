@@ -55,6 +55,7 @@ export default function SystemsScreen() {
         title="No World Selected"
         description="Select or create a world to manage magic systems and mythologies"
         showCreateButton={false}
+        pageIcon={<Sparkles size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

@@ -14,7 +14,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown, Lightbulb } from 'lucide-react-native';
+import { Plus, Globe, Search, Settings, Download, Upload, History, Users, MapPin, Package, Shield, FileText, CheckCircle, Sparkles, Network, Crown, Lightbulb, Mic, Edit, BookOpen } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWorld } from '@/hooks/world-context';
 import { useAI } from '@/hooks/ai-context';
@@ -22,6 +22,8 @@ import { theme, getTabBarHeight, getTouchableStyle, deviceInfo, responsive } fro
 import { useResponsiveLayout, useResponsiveGrid, useResponsiveModal } from '@/hooks/responsive-layout';
 import NameGenerator from '@/components/NameGenerator';
 import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
+import { VoiceCaptureComponent } from '@/components/VoiceCaptureComponent';
+import { SeriesManager } from '@/components/SeriesManager';
 import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { World, WorldGenre } from '@/types/world';
 
@@ -61,6 +63,9 @@ export default function DashboardScreen() {
   const [showNameGenerator, setShowNameGenerator] = useState(false);
   const [nameGeneratorType, setNameGeneratorType] = useState<'character' | 'location' | 'item' | 'faction'>('character');
   const [showAIIdeas, setShowAIIdeas] = useState(false);
+  const [showVoiceCapture, setShowVoiceCapture] = useState(false);
+  const [showSeriesManager, setShowSeriesManager] = useState(false);
+  const [showManualEditor, setShowManualEditor] = useState(false);
   
   const handleCreateWorld = async () => {
     if (!newWorldName.trim()) {
@@ -438,113 +443,59 @@ export default function DashboardScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickActions}>
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.primary + '20' }]}
-                onPress={() => router.push('/characters')}
-                accessibilityLabel="Create new character"
-                accessibilityHint="Navigate to character creation screen"
+                onPress={() => setShowManualEditor(true)}
+                accessibilityLabel="Manual Editor"
+                accessibilityHint="Open text editor for direct writing"
                 accessibilityRole="button"
               >
-                <Users size={32} color={theme.colors.primary} />
-                <Text style={styles.actionText}>New Character</Text>
+                <Edit size={32} color={theme.colors.primary} />
+                <Text style={styles.actionText}>Manual Editor</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.secondary + '20' }]}
-                onPress={() => router.push('/locations')}
-                accessibilityLabel="Create new location"
-                accessibilityHint="Navigate to location creation screen"
+                onPress={() => setShowVoiceCapture(true)}
+                accessibilityLabel="Voice Capture"
+                accessibilityHint="Record and transcribe voice notes"
                 accessibilityRole="button"
               >
-                <MapPin size={32} color={theme.colors.secondary} />
-                <Text style={styles.actionText}>New Location</Text>
+                <Mic size={32} color={theme.colors.secondary} />
+                <Text style={styles.actionText}>Voice Capture</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.accent + '20' }]}
-                onPress={() => router.push('/items')}
-                accessibilityLabel="Create new item"
-                accessibilityHint="Navigate to item creation screen"
+                onPress={() => setShowSeriesManager(true)}
+                accessibilityLabel="Series & Books"
+                accessibilityHint="Manage book series and extract elements"
                 accessibilityRole="button"
               >
-                <Package size={32} color={theme.colors.accent} />
-                <Text style={styles.actionText}>New Item</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: theme.colors.warning + '20' }]}
-                onPress={() => router.push('/factions')}
-                accessibilityLabel="Create new faction"
-                accessibilityHint="Navigate to faction creation screen"
-                accessibilityRole="button"
-              >
-                <Shield size={32} color={theme.colors.warning} />
-                <Text style={styles.actionText}>New Faction</Text>
+                <BookOpen size={32} color={theme.colors.accent} />
+                <Text style={styles.actionText}>Series & Books</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={[styles.actionCard, { backgroundColor: theme.colors.success + '20' }]}
-                onPress={handleCheckConsistency}
-                disabled={isGenerating}
-                accessibilityLabel="Check world consistency"
-                accessibilityHint="Analyze world for logical contradictions using AI"
-                accessibilityRole="button"
-                accessibilityState={{ disabled: isGenerating }}
-              >
-                {isGenerating ? (
-                  <ActivityIndicator color={theme.colors.success} />
-                ) : (
-                  <CheckCircle size={32} color={theme.colors.success} />
-                )}
-                <Text style={styles.actionText}>Check Consistency</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: theme.colors.accent + '20' }]}
-                onPress={() => router.push('/relationships')}
-              >
-                <Network size={32} color={theme.colors.accent} />
-                <Text style={styles.actionText}>View Relations</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: '#9333ea20' }]}
-                onPress={() => router.push('/magic')}
-              >
-                <Sparkles size={32} color="#9333ea" />
-                <Text style={styles.actionText}>Magic Systems</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: '#dc262620' }]}
-                onPress={() => router.push('/mythology')}
-              >
-                <Crown size={32} color="#dc2626" />
-                <Text style={styles.actionText}>Mythologies</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: '#f59e0b20' }]}
-                onPress={() => router.push('/foundations')}
-              >
-                <Lightbulb size={32} color="#f59e0b" />
-                <Text style={styles.actionText}>Foundations</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: theme.colors.secondary + '20' }]}
                 onPress={() => {
                   setNameGeneratorType('character');
                   setShowNameGenerator(true);
                 }}
+                accessibilityLabel="Name Generator"
+                accessibilityHint="Generate names for characters, places, and more"
+                accessibilityRole="button"
               >
-                <Sparkles size={32} color={theme.colors.secondary} />
+                <Sparkles size={32} color={theme.colors.success} />
                 <Text style={styles.actionText}>Name Generator</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.actionCard, { backgroundColor: theme.colors.primary + '20' }]}
+                style={[styles.actionCard, { backgroundColor: theme.colors.warning + '20' }]}
                 onPress={() => setShowAIIdeas(true)}
+                accessibilityLabel="AI Ideas Generator"
+                accessibilityHint="Generate creative ideas for stories and worldbuilding"
+                accessibilityRole="button"
               >
-                <Lightbulb size={32} color={theme.colors.primary} />
+                <Lightbulb size={32} color={theme.colors.warning} />
                 <Text style={styles.actionText}>AI Ideas</Text>
               </TouchableOpacity>
             </ScrollView>
@@ -796,6 +747,64 @@ export default function DashboardScreen() {
         contextType={currentWorld ? 'world' : 'global'}
       />
       
+      {showVoiceCapture && (
+        <VoiceCaptureComponent
+          onCaptureComplete={(capture) => {
+            console.log('Voice capture completed:', capture);
+            setShowVoiceCapture(false);
+          }}
+        />
+      )}
+
+      <SeriesManager
+        visible={showSeriesManager}
+        onClose={() => setShowSeriesManager(false)}
+      />
+
+      {/* Manual Editor Modal */}
+      <Modal
+        visible={showManualEditor}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowManualEditor(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, modalDimensions]}>
+            <Text style={styles.modalTitle}>Manual Text Editor</Text>
+            
+            <Text style={styles.modalDescription}>
+              Write and edit text content directly:
+            </Text>
+            
+            <TextInput
+              style={[styles.input, styles.importTextArea]}
+              placeholder="Start writing your content here..."
+              placeholderTextColor={theme.colors.textTertiary}
+              multiline
+              numberOfLines={12}
+            />
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => setShowManualEditor(false)}
+              >
+                <Text style={styles.cancelButtonText}>Close</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.confirmButton}
+                onPress={() => {
+                  Alert.alert('Save', 'Content saved to drafts');
+                  setShowManualEditor(false);
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       
       {/* FAB */}
       {currentWorld && (

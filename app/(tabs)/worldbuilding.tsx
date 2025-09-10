@@ -285,6 +285,7 @@ const WorldbuildingScreen: React.FC = () => {
         title="No World Selected"
         description="Select a world to build detailed worldbuilding elements"
         showCreateButton={false}
+        pageIcon={<Globe size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

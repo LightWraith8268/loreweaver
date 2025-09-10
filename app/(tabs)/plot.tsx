@@ -19,7 +19,7 @@ import {
   Trash2,
   Sparkles,
   X,
-
+  Layers,
 } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
@@ -365,6 +365,7 @@ const PlotScreen: React.FC = () => {
         title="No World Selected"
         description="Select a world to manage plot elements and story structure"
         showCreateButton={false}
+        pageIcon={<Layers size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

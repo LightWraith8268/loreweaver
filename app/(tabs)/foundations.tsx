@@ -606,6 +606,7 @@ const FoundationsScreen: React.FC = () => {
         title="No World Selected"
         description="Select a world to manage story foundations and core elements"
         showCreateButton={false}
+        pageIcon={<BookOpen size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

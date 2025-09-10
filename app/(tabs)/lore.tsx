@@ -72,6 +72,7 @@ export default function LoreScreen() {
         title="No World Selected"
         description="Select or create a world to manage lore notes, timeline, and story relationships"
         showCreateButton={false}
+        pageIcon={<ScrollText size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

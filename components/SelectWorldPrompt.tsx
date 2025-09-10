@@ -17,6 +17,7 @@ interface SelectWorldPromptProps {
   showCreateButton?: boolean;
   onCreateWorld?: () => void;
   customIcon?: React.ReactNode;
+  pageIcon?: React.ReactNode;
   customAction?: {
     label: string;
     onPress: () => void;
@@ -30,6 +31,7 @@ export function SelectWorldPrompt({
   showCreateButton = true,
   onCreateWorld,
   customIcon,
+  pageIcon,
   customAction,
 }: SelectWorldPromptProps) {
   const { settings } = useSettings();
@@ -127,7 +129,7 @@ export function SelectWorldPrompt({
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        {customIcon || <Globe size={isTablet ? 80 : 64} color={theme.colors.textTertiary} />}
+        {customIcon || pageIcon || <Globe size={isTablet ? 80 : 64} color={theme.colors.textTertiary} />}
       </View>
       
       <Text style={styles.title}>{title}</Text>

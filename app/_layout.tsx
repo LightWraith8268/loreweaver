@@ -137,7 +137,7 @@ function ThemedRootLayout() {
       <StatusBar 
         barStyle={settings.theme === 'light' ? 'dark-content' : 'light-content'} 
         backgroundColor={theme.colors.surface}
-        translucent={Platform.OS === 'android'}
+        translucent={false}
       />
       <RootLayoutNav />
     </>

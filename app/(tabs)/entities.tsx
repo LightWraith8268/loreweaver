@@ -57,6 +57,7 @@ export default function EntitiesScreen() {
         title="No World Selected"
         description="Select or create a world to manage your characters, items, and factions"
         showCreateButton={false}
+        pageIcon={<Users size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

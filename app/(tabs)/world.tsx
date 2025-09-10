@@ -55,6 +55,7 @@ export default function WorldScreen() {
         title="No World Selected"
         description="Select or create a world to manage locations, timeline, and relationships"
         showCreateButton={false}
+        pageIcon={<MapPin size={64} color={theme.colors.textTertiary} />}
       />
     );
   }

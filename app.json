@@ -2,7 +2,7 @@
   "expo": {
     "name": "LoreWeaver - AI Worldbuilding Hub",
     "slug": "loreweaver",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -23,7 +23,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.lightwraith8268.loreweaver"
+      "package": "app.lightwraith8268.loreweaver",
+      "statusBar": {
+        "translucent": false,
+        "backgroundColor": "#141824"
+      }
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
