@@ -20,7 +20,8 @@
       },
       "android": {
         "buildType": "apk",
-        "autoIncrement": true
+        "autoIncrement": true,
+        "credentialsSource": "local"
       }
     },
     "standalone-apk": {
@@ -35,7 +36,8 @@
       },
       "android": {
         "buildType": "app-bundle",
-        "autoIncrement": true
+        "autoIncrement": true,
+        "credentialsSource": "local"
       }
     }
   },

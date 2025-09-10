@@ -72,9 +72,16 @@ pause
 
 echo.
 echo ================================  
-echo Step 2: Generate Native Project
+echo Step 2: Initialize EAS (if needed)
 echo ================================
-echo DEBUG: Starting Step 2...
+echo Checking if EAS is initialized...
+npx eas init --non-interactive --skip-project-configuration 2>nul || echo EAS already initialized or skipped
+
+echo.
+echo ================================  
+echo Step 3: Generate Native Project
+echo ================================  
+echo DEBUG: Starting Step 3...
 echo This creates the android/ folder...
 npx expo prebuild --platform android --clean --package-manager npm
 if errorlevel 1 (
@@ -85,7 +92,7 @@ if errorlevel 1 (
 
 echo.
 echo ================================
-echo Step 3: Building APK with Gradle
+echo Step 4: Building APK with Gradle
 echo ================================
 if not exist "android" (
     echo ERROR: Android folder not found!

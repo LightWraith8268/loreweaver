@@ -91,7 +91,11 @@
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
       "Bash(npm uninstall:*)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(npx eas init:*)",
+      "Bash(mv:*)",
+      "Bash(git reset:*)",
+      "Bash(keytool:*)"
     ],
     "deny": [],
     "ask": []
