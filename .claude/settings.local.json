@@ -95,7 +95,9 @@
       "Bash(npx eas init:*)",
       "Bash(mv:*)",
       "Bash(git reset:*)",
-      "Bash(keytool:*)"
+      "Bash(keytool:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo:*)"
     ],
     "deny": [],
     "ask": []
