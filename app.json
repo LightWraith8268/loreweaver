@@ -2,7 +2,7 @@
   "expo": {
     "name": "LoreWeaver - AI Worldbuilding Hub",
     "slug": "loreweaver",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
