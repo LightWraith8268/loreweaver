@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,7 +9,10 @@ import {
   Switch,
   Alert,
   Modal,
+  BackHandler,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import {
   Bot,
@@ -56,6 +59,7 @@ const AI_MODEL_TYPES = [
 export default function SettingsScreen() {
   const { settings, updateSettings, updateAISettings, resetSettings } = useSettings();
   const theme = createTheme(settings.theme);
+  const insets = useSafeAreaInsets();
   const [showAIModal, setShowAIModal] = useState(false);
   const [showProviderModal, setShowProviderModal] = useState(false);
   const [showCrashLogs, setShowCrashLogs] = useState(false);
@@ -66,6 +70,25 @@ export default function SettingsScreen() {
   const [selectedModelType, setSelectedModelType] = useState<keyof AISettings['defaultModels'] | null>(null);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [showFontSelector, setShowFontSelector] = useState(false);
+
+  // Handle Android back button
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showAIModal || showProviderModal || showModelSelector || showThemeSelector || showFontSelector || showCrashLogs) {
+        // Close any open modal
+        setShowAIModal(false);
+        setShowProviderModal(false);
+        setShowModelSelector(false);
+        setShowThemeSelector(false);
+        setShowFontSelector(false);
+        setShowCrashLogs(false);
+        return true; // Prevent default back action
+      }
+      return false; // Allow default back action
+    });
+
+    return () => backHandler.remove();
+  }, [showAIModal, showProviderModal, showModelSelector, showThemeSelector, showFontSelector, showCrashLogs]);
 
   const handleThemeChange = async (newTheme: ThemeMode) => {
     try {
@@ -155,6 +178,7 @@ export default function SettingsScreen() {
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
+      paddingTop: Platform.OS === 'android' ? insets.top : 0,
     },
     scrollView: {
       flex: 1,
@@ -261,6 +285,8 @@ export default function SettingsScreen() {
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       justifyContent: 'center',
       alignItems: 'center',
+      paddingTop: Platform.OS === 'android' ? insets.top : 0,
+      paddingBottom: Platform.OS === 'android' ? insets.bottom : 0,
     },
     modalContent: {
       backgroundColor: theme.colors.surface,

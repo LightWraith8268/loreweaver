@@ -12,6 +12,7 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Lightbulb,
   Plus,
@@ -116,6 +117,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
   const { settings } = useSettings();
   const { currentWorld } = useWorld();
   const theme = createTheme(settings.theme);
+  const insets = useSafeAreaInsets();
   const { isTablet, isLandscape } = useResponsiveLayout();
   const modalDimensions = useResponsiveModal();
   const { getScaledSpacing } = useResponsiveSpacing();
@@ -278,6 +280,8 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       justifyContent: 'center',
       alignItems: 'center',
       padding: getScaledSpacing(theme.spacing.md),
+      paddingTop: Platform.OS === 'android' ? insets.top + getScaledSpacing(theme.spacing.md) : getScaledSpacing(theme.spacing.md),
+      paddingBottom: Platform.OS === 'android' ? insets.bottom + getScaledSpacing(theme.spacing.md) : getScaledSpacing(theme.spacing.md),
     },
     modalContent: {
       backgroundColor: theme.colors.surface,
@@ -551,7 +555,7 @@ export function AIIdeasGenerator({ visible, onClose, contextType = 'global' }: A
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, isTablet && isLandscape && { flexDirection: 'row', gap: getScaledSpacing(theme.spacing.lg) }]}>
+        <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {contextType === 'world' && currentWorld ? `${currentWorld.name} - AI Ideas` : 'AI Ideas Generator'}

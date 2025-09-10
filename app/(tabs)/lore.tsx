@@ -16,6 +16,7 @@ import { useAI } from '@/hooks/ai-context';
 import { theme } from '@/constants/theme';
 import { AdvancedTimeline } from '@/components/AdvancedTimeline';
 import { RelationshipNetworkVisualization } from '@/components/RelationshipNetworkVisualization';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 
 export default function LoreScreen() {
   const { currentWorld, loreNotes, createLoreNote } = useWorld();
@@ -67,20 +68,10 @@ export default function LoreScreen() {
   
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <ScrollText size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage lore
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="No World Selected"
+        description="Select or create a world to manage lore notes, timeline, and story relationships"
+      />
     );
   }
   

@@ -6,6 +6,7 @@ import { theme } from '@/constants/theme';
 import { useWorld } from '@/hooks/world-context';
 import { parseDocxFile } from '@/utils/docx-parser';
 import { parseJsonFile, createFileInput } from '@/utils/export';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 
 interface CategoryCardProps {
   title: string;
@@ -50,20 +51,10 @@ export default function SystemsScreen() {
 
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Sparkles size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage systems
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="No World Selected"
+        description="Select or create a world to manage magic systems and mythologies"
+      />
     );
   }
 

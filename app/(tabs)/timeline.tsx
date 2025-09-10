@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { Plus, Clock, Calendar, Users, MapPin, X, Save } from 'lucide-react-native';
 import { useWorld } from '@/hooks/world-context';
 import { theme } from '@/constants/theme';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { TimelineEvent } from '@/types/world';
 
 export default function TimelineScreen() {
@@ -131,20 +132,11 @@ export default function TimelineScreen() {
   
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Clock size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to manage timeline
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="No World Selected"
+        description="Select or create a world to build and manage your timeline"
+        customIcon={<Clock size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
   

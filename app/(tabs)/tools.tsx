@@ -24,6 +24,7 @@ import { VoiceCaptureComponent } from '@/components/VoiceCaptureComponent';
 import { EnhancedExportSystem } from '@/components/EnhancedExportSystem';
 import { SeriesManager } from '@/components/SeriesManager';
 import { AIIdeasGenerator } from '@/components/AIIdeasGenerator';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { EntityType, VoiceCapture } from '@/types/world';
 
 interface ToolCardProps {
@@ -353,20 +354,11 @@ export default function ToolsScreen() {
 
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Settings size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to access tools
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="No World Selected"
+        description="Select or create a world to access powerful worldbuilding tools and utilities"
+        customIcon={<Settings size={64} color={theme.colors.textTertiary} />}
+      />
     );
   }
 

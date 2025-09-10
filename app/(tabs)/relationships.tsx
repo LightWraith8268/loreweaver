@@ -12,6 +12,7 @@ import { useWorld } from '@/hooks/world-context';
 import { theme } from '@/constants/theme';
 import RelationshipWeb from '@/components/RelationshipWeb';
 import AdvancedSearch from '@/components/AdvancedSearch';
+import { SelectWorldPrompt } from '@/components/SelectWorldPrompt';
 import type { Character, EntityType } from '@/types/world';
 
 interface SearchFilters {
@@ -53,20 +54,10 @@ export default function RelationshipsScreen() {
 
   if (!currentWorld) {
     return (
-      <View style={styles.emptyContainer}>
-        <Users size={64} color={theme.colors.textTertiary} />
-        <Text style={styles.emptyTitle}>No World Selected</Text>
-        <Text style={styles.emptyDescription}>
-          Select a world to view relationships
-        </Text>
-        <TouchableOpacity 
-          style={styles.selectWorldButton}
-          onPress={() => router.push('/world-select')}
-          testID="select-world-button"
-        >
-          <Text style={styles.selectWorldButtonText}>Select a World</Text>
-        </TouchableOpacity>
-      </View>
+      <SelectWorldPrompt
+        title="No World Selected"
+        description="Select or create a world to view character relationships and networks"
+      />
     );
   }
 
