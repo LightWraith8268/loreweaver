@@ -27,7 +27,9 @@
     "standalone-apk": {
       "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "autoIncrement": true,
+        "credentialsSource": "local"
       }
     },
     "production": {
