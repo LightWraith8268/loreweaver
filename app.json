@@ -3,7 +3,7 @@
     "name": "LoreWeaver - AI Worldbuilding Hub",
     "slug": "loreweaver",
     "version": "1.0.7",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.lightwraith8268.loreweaver",
-      "requireFullScreen": false
+      "requireFullScreen": false,
+      "infoPlist": {
+        "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown"],
+        "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown", "UIInterfaceOrientationLandscapeLeft", "UIInterfaceOrientationLandscapeRight"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,8 +30,12 @@
       "package": "app.lightwraith8268.loreweaver",
       "statusBar": {
         "translucent": false,
-        "backgroundColor": "#141824"
-      }
+        "backgroundColor": "#141824",
+        "barStyle": "light-content"
+      },
+      "softwareKeyboardLayoutMode": "pan",
+      "windowSoftInputMode": "adjustResize",
+      "screenOrientation": "default"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

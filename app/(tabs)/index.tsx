@@ -828,6 +828,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+    paddingTop: Platform.OS === 'android' ? 0 : 0, // Status bar handled by navigation
   },
   header: {
     backgroundColor: theme.colors.surface,
@@ -1122,6 +1123,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? 20 : 0,
+    paddingBottom: Platform.OS === 'android' ? 20 : 0,
   },
   modalContent: {
     backgroundColor: theme.colors.surface,

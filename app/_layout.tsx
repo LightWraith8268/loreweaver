@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useEffect, useCallback } from "react";
-import { Platform, StatusBar } from "react-native";
+import { Platform, StatusBar, Dimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { WorldProvider } from "@/hooks/world-context";
@@ -131,13 +132,32 @@ function ThemedRootLayout() {
       StatusBar.setBarStyle(settings.theme === 'light' ? 'dark-content' : 'light-content', true);
     }
   }, [theme.colors.surface, settings.theme]);
+
+  useEffect(() => {
+    // Configure orientation based on device type
+    const configureOrientation = async () => {
+      const { width } = Dimensions.get('window');
+      const isTablet = width >= 768;
+      
+      if (isTablet) {
+        // Allow all orientations for tablets
+        await ScreenOrientation.unlockAsync();
+      } else {
+        // Lock to portrait for phones
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      }
+    };
+    
+    configureOrientation();
+  }, []);
   
   return (
     <>
       <StatusBar 
         barStyle={settings.theme === 'light' ? 'dark-content' : 'light-content'} 
-        backgroundColor={theme.colors.surface}
+        backgroundColor={theme.colors.background}
         translucent={false}
+        animated={true}
       />
       <RootLayoutNav />
     </>

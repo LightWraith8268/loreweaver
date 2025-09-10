@@ -28,6 +28,7 @@ export default function TabLayout() {
           left: 0,
           right: 0,
           zIndex: 1000,
+          paddingHorizontal: isTablet ? 20 : 0,
           ...theme.shadows.large,
         },
         tabBarLabelStyle: {
@@ -45,6 +46,8 @@ export default function TabLayout() {
         headerStyle: {
           backgroundColor: theme.colors.surface,
           height: getHeaderHeight(insets.top),
+          paddingTop: Platform.OS === 'android' ? insets.top : 0,
+          paddingHorizontal: isTablet ? 20 : 16,
           ...theme.shadows.medium,
         },
         headerTintColor: theme.colors.text,
