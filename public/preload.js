@@ -12,5 +12,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPlatform: () => ipcRenderer.invoke('get-platform'),
   
   // Check if running in Electron
-  isElectron: true
+  isElectron: true,
+  
+  // Crash logging for Electron
+  writeCrashLog: (filename, content) => ipcRenderer.invoke('write-crash-log', filename, content),
+  appendCrashLog: (filename, content) => ipcRenderer.invoke('append-crash-log', filename, content),
+  getCrashLogsDirectory: () => ipcRenderer.invoke('get-crash-logs-directory')
 });

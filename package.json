@@ -1,7 +1,9 @@
 {
-  "name": "expo-app",
+  "name": "loreweaver",
   "main": "expo-router/entry",
   "version": "1.0.9",
+  "description": "LoreWeaver - AI Worldbuilding Hub for writers, game masters, and creators",
+  "author": "LightWraith8268",
   "scripts": {
     "start": "expo start",
     "start-web": "expo start --web",
@@ -80,13 +82,16 @@
   "build": {
     "appId": "com.loreweaver.app",
     "productName": "LoreWeaver",
+    "main": "public/electron.js",
     "directories": {
       "output": "dist"
     },
     "files": [
       "web-build/**/*",
       "node_modules/**/*",
-      "public/electron.js"
+      "public/electron.js",
+      "public/preload.js",
+      "package.json"
     ],
     "mac": {
       "category": "public.app-category.productivity",

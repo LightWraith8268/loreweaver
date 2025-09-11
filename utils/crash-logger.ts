@@ -63,11 +63,18 @@ class CrashLogger {
     this.setupConsoleInterception();
     this.setupUnhandledRejectionHandler();
     
-    // Always enable file logging on non-web platforms
-    if (Platform.OS !== 'web') {
+    // Enable file logging on non-web platforms OR Electron
+    if (Platform.OS !== 'web' || this.isElectron()) {
       this.enableFileLogging = true;
-      this.logFileDirectory = `${FileSystem.documentDirectory}crash-logs/`;
-      this.ensureLogDirectoryExists();
+      
+      if (this.isElectron()) {
+        // Electron: Use IPC to get crash logs directory
+        this.setupElectronLogging();
+      } else {
+        // Native: Use FileSystem
+        this.logFileDirectory = `${FileSystem.documentDirectory}crash-logs/`;
+        this.ensureLogDirectoryExists();
+      }
     }
   }
 
@@ -86,6 +93,23 @@ class CrashLogger {
 
   public enableSync(enabled: boolean) {
     this.syncEnabled = enabled;
+  }
+
+  private isElectron(): boolean {
+    // Check if running in Electron environment
+    return typeof window !== 'undefined' && 
+           window.electronAPI && 
+           window.electronAPI.isElectron === true;
+  }
+
+  private async setupElectronLogging(): Promise<void> {
+    if (this.isElectron()) {
+      try {
+        this.logFileDirectory = await window.electronAPI.getCrashLogsDirectory();
+      } catch (error) {
+        console.warn('Failed to setup Electron crash logging:', error);
+      }
+    }
   }
 
   public enableFileLogs(enabled: boolean, customDirectory?: string) {
@@ -118,14 +142,19 @@ class CrashLogger {
       });
     } else {
       // Set up React Native error reporting
-      const ErrorUtils = require('ErrorUtils');
-      const originalGlobalHandler = ErrorUtils.getGlobalHandler();
+      try {
+        const ErrorUtils = require('ErrorUtils');
+        const originalGlobalHandler = ErrorUtils.getGlobalHandler();
 
-      ErrorUtils.setGlobalHandler((error: Error, isFatal: boolean) => {
+        ErrorUtils.setGlobalHandler((error: Error, isFatal: boolean) => {
         console.error('Global Error Handler:', error, 'isFatal:', isFatal);
         this.logError(error, { isFatal, source: 'global' }, {}, isFatal ? 'fatal' : 'error', 'crash');
         originalGlobalHandler(error, isFatal);
       });
+      } catch (error) {
+        // ErrorUtils not available in this environment (EAS build)
+        console.warn('ErrorUtils not available, skipping React Native global error handler');
+      }
 
       // This will be handled by setupConsoleInterception
     }
@@ -575,8 +604,19 @@ class CrashLogger {
       // Format log entry for file
       const logEntry = this.formatLogEntry(crashLog);
       
-      await FileSystem.writeAsStringAsync(filePath, logEntry);
-      console.log('Crash log written to file:', filePath);
+      if (this.isElectron()) {
+        // Use Electron IPC for file operations
+        const result = await window.electronAPI.writeCrashLog(fileName, logEntry);
+        if (result.success) {
+          console.log('Crash log written to file:', result.path);
+        } else {
+          console.error('Failed to write crash log via Electron IPC:', result.error);
+        }
+      } else {
+        // Use Expo FileSystem for native platforms
+        await FileSystem.writeAsStringAsync(filePath, logEntry);
+        console.log('Crash log written to file:', filePath);
+      }
       
       // Also append to a master log file
       await this.appendToMasterLog(crashLog, logEntry);
@@ -593,15 +633,23 @@ class CrashLogger {
       const masterLogPath = `${this.logFileDirectory}crash-log-master.log`;
       const shortEntry = `${crashLog.timestamp} | ${crashLog.severity.toUpperCase()} | ${crashLog.category} | ${crashLog.error.name}: ${crashLog.error.message} | ${crashLog.buildType} | ${crashLog.deviceInfo.platform} ${crashLog.deviceInfo.version}\n`;
       
-      // Check if master log exists and append or create
-      const masterLogInfo = await FileSystem.getInfoAsync(masterLogPath);
-      if (masterLogInfo.exists) {
-        const existingContent = await FileSystem.readAsStringAsync(masterLogPath);
-        await FileSystem.writeAsStringAsync(masterLogPath, existingContent + shortEntry);
+      if (this.isElectron()) {
+        // For Electron, append to master log (file will be created with header if it doesn't exist)
+        const result = await window.electronAPI.appendCrashLog('crash-log-master.log', shortEntry);
+        if (!result.success) {
+          console.error('Failed to append to master log via Electron IPC:', result.error);
+        }
       } else {
-        // Create new master log with header
-        const header = `# LoreWeaver Crash Log Master File\n# Generated on ${new Date().toISOString()}\n# Format: Timestamp | Severity | Category | Error | Build Type | Platform\n\n`;
-        await FileSystem.writeAsStringAsync(masterLogPath, header + shortEntry);
+        // Check if master log exists and append or create
+        const masterLogInfo = await FileSystem.getInfoAsync(masterLogPath);
+        if (masterLogInfo.exists) {
+          const existingContent = await FileSystem.readAsStringAsync(masterLogPath);
+          await FileSystem.writeAsStringAsync(masterLogPath, existingContent + shortEntry);
+        } else {
+          // Create new master log with header
+          const header = `# LoreWeaver Crash Log Master File\n# Generated on ${new Date().toISOString()}\n# Format: Timestamp | Severity | Category | Error | Build Type | Platform\n\n`;
+          await FileSystem.writeAsStringAsync(masterLogPath, header + shortEntry);
+        }
       }
     } catch (error) {
       console.error('Failed to append to master log:', error);
