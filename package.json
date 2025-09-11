@@ -1,7 +1,7 @@
 {
   "name": "expo-app",
   "main": "expo-router/entry",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "scripts": {
     "start": "bunx rork start -p 30y02utmvl8n9rx3krk3d --tunnel",
     "start-web": "bunx rork start -p 30y02utmvl8n9rx3krk3d --web --tunnel",

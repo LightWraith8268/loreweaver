@@ -11,7 +11,7 @@ import { AIProvider } from "@/hooks/ai-context";
 import { SettingsProvider, useSettings } from "@/hooks/settings-context";
 import { createTheme } from "@/constants/theme";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { crashLogger } from "@/utils/crash-logger";
+import { crashLogger, enableFileLogs } from "@/utils/crash-logger";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -167,7 +167,13 @@ function ThemedRootLayout() {
 export default function RootLayout() {
   useEffect(() => {
     // Initialize crash logger with app info
-    crashLogger.setUserInfo('anonymous', '1.0.0', '1');
+    crashLogger.setUserInfo('anonymous', '1.0.9', '9');
+    
+    // Enable file logging for preview/debug builds
+    if (__DEV__ || Platform.OS !== 'web') {
+      enableFileLogs(true); // Uses default directory
+      console.log('File logging enabled for crash logs');
+    }
     
     SplashScreen.hideAsync();
   }, []);
