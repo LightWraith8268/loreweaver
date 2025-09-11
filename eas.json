@@ -9,14 +9,16 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m1-medium"
+        "resourceClass": "m1-medium",
+        "buildConfiguration": "Debug"
       }
     },
     "preview": {
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium",
-        "simulator": true
+        "simulator": true,
+        "buildConfiguration": "Release"
       },
       "android": {
         "buildType": "apk",
@@ -42,7 +44,8 @@
     },
     "production": {
       "ios": {
-        "resourceClass": "m1-medium"
+        "resourceClass": "m1-medium",
+        "buildConfiguration": "Release"
       },
       "android": {
         "buildType": "app-bundle",
