@@ -13,13 +13,7 @@ LoreWeaver is a comprehensive worldbuilding application that combines powerful o
 - ✅ **Enhanced Error Reporting**: Comprehensive non-fatal error tracking
 - ✅ **Build System Improvements**: Streamlined Android APK builds
 
-## 🏗️ Build Status & Platform Support
-
-✅ **TypeScript**: All compilation errors fixed  
-✅ **ESLint**: Code quality checks passed  
-✅ **Build Scripts**: All platforms validated  
-✅ **Dependencies**: Zero security vulnerabilities  
-✅ **Production Ready**: Cross-platform builds working
+## 📱 Platform Support
 
 **Supported Platforms:**  
 📱 **Android** • 🍎 **iOS** • 🪟 **Windows** • 🍎 **macOS** • 🐧 **Linux** • 🌐 **Web** • ⚡ **PWA**
@@ -30,7 +24,7 @@ LoreWeaver is a comprehensive worldbuilding application that combines powerful o
 - **🤖 AI-Powered Enhancement** - AI Ideas Generator works globally or with world context
 - **📱 Cross-Platform Optimized** - Responsive design for phones, tablets, and web with rotation support
 - **🔄 Offline Core Features** - Core worldbuilding works without internet (AI features require connection)
-- **💾 Local Storage** - All data stored securely on your device with AsyncStorage
+- **💾 Local Storage** - All data stored securely on your device
 - **🎨 Beautiful UI** - Modern, intuitive interface with multiple themes and font customization
 - **🔗 Smart Linking** - Automatic cross-references between all world elements
 - **📊 Visual Tools** - Relationship networks, timelines, and interactive maps
@@ -260,44 +254,11 @@ Manage world knowledge and background:
 - **Completion Status**: See what areas need development
 - **Growth Tracking**: Monitor world expansion over time
 
-## 🤖 AI Integration & Providers
-
-LoreWeaver includes **15+ AI providers** with pre-configured demo keys for immediate use:
-
-### 🆓 Free Tier Providers (Active)
-- **🤗 Hugging Face**: 15k tokens/month free (Inference API) - **Primary provider**
-- **⚡ Groq**: 14k tokens/day free (Ultra-fast inference) - **Recommended**
-- **🧠 Google AI**: 60 queries/minute free (Gemini models)
-- **🧠 Mistral AI**: 1M tokens/month free (Mistral-7B)
-- **📊 Cohere**: 100 API calls/month free
-- **🔗 Together AI**: $25/month free credits
-- **🔥 Fireworks AI**: 40k tokens/day free
-- **🔍 DeepSeek**: 10k tokens/day free
-- **❓ Perplexity**: 5 queries/4 hours free
-
-### 🏠 Local Providers (Unlimited)
-- **🦙 Ollama**: Local AI models (`http://localhost:11434`)
-- **🏬 LM Studio**: Local inference server (`http://localhost:1234`)
-- **🎭 Text Generation WebUI**: Oobabooga server (`http://localhost:5000`)
-- **🐲 KoboldCpp**: Local AI server (`http://localhost:5001`)
-
-### 💳 Premium Providers (User Keys Required)
-- **🔥 OpenAI**: GPT models (paid only)
-- **🧠 Anthropic**: Claude models (limited free tier)
-- **🔄 Replicate**: Pay-per-use with free credits
-
-### 🔐 Key Security Features
-- **Multi-layer obfuscation** (XOR + Caesar + Base64 encryption)
-- **Automatic key rotation** every 15 minutes
-- **Checksum validation** for data integrity
-- **Support for key variants** and fallbacks
-- **Local keys remain unobfuscated** for security
-
 
 ## 🔐 Data & Security
 
 ### 24. **Data Management** 🔒
-- **Local Storage**: All data stored locally on device (AsyncStorage)
+- **Local Storage**: All data stored locally on device
 - **Privacy Protection**: No data sent to external servers (except AI features)
 - **Secure Key Management**: Multi-layer API key obfuscation system
 - **Backup Options**: Multiple backup and export options
@@ -537,6 +498,8 @@ await logPerformanceIssue('Slow component render', { component: 'WorldView' });
 - ❌ **Voice-to-text** - Cloud-based transcription
 - ❌ **Image generation** - AI-powered artwork creation
 
+*Note: Local AI providers (Ollama, LM Studio) run offline but may require internet for initial model downloads.*
+
 ### **Sync Settings** ⚙️
 
 **Enable Firebase Sync:**
@@ -555,10 +518,10 @@ await logPerformanceIssue('Slow component render', { component: 'WorldView' });
 
 **Q: Can I use my own AI API keys?**
 **A:** Yes! The app includes:
-- **15+ Free AI providers** with pre-configured demo keys
-- **Settings to add your own keys** for OpenAI, Anthropic, etc.
+- **15+ Free AI providers** with pre-configured demo keys (see AI Provider section above)
+- **Settings to add your own keys** for premium providers like OpenAI, Anthropic
 - **Local AI support** (Ollama, LM Studio) - completely free
-- **Automatic fallback** between providers
+- **Automatic fallback** between providers for reliability
 
 ### **📱 Android-Specific Questions**
 
@@ -598,7 +561,7 @@ await logPerformanceIssue('Slow component render', { component: 'WorldView' });
 **Q: Can I run LoreWeaver offline on Android?**
 **A:** Yes! Core functionality works completely offline:
 - ✅ **All worldbuilding tools** (Characters, Locations, Factions, etc.)
-- ✅ **Data storage and retrieval** (local AsyncStorage)
+- ✅ **Data storage and retrieval**
 - ✅ **Import/export features** (local files)
 - ✅ **Crash logging** (saved locally)
 - ❌ **AI features require internet** for cloud API access
@@ -648,11 +611,11 @@ await logPerformanceIssue('Slow component render', { component: 'WorldView' });
 
 **Problem: AI features not working**
 **Solutions:**
-- **Check internet connection** - **All AI features require internet**
-- **Verify API keys** in Settings > AI Providers
-- **Try different AI provider** - multiple options available
-- **Check free tier limits** - some providers have daily/monthly limits
-- **Use local AI** (Ollama, LM Studio) - still requires internet for setup/API calls
+- **Check internet connection** - **All AI features require internet** (except local providers)
+- **Verify API keys** in Settings > AI Providers  
+- **Try different AI provider** - 15+ providers available
+- **Check free tier limits** - some providers have daily/monthly quotas
+- **Use local AI** (Ollama, LM Studio) - runs offline after initial setup
 
 **Problem: Data not saving**
 **Solutions:**
