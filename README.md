@@ -2,7 +2,16 @@
 
 **The Ultimate Cross-Platform Worldbuilding App for Writers, Game Masters, and Creators**
 
+**Version 1.0.9 - Android Optimized with Enhanced Crash Logging**
+
 LoreWeaver is a comprehensive worldbuilding application that combines powerful organizational tools with AI assistance to help you create rich, detailed fictional worlds. Whether you're writing a novel, designing a game campaign, or building a universe for any creative project, LoreWeaver provides everything you need in one integrated platform.
+
+**🆕 What's New in v1.0.9:**
+- ✅ **Enhanced Crash Logging**: Automatic error logging with detailed crash reports
+- ✅ **Android Optimization**: Specifically optimized for Android development and deployment
+- ✅ **Improved Performance**: Better memory management and faster app startup
+- ✅ **Enhanced Error Reporting**: Comprehensive non-fatal error tracking
+- ✅ **Build System Improvements**: Streamlined Android APK builds
 
 ## 🏗️ Build Status & Platform Support
 
@@ -256,9 +265,8 @@ Manage world knowledge and background:
 LoreWeaver includes **15+ AI providers** with pre-configured demo keys for immediate use:
 
 ### 🆓 Free Tier Providers (Active)
-- **🚀 Rork AI**: Free tier with GPT-4o-mini access
-- **🤗 Hugging Face**: 15k tokens/month free (Inference API)
-- **⚡ Groq**: 14k tokens/day free (Ultra-fast inference)
+- **🤗 Hugging Face**: 15k tokens/month free (Inference API) - **Primary provider**
+- **⚡ Groq**: 14k tokens/day free (Ultra-fast inference) - **Recommended**
 - **🧠 Google AI**: 60 queries/minute free (Gemini models)
 - **🧠 Mistral AI**: 1M tokens/month free (Mistral-7B)
 - **📊 Cohere**: 100 API calls/month free
@@ -285,41 +293,6 @@ LoreWeaver includes **15+ AI providers** with pre-configured demo keys for immed
 - **Support for key variants** and fallbacks
 - **Local keys remain unobfuscated** for security
 
-## 🏗️ Technical Architecture
-
-### Core Framework & Dependencies
-```json
-{
-  "expo": "~53.0.4",
-  "react": "19.0.0", 
-  "react-native": "0.79.1",
-  "@tanstack/react-query": "^5.83.0",
-  "zustand": "^5.0.2",
-  "nativewind": "^4.1.23",
-  "expo-router": "~5.0.3"
-}
-```
-
-### State Management Architecture
-- **React Query**: Server state and data fetching/caching
-- **React Context**: App-wide state management
-  - `WorldContext`: World data and CRUD operations  
-  - `SettingsContext`: App preferences and themes
-  - `AIContext`: AI provider configuration and requests
-
-### Responsive Design System
-- **Breakpoint-based**: Phone, Tablet, Large Tablet responsive values
-- **Cross-platform**: iOS, Android, Web optimized layouts
-- **Orientation support**: Portrait and landscape modes
-- **Font scaling**: Automatic font size adjustments
-- **Touch targets**: 44pt minimum touch areas (accessibility)
-
-### Data Storage Strategy
-- **Local-first**: All data stored using AsyncStorage
-- **No cloud dependency**: Complete offline functionality
-- **Export formats**: JSON and Markdown support
-- **Data integrity**: Error boundaries and crash protection
-- **Performance**: Optimized for large world datasets
 
 ## 🔐 Data & Security
 
@@ -332,196 +305,253 @@ LoreWeaver includes **15+ AI providers** with pre-configured demo keys for immed
 - **Version Control**: Track changes and revisions
 - **Error Recovery**: Comprehensive crash logging and error boundaries
 
+## 🛡️ Enhanced Crash Logging & Error Reporting
+
+### **Automatic Crash Detection & Logging** 📊
+
+LoreWeaver includes a comprehensive crash logging system that automatically captures and logs all errors, crashes, and issues for easy debugging and troubleshooting.
+
+### **What Gets Logged Automatically:**
+
+✅ **Fatal Crashes** - App-ending errors that cause the application to crash  
+✅ **JavaScript Errors** - Runtime exceptions and errors that don't crash the app  
+✅ **Console Warnings** - Performance warnings, deprecated API usage  
+✅ **Console Errors** - Caught exceptions, validation errors  
+✅ **Network Failures** - API timeouts, connection issues, 404 errors  
+✅ **Performance Issues** - Slow renders, memory warnings  
+✅ **React Component Errors** - Component lifecycle errors, hook violations  
+✅ **Unhandled Promise Rejections** - Async operation failures  
+✅ **Native Platform Errors** - Android/iOS specific crashes  
+
+### **Automatic Log File Generation** 📁
+
+**File Locations (Automatically Created):**
+- **Android**: `/Android/data/com.lightwraith8268.loreweaver/files/crash-logs/`
+- **iOS**: `Documents/crash-logs/`
+- **Web**: Browser storage (no files)
+
+**Generated Files:**
+- **Individual Crash Files**: `crash-{timestamp}-{id}.log` with full details
+- **Master Summary Log**: `crash-log-master.log` with all crashes summary
+
+### **Log File Contents** 📋
+
+Each crash log includes:
+```
+========== ERROR LOG ==========
+ID: crash_20241211_143052_abc123
+Timestamp: 2024-12-11T14:30:52.123Z
+Severity: error | warning | fatal | info
+Category: crash | error | network | performance | react
+
+--- ERROR DETAILS ---
+Type: TypeError
+Message: Cannot read property 'map' of undefined
+Stack Trace: [Complete JavaScript stack trace]
+
+--- ENVIRONMENT ---
+Platform: android
+Build Type: preview | development | production
+App Version: 1.0.9
+Build Number: 9
+
+--- DEVICE INFO ---
+Model: Samsung Galaxy S21
+Manufacturer: Samsung
+System Version: Android 12
+Memory Usage: [Available if supported]
+
+--- ERROR CONTEXT ---
+[Additional context and debugging information]
+```
+
+### **Error Categories & Severity Levels** 🏷️
+
+**Severity Levels:**
+- **🔴 Fatal**: App-ending crashes that require restart
+- **🟠 Error**: Serious errors that affect functionality
+- **🟡 Warning**: Issues that don't break functionality but should be addressed
+- **🔵 Info**: Informational logging for debugging
+
+**Categories:**
+- **💥 Crash**: Fatal application crashes
+- **⚠️ Error**: JavaScript runtime errors
+- **⚠️ Warning**: Performance warnings, deprecated features
+- **🌐 Network**: API failures, timeout errors
+- **⚡ Performance**: Slow operations, memory issues
+- **⚛️ React**: Component errors, hook violations
+
+### **Testing Crash Logging** 🧪
+
+LoreWeaver includes a **Crash Test Component** accessible from Settings:
+
+**Available Test Types:**
+- **🔴 JavaScript Error**: Test basic error logging
+- **⚡ Reference Error**: Test undefined variable errors
+- **🔄 Async Error**: Test promise rejection logging
+- **🟡 Warning Messages**: Test non-fatal warning logging
+- **🌐 Network Error**: Test network failure logging
+- **⚡ Performance Issues**: Test performance warning logging
+- **📱 Console Messages**: Test console interception
+
+### **Accessing Crash Logs** 📱
+
+**On Mobile Devices:**
+1. Connect device to computer via USB
+2. Enable file transfer mode
+3. Navigate to app's document directory
+4. Find `crash-logs/` folder
+5. Copy log files for analysis
+
+**Alternative Methods:**
+- **Export via Settings**: Use app's export feature to save logs
+- **Email Logs**: Share individual log files via email
+- **Cloud Storage**: Upload logs to Google Drive, Dropbox, etc.
+
+### **Log Management** 🗂️
+
+**Automatic Features:**
+- **Directory Creation**: Log directory created automatically on app start
+- **File Organization**: Separate file for each crash with timestamps
+- **Master Summary**: Combined log with all crashes for quick overview
+- **No Size Limits**: Logs continue until storage space runs out
+
+**Manual Management:**
+```javascript
+// Clear all crash log files
+import { clearLogFiles } from '@/utils/crash-logger';
+await clearLogFiles();
+
+// Get log directory path
+import { getLogFilesDirectory } from '@/utils/crash-logger';
+const logPath = await getLogFilesDirectory();
+```
+
+### **Privacy & Security** 🔒
+
+**What's Logged:**
+- Error messages and stack traces
+- Device information (model, OS version)
+- App version and build information
+- Performance metrics
+- User actions that led to errors (anonymized)
+
+**What's NOT Logged:**
+- Personal data or world content
+- API keys or sensitive credentials  
+- User location or tracking data
+- Private user information
+- World building content
+
+**Data Storage:**
+- **Completely Local**: All logs stored on device only
+- **No Cloud Upload**: Logs never sent to external servers
+- **User Controlled**: You decide when to share or export logs
+- **Easy Cleanup**: Clear logs anytime through app settings
+
+### **For Developers & Advanced Users** 👨‍💻
+
+**Custom Error Logging:**
+```javascript
+import { logError, logWarning, logNetworkError, logPerformanceIssue } from '@/utils/crash-logger';
+
+// Log custom errors
+await logError(new Error('Custom error'), { context: 'user action' });
+
+// Log warnings
+await logWarning('Performance degradation detected', { renderTime: 2500 });
+
+// Log network issues
+await logNetworkError('https://api.example.com', error, { timeout: 30000 });
+
+// Log performance issues
+await logPerformanceIssue('Slow component render', { component: 'WorldView' });
+```
+
+**Integration with Error Boundaries:**
+- Automatic React component error capture
+- Enhanced error context with component information
+- Fallback UI display with error reporting options
+
 ## 🚀 Getting Started
 
-### 📋 Quick Start - Development
-```bash
-# Install dependencies
-npm install
+### **How to Get Started** 📱
 
-# Start development server
-npm run start
+1. **Download & Install**
+   - **Android**: Install APK file directly or from app store
+   - **iOS**: Download from App Store or TestFlight
+   - **Web**: Visit the web app in your browser
+   - **Desktop**: Download installer for Windows/Mac/Linux
 
-# Start web version
-npm run start-web
+2. **Create Your First World**
+   - Choose from genre templates or start from scratch
+   - Give your world a name and select a genre
+   - Start with the basics: characters and locations
 
-# Run code quality checks
-npm run lint
-npx tsc --noEmit
-```
+3. **Build Your World**
+   - Add core elements: characters, locations, factions
+   - Use AI assistance for generating content and ideas
+   - Connect entities with relationships
+   - Expand gradually with magic systems, lore, and timeline
 
-### 🏗️ Building for Production
-
-**🎯 Interactive Platform Selector (Recommended)**
-```bash
-# Windows - Interactive menu with checkboxes
-scripts\build-selector.bat
-
-# PowerShell - Command line with parameters  
-scripts\build-selector.ps1 -Essential          # Android APK + Web
-scripts\build-selector.ps1 -Everything         # All platforms
-scripts\build-selector.ps1 -Platforms @("android-apk","web")
-
-# macOS/Linux - Full interactive experience
-./scripts/build-selector.sh --essential        # Core platforms
-./scripts/build-selector.sh --everything       # All platforms
-```
-
-**⚡ Quick Build Commands**
-```bash
-# Mobile Platforms
-npm run build:android          # Android (requires EAS)
-eas build --platform android --profile standalone-apk  # Standalone APK
-npm run build:ios              # iOS (requires EAS + Apple Developer)
-
-# Desktop Platforms  
-npm run build:electron          # Windows/macOS/Linux via Electron
-npm run dist                    # Packaged desktop installers
-
-# Web Platforms
-npm run build:web               # Static web build
-```
-
-**🔧 Build Requirements**
-- **Android APK**: EAS CLI + Expo account (free)
-- **iOS**: EAS CLI + Apple Developer account ($99/year)  
-- **Desktop**: Electron Builder (included)
-- **Web**: No additional requirements
-
-**📱 Standalone Android APK (No Development Server)**
-```bash
-# Method 1: Using build selector
-scripts\build-selector.bat  # Select "Android APK" option
-
-# Method 2: Direct EAS command
-eas build --platform android --profile standalone-apk
-```
-
-📋 **See [BUILD_SYSTEM_SUMMARY.md](BUILD_SYSTEM_SUMMARY.md)** for detailed build guide and [BUILD_GUIDE.md](BUILD_GUIDE.md) for platform-specific instructions
-
-### Web Development
-1. **Web**: Visit the app URL in your browser
-2. **Mobile**: Scan the QR code to open on your mobile device
-3. **No Installation Required**: Runs directly in your browser
-
-### First Steps
-1. **Create Your First World**: Start with a template or build from scratch
-2. **Add Core Elements**: Begin with main characters and key locations
-3. **Build Relationships**: Connect your entities with relationships
-4. **Expand Gradually**: Add factions, magic systems, and lore as needed
-5. **Use AI Assistance**: Let AI help generate content and check consistency
-
-### Tips for Success
+### **Tips for Success** 💡
 - **Start Small**: Begin with core elements and expand gradually
 - **Use AI Ideas Generator**: Generate inspiration even without a world selected
 - **Cross-Reference**: Take advantage of automatic linking between entities
 - **Regular Backups**: Export your world data regularly (JSON format recommended)
 - **Explore AI Features**: Use AI to enhance and expand your world
-- **Tablet Optimization**: Take advantage of landscape mode for better workflow
-- **Consistent Navigation**: Use the unified world selection across all screens
+- **Sync Across Devices**: Use Firebase sync to access worlds on multiple devices
 
-## 💡 Auto Save & Offline Mode
+## 💡 Data Storage & Sync
 
-### Auto Save Features
-**How It Works:**
-- **Local Storage Based**: All saving is done to local device storage (AsyncStorage)
-- **Immediate Persistence**: Changes are saved immediately to local storage
-- **No Network Required**: All data operations work completely offline
-- **React Query Integration**: Optimistic updates with local cache management
-- **Error Handling**: Failed saves are logged and handled gracefully
+### **How Your Data is Stored** 💾
 
-**Settings:**
-- **Always Enabled**: Auto-save is built into the app architecture
-- **Instant Saving**: No delays - changes persist immediately
-- **Local Only**: No cloud sync - all data stays on your device
+**Local Storage (Default):**
+- ✅ **All worlds saved locally** on your device
+- ✅ **Instant auto-save** - changes saved immediately
+- ✅ **Works completely offline** for all worldbuilding features
+- ✅ **Complete privacy** - data stays on your device
+- ✅ **Fast performance** - no network delays
 
-### Offline Mode Features
+**Firebase Cloud Sync (Optional):**
+- ✅ **Cross-device access** - access worlds on all your devices
+- ✅ **Automatic backup** - your worlds are safely backed up in the cloud
+- ✅ **Real-time sync** - changes sync instantly across devices
+- ✅ **Sign in once** - access your worlds anywhere
+- ✅ **Choose what to sync** - keep some worlds local, others synced
+
+### **Offline Mode Features** 📱
+
 **Everything Works Offline:**
 - ✅ All worldbuilding tools (Characters, Locations, Factions, etc.)
 - ✅ Content creation and editing
-- ✅ Data storage and retrieval (local AsyncStorage)
 - ✅ Search and filtering
 - ✅ Templates and frameworks
-- ✅ Import/export (local files)
-- ✅ All UI features and navigation
-- ✅ Template-based name generators (built-in patterns)
-- ✅ Content creation tools (manual entry)
+- ✅ Import/export features
+- ✅ All navigation and UI features
+- ✅ Local data storage and retrieval
 
 **What Requires Internet:**
-- ❌ **All AI features** - Content generation, consistency checking, name generation
-- ❌ Voice-to-text transcription (uses cloud AI)
-- ❌ Image generation features
-- ❌ AI Ideas Generator with external providers
+- ❌ **AI features** - Content generation, ideas, consistency checking
+- ❌ **Firebase sync** - Cross-device synchronization
+- ❌ **Voice-to-text** - Cloud-based transcription
+- ❌ **Image generation** - AI-powered artwork creation
 
-**Data Storage:**
-- All world data stored locally using React Native AsyncStorage
-- No cloud storage or external databases
-- Data persists between app sessions
-- Export options create local files
-- Import works with local files
-- Complete privacy - your data never leaves your device (except for AI features)
+### **Sync Settings** ⚙️
 
-## 🛠️ Technical Details
+**Enable Firebase Sync:**
+1. Go to **Settings** > **Account & Sync**
+2. **Sign in** with Google, Apple, or email
+3. **Choose sync options** for each world
+4. **Access from any device** with the same account
 
-### Built With
-- **React Native**: Cross-platform mobile framework
-- **Expo**: Development platform and runtime
-- **TypeScript**: Type-safe JavaScript
-- **React Query**: Data fetching and caching
-- **AsyncStorage**: Local data persistence
-- **Lucide Icons**: Beautiful icon library
+**Sync Options:**
+- **📱 Local Only**: World stays on this device only
+- **☁️ Cloud Sync**: World syncs across all your devices
+- **📤 Backup Only**: World backed up to cloud but not actively synced
 
-### Platform Support
-- **iOS**: iPhone and iPad
-- **Android**: Phones and tablets
-- **Web**: All modern browsers
-- **Responsive**: Adapts to all screen sizes
-
-### Performance
-- **Local Storage**: Fast data access without network delays
-- **Optimized Rendering**: Efficient UI updates and animations
-- **Memory Management**: Smart caching and cleanup
-- **Battery Efficient**: Optimized for mobile devices
 
 ## ❓ Frequently Asked Questions (FAQ)
-
-### **📱 Building & Distribution**
-
-**Q: Can I build a standalone Android APK that doesn't need a development server?**
-**A: Yes!** The build system creates fully standalone APKs:
-```bash
-# Build standalone APK (no server required)
-scripts\build-selector.bat
-# Choose "Android APK" - creates completely standalone app
-```
-- **Preview builds** (`eas build --platform android --profile preview`) create standalone APKs
-- **Production builds** create AAB files for Google Play Store  
-- **No development server needed** - apps run completely independently
-- **All data stored locally** on device using AsyncStorage
-
-**Q: How do I distribute my apps without app stores?**
-**A:** Several options:
-- **Android**: Share the `.apk` file directly - users can install via "Install from Unknown Sources"
-- **Windows**: Share the `.exe` or `.msi` installer files
-- **macOS**: Share the `.dmg` file (may need code signing for Gatekeeper)
-- **Linux**: Share the `.AppImage` or `.snap` files
-- **Web**: Deploy the `web-build/` folder to any hosting service
-
-**Q: Do I need paid developer accounts?**
-**A:** Only for official app stores:
-- **Android APK sideloading**: Free
-- **Google Play Store**: $25 one-time fee
-- **iOS development**: $99/year Apple Developer Program
-- **Windows/macOS/Linux**: Free for direct distribution
-- **Web deployment**: Free on most platforms
-
-### **🔧 Technical Questions**
-
-**Q: What's the difference between development and production builds?**
-**A:**
-- **Development builds** (`npm start`): Require development server, hot reload enabled
-- **Preview builds** (`--profile preview`): Standalone apps for testing, no server needed
-- **Production builds** (`--profile production`): Optimized for app store submission
 
 **Q: Can I use my own AI API keys?**
 **A:** Yes! The app includes:
@@ -529,6 +559,49 @@ scripts\build-selector.bat
 - **Settings to add your own keys** for OpenAI, Anthropic, etc.
 - **Local AI support** (Ollama, LM Studio) - completely free
 - **Automatic fallback** between providers
+
+### **📱 Android-Specific Questions**
+
+**Q: Why is LoreWeaver optimized for Android?**
+**A:** LoreWeaver v1.0.9+ includes specific Android optimizations:
+- **Android SDK 34**: Latest Android 14 compatibility and features
+- **APK Size Optimization**: Smaller download and install size
+- **Performance Tuning**: Optimized for Android runtime and memory management
+- **Enhanced Crash Logging**: Detailed error logs saved to device storage
+- **Build System**: Streamlined Android development and deployment process
+
+**Q: How do I access crash logs on Android?**
+**A:** Multiple methods available:
+```bash
+# Via USB Connection
+1. Connect Android device to computer
+2. Enable "File Transfer" mode
+3. Navigate to: /Android/data/com.lightwraith8268.loreweaver/files/crash-logs/
+4. Copy .log files for analysis
+
+# Via File Manager App
+1. Open device's file manager
+2. Navigate to app data directory
+3. Find crash-logs folder
+4. Share/export log files
+```
+
+**Q: What Android permissions does LoreWeaver need?**
+**A:** Minimal permissions for privacy:
+- ✅ **Internet**: For AI features and content generation
+- ✅ **Network State**: To detect connectivity for AI features  
+- ✅ **Storage Access**: To save worlds and crash logs
+- ❌ **No Camera**: Camera permission blocked
+- ❌ **No Location**: Location tracking blocked
+- ❌ **No Microphone**: Audio recording blocked (unless explicitly needed)
+
+**Q: Can I run LoreWeaver offline on Android?**
+**A:** Yes! Core functionality works completely offline:
+- ✅ **All worldbuilding tools** (Characters, Locations, Factions, etc.)
+- ✅ **Data storage and retrieval** (local AsyncStorage)
+- ✅ **Import/export features** (local files)
+- ✅ **Crash logging** (saved locally)
+- ❌ **AI features require internet** for cloud API access
 
 **Q: How much storage does the app use?**
 **A:** Very efficient:
@@ -541,95 +614,27 @@ scripts\build-selector.bat
 
 **Q: Where is my world data stored?**
 **A:**
-- **Mobile**: Device's secure app storage (AsyncStorage)
-- **Desktop**: Local app data folder
-- **Web**: Browser's local storage
-- **Export anytime** to JSON or Markdown files
-- **Complete privacy** - data never leaves your device (except AI features)
+- **Local storage** (default): Saved securely on your device
+- **Firebase sync** (optional): Synced across all your devices in the cloud
+- **Export anytime** to JSON or Markdown files for backup
+- **You choose**: Keep worlds local-only or enable cloud sync per world
 
 **Q: Can I sync between devices?**
-**A:** Currently no automatic sync, but you can:
-- **Export worlds** from one device as JSON
-- **Import JSON files** on other devices
-- **Use cloud storage** to manually sync exported files
-- Future updates may include optional cloud sync
+**A:** Yes! LoreWeaver includes Firebase cloud sync:
+- **Enable sync** in Settings > Account & Sync
+- **Sign in once** to access worlds on all your devices
+- **Choose per world**: Keep some local, sync others to cloud
+- **Real-time sync**: Changes appear instantly on other devices
+- **Automatic backup**: Synced worlds are backed up in Firebase
 
 **Q: What if I lose my device?**
 **A:**
-- **Regular exports** are your best backup
-- **JSON exports** contain complete world data
-- **Set up automatic backups** to cloud storage
-- **Data is not recoverable** without exports (no cloud storage by design)
+- **Firebase sync**: Synced worlds are automatically backed up and recoverable
+- **Local worlds**: Export regularly to JSON files as backup
+- **Sign in anywhere**: Access synced worlds from any new device
+- **Export options**: Always available for additional backup security
 
 ## 🔧 Troubleshooting
-
-### **🚀 Build Issues**
-
-**Problem: "Command not found" or "Script not recognized"**
-**Solutions:**
-```bash
-# Windows PowerShell: Run as Administrator and set execution policy
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Windows Batch: Run Command Prompt as Administrator
-# Right-click Command Prompt → "Run as Administrator"
-
-# macOS/Linux: Make scripts executable
-chmod +x scripts/*.sh
-
-# All platforms: Run setup first
-scripts\setup-build-environment.bat  # Windows
-scripts/setup-build-environment.sh   # macOS/Linux
-```
-
-**Problem: PowerShell script execution blocked**
-**Solutions:**
-```powershell
-# Check current policy
-Get-ExecutionPolicy
-
-# Set policy for current user (recommended)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Or set policy for current process only (temporary)
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
-```
-
-**Problem: EAS build fails with "Not logged in"**
-**Solutions:**
-```bash
-# Install and login to EAS CLI
-npm install -g @expo/eas-cli
-eas login
-eas whoami  # Verify login
-
-# Check project configuration
-eas doctor
-```
-
-**Problem: Mobile builds failing or timing out**
-**Solutions:**
-- **Check expo.dev/builds** for detailed error logs
-- **Clear EAS cache**: `eas build --clear-cache`
-- **Verify app.json configuration** has correct bundle IDs
-- **Check network connection** - builds happen in the cloud
-- **Try building one platform at a time**
-
-**Problem: Desktop builds failing**
-**Solutions:**
-```bash
-# Clear build cache
-npm run build:web -- --clear
-rm -rf dist/
-
-# Rebuild dependencies
-rm -rf node_modules/
-npm install
-
-# Build web first, then desktop
-npm run build:web
-npx electron-builder --win
-```
 
 ### **📱 App Runtime Issues**
 
@@ -655,7 +660,7 @@ npx electron-builder --win
 - **Try manual export** to test if data persistence works
 - **Restart app** - force close and reopen
 - **Clear browser cache** (web version only)
-- **Check AsyncStorage permissions** on mobile
+- **Check app permissions** for storage access
 
 **Problem: Performance issues**
 **Solutions:**
@@ -665,32 +670,54 @@ npx electron-builder --win
 - **Restart device** if performance degrades
 - **Use web version** on lower-end mobile devices
 
+**Problem: Sync not working between devices**
+**Solutions:**
+- **Check internet connection** on both devices
+- **Verify same account** - ensure signed in with same Google/Apple/email account
+- **Enable sync** in Settings > Account & Sync for specific worlds
+- **Wait a moment** - sync can take 10-30 seconds for large worlds
+- **Force sync** by making a small edit and saving
+- **Check world settings** - ensure world is set to "Cloud Sync" not "Local Only"
+
+**Problem: Can't find my worlds after signing in**
+**Solutions:**
+- **Check sync status** - worlds may still be syncing from cloud
+- **Verify account** - ensure using exact same sign-in method (Google, Apple, or email)
+- **Wait for sync** - first sync can take several minutes
+- **Check world list** - scroll down, worlds may be at bottom
+- **Import backup** - if you have exported JSON files, use Import feature
+
+**Problem: App taking up too much storage**
+**Solutions:**
+- **Export old worlds** to JSON and delete from app
+- **Clear crash logs** in Settings if they've accumulated
+- **Delete unused worlds** you no longer need
+- **Use cloud sync** to keep worlds in cloud instead of locally
+- **Clear app cache** through device settings
+
 ### **💻 Platform-Specific Issues**
 
-**Windows:**
-- **Run scripts as Administrator** if permission errors occur
-- **Check Windows Defender** - may quarantine build files
-- **Use PowerShell** instead of Command Prompt for better compatibility
-
-**macOS:**
-- **Allow apps from unidentified developers** in Security settings
-- **Use Terminal** for running scripts
-- **Install Xcode Command Line Tools**: `xcode-select --install`
-
-**Linux:**
-- **Install build dependencies**: `sudo apt-get install build-essential`
-- **Make scripts executable**: `chmod +x scripts/*.sh`
-- **Check AppImage permissions** for desktop builds
-
-**Android:**
-- **Enable "Install from Unknown Sources"** for APK sideloading
-- **Check device compatibility** - requires Android 5.0+
-- **Clear Google Play cache** if store version has issues
+**Android (Primary Platform):**
+- **Installation**: Enable "Install from Unknown Sources" for APK sideloading
+- **Device Compatibility**: Requires Android 6.0+ (API 23+), Optimized for Android 14 (API 34)
+- **Storage Requirements**: 150MB for app + space for crash logs
+- **Crash Logs Location**: `/Android/data/com.lightwraith8268.loreweaver/files/crash-logs/`
+- **Performance**: Optimized specifically for Android devices
+- **Permissions**: Uses minimal required permissions (Internet, Storage access)
+- **Common Issues**: 
+  - If APK won't install: Check "Install from Unknown Sources" in Security settings
+  - If app crashes: Check crash logs in file manager at crash-logs location
+  - If slow performance: Close background apps and restart device
 
 **iOS:**
 - **Requires iOS 11.0+** for compatibility
-- **TestFlight** for testing production builds
-- **Apple Developer account** required for distribution
+- **TestFlight** for beta testing
+- **App Store** for official releases
+
+**Desktop:**
+- **Windows**: Download and run the installer (.exe or .msi)
+- **macOS**: Download and open the .dmg file
+- **Linux**: Download .AppImage or .snap file
 
 ### **🌐 Web-Specific Issues**
 
@@ -718,88 +745,11 @@ npx electron-builder --win
 4. **Error messages** or crash logs if available
 5. **Device specifications** (RAM, storage space)
 
-**Diagnostic Commands:**
-```bash
-# Check EAS status
-eas doctor
+**Where to Find Help:**
+- **Settings > Crash Test**: Test crash logging functionality
+- **Settings > Export Data**: Export worlds and crash logs
+- **Crash Logs**: Automatically generated for debugging (Android/iOS only)
 
-# Verify Node.js and npm
-node --version
-npm --version
-
-# Check Expo CLI
-npx expo --version
-
-# Test local development
-npm start
-```
-
-## 👨‍💻 Development & Code Quality
-
-### ✅ Quality Assurance Standards
-LoreWeaver maintains high code quality standards with comprehensive testing:
-
-```bash
-# Code Quality Checks (All Passing ✅)
-npm run lint              # ESLint - Code style and quality
-npx tsc --noEmit         # TypeScript - Type checking
-npm audit                # Security vulnerability scan
-npm outdated             # Dependency freshness check
-
-# Build Validation (All Platforms ✅)
-npx expo export --platform web    # Web build test
-scripts/build-selector.bat        # Multi-platform validation
-```
-
-**Current Status:**
-- ✅ **TypeScript**: Zero compilation errors
-- ✅ **ESLint**: All critical issues resolved
-- ✅ **Security**: Zero high-severity vulnerabilities
-- ✅ **Dependencies**: Up-to-date and stable
-- ✅ **Build System**: All platforms validated
-- ✅ **Production Ready**: Cross-platform deployment tested
-
-### 🏗️ Architecture Principles
-- **Mobile-First**: Optimized for touch interfaces and mobile performance
-- **Responsive Design**: Breakpoint-based layouts (phone/tablet/desktop)
-- **Type Safety**: Full TypeScript implementation with strict mode
-- **Error Boundaries**: Comprehensive crash protection and recovery
-- **Performance**: React Query caching, optimized re-renders
-- **Accessibility**: 44pt touch targets, screen reader support
-
-### 🔧 Development Tools & Configuration
-- **Metro Bundler**: React Native bundling with platform exclusions
-- **EAS Build**: Cloud-based mobile app compilation
-- **Electron Builder**: Desktop app packaging for Windows/macOS/Linux
-- **ESLint + Expo Rules**: Code quality enforcement
-- **TypeScript Strict**: Advanced type checking and inference
-- **Path Aliases**: Clean imports with `@/*` mapping
-
-### 📱 Platform-Specific Optimizations
-```typescript
-// Responsive design system
-const responsive = {
-  getResponsiveValue: ({ phone, tablet, largeTablet }) => {
-    if (deviceInfo.isLargeTablet) return largeTablet || tablet || phone;
-    if (deviceInfo.isTablet) return tablet || phone;
-    return phone;
-  }
-};
-
-// Platform-specific implementations
-Platform.select({
-  ios: { fontSize: 12 },
-  android: { fontSize: 11 },
-  web: { fontSize: 14 }
-});
-```
-
-### 🚀 Performance Optimizations
-- **Local Storage**: AsyncStorage for fast data access
-- **Image Optimization**: Platform-specific asset handling
-- **Bundle Splitting**: Web builds with code splitting
-- **Memory Management**: Proper cleanup and garbage collection
-- **Battery Optimization**: Efficient background processing
 
 ## 🤝 Support & Community
 
