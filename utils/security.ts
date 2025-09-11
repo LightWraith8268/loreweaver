@@ -17,7 +17,7 @@ const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
 class SecurityManager {
   private static instance: SecurityManager;
   private currentKeys: Map<string, string> = new Map();
-  private keyRotationTimer?: NodeJS.Timeout;
+  private keyRotationTimer?: number;
   private failedAttempts: Map<string, number> = new Map();
   private lockouts: Map<string, number> = new Map();
 
@@ -52,7 +52,7 @@ class SecurityManager {
     if (config.keyRotationInterval > 0) {
       this.keyRotationTimer = setInterval(() => {
         this.rotateKeys();
-      }, config.keyRotationInterval * 60 * 1000);
+      }, config.keyRotationInterval * 60 * 1000) as unknown as number;
     }
   }
 

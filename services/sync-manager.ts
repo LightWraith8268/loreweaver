@@ -15,7 +15,7 @@ export interface SyncStatus {
   syncEnabled: boolean;
 }
 
-export interface SyncConflict<T = any> {
+export interface SyncConflict<T extends Record<string, any> = any> {
   id: string;
   entityType: SyncableEntityType;
   local: DocumentWithSync<T>;
@@ -170,7 +170,7 @@ export class SyncManager {
     }
   }
 
-  private async getLocalData<T extends { id: string }>(entityType: SyncableEntityType): Promise<DocumentWithSync<T>[]> {
+  private async getLocalData<T extends Record<string, any> & { id: string; updatedAt?: string; createdAt?: string }>(entityType: SyncableEntityType): Promise<DocumentWithSync<T>[]> {
     try {
       const data = await AsyncStorage.getItem(entityType);
       const parsed = data ? JSON.parse(data) : [];

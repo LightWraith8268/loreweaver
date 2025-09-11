@@ -199,6 +199,9 @@ export default function NameGenerator({
   magicSystem: 'Magic System',
   template: 'Template',
   research: 'Research',
+  series: 'Series',
+  book: 'Book',
+  voiceCapture: 'Voice Capture',
 };
     return labels[entityType] || 'Entity';
   };

@@ -83,6 +83,7 @@ export default function ItemsScreen() {
         description: '',
         rarity: 'common',
         properties: [],
+        history: '',
         notes: '',
       });
       Alert.alert('Success', `Created item: ${name}`);
@@ -131,6 +132,7 @@ Generate:
         description: itemData.description || '',
         rarity: itemData.rarity || 'common',
         properties: itemData.properties || [],
+        history: itemData.history || '',
         notes: itemData.notes || '',
       });
       

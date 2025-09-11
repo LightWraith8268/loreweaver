@@ -226,9 +226,12 @@ export interface ImportedData {
   magicSystems?: Partial<MagicSystem>[];
   mythologies?: Partial<Mythology>[];
   loreNotes?: Partial<LoreNote>[];
+  series?: Partial<Series>[];
+  books?: Partial<Book>[];
+  voiceCaptures?: Partial<VoiceCapture>[];
 }
 
-export type EntityType = 'character' | 'location' | 'item' | 'faction' | 'lore' | 'timeline' | 'snapshot' | 'magicSystem' | 'mythology' | 'template' | 'research';
+export type EntityType = 'character' | 'location' | 'item' | 'faction' | 'lore' | 'timeline' | 'snapshot' | 'magicSystem' | 'mythology' | 'template' | 'research' | 'series' | 'book' | 'voiceCapture';
 
 export interface CharacterArchetype {
   id: string;
@@ -326,7 +329,10 @@ export interface Series {
   description: string;
   genre: string;
   status: 'planning' | 'writing' | 'editing' | 'published' | 'completed';
+  targetAudience: string;
+  themes: string[];
   books: Book[];
+  notes: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -336,10 +342,13 @@ export interface Book {
   seriesId: string;
   title: string;
   description: string;
+  synopsis: string;
+  genre: string;
   status: 'planning' | 'outlining' | 'writing' | 'editing' | 'published' | 'completed';
   wordCount: number;
   targetWordCount?: number;
   chapters: Chapter[];
+  characters: string[];
   outline: string;
   notes: string;
   createdAt: string;

@@ -80,6 +80,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 interface SettingsContextType {
   settings: AppSettings;
+  aiSettings: AISettings;
   updateSettings: (updates: Partial<AppSettings>) => Promise<void>;
   updateAISettings: (updates: Partial<AISettings>) => Promise<void>;
   resetSettings: () => Promise<void>;
@@ -188,6 +189,7 @@ export const [SettingsProvider, useSettings] = createContextHook<SettingsContext
   
   return useMemo(() => ({
     settings: settingsQuery.data || DEFAULT_SETTINGS,
+    aiSettings: settingsQuery.data?.ai || DEFAULT_AI_SETTINGS,
     updateSettings,
     updateAISettings,
     resetSettings,

@@ -446,6 +446,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       queryClient.setQueryData(['characters', currentWorld?.id], data);
     },
   });
+
   
   // Generic entity mutations with sync support
   const useCreateEntityMutation = (type: EntityType) => useMutation({
@@ -533,6 +534,52 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       queryClient.setQueryData([`${type}s`, currentWorld?.id], data);
     },
   });
+  
+  // Individual entity mutations to avoid Hook Rule violations
+  const updateCharacterMutation = useUpdateEntityMutation('character');
+  const deleteCharacterMutation = useDeleteEntityMutation('character');
+  
+  const createLocationMutation = useCreateEntityMutation('location');
+  const updateLocationMutation = useUpdateEntityMutation('location');
+  const deleteLocationMutation = useDeleteEntityMutation('location');
+  
+  const createItemMutation = useCreateEntityMutation('item');
+  const updateItemMutation = useUpdateEntityMutation('item');
+  const deleteItemMutation = useDeleteEntityMutation('item');
+  
+  const createFactionMutation = useCreateEntityMutation('faction');
+  const updateFactionMutation = useUpdateEntityMutation('faction');
+  const deleteFactionMutation = useDeleteEntityMutation('faction');
+  
+  const createTimelineMutation = useCreateEntityMutation('timeline');
+  const updateTimelineMutation = useUpdateEntityMutation('timeline');
+  const deleteTimelineMutation = useDeleteEntityMutation('timeline');
+  
+  const createLoreNoteMutation = useCreateEntityMutation('lore');
+  const updateLoreNoteMutation = useUpdateEntityMutation('lore');
+  const deleteLoreNoteMutation = useDeleteEntityMutation('lore');
+  
+  const createMagicSystemMutation = useCreateEntityMutation('magicSystem');
+  const updateMagicSystemMutation = useUpdateEntityMutation('magicSystem');
+  const deleteMagicSystemMutation = useDeleteEntityMutation('magicSystem');
+  
+  const createMythologyMutation = useCreateEntityMutation('mythology');
+  const updateMythologyMutation = useUpdateEntityMutation('mythology');
+  const deleteMythologyMutation = useDeleteEntityMutation('mythology');
+  
+  const createSeriesMutation = useCreateEntityMutation('series');
+  const updateSeriesMutation = useUpdateEntityMutation('series');
+  const deleteSeriesMutation = useDeleteEntityMutation('series');
+  
+  const createBookMutation = useCreateEntityMutation('book');
+  const updateBookMutation = useUpdateEntityMutation('book');
+  const deleteBookMutation = useDeleteEntityMutation('book');
+  
+  const createVoiceCaptureMutation = useCreateEntityMutation('voiceCapture');
+  const updateVoiceCaptureMutation = useUpdateEntityMutation('voiceCapture');
+  const deleteVoiceCaptureMutation = useDeleteEntityMutation('voiceCapture');
+  
+  const deleteSnapshotMutation = useDeleteEntityMutation('snapshot');
   
   // Snapshot mutations
   const createSnapshotMutation = useMutation({
@@ -692,8 +739,8 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     // Search books
     (booksQuery.data || []).forEach((book: Book) => {
       if (book.title.toLowerCase().includes(query) || 
-          book.synopsis?.toLowerCase().includes(query) ||
-          book.genre?.toLowerCase().includes(query)) {
+          book.description?.toLowerCase().includes(query) ||
+          book.outline?.toLowerCase().includes(query)) {
         results.push({ ...book, type: 'book' });
       }
     });
@@ -792,63 +839,63 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
     
     characters: charactersQuery.data || [],
     createCharacter: async (character: Omit<Character, 'id' | 'createdAt' | 'updatedAt'>) => { await createCharacterMutation.mutateAsync(character); },
-    updateCharacter: async (id: string, updates: Partial<Character>) => { await useUpdateEntityMutation('character').mutateAsync({ id, updates }); },
-    deleteCharacter: async (id: string) => { await useDeleteEntityMutation('character').mutateAsync(id); },
+    updateCharacter: async (id: string, updates: Partial<Character>) => { await updateCharacterMutation.mutateAsync({ id, updates }); },
+    deleteCharacter: async (id: string) => { await deleteCharacterMutation.mutateAsync(id); },
     
     locations: locationsQuery.data || [],
-    createLocation: async (location: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('location').mutateAsync(location); },
-    updateLocation: async (id: string, updates: Partial<Location>) => { await useUpdateEntityMutation('location').mutateAsync({ id, updates }); },
-    deleteLocation: async (id: string) => { await useDeleteEntityMutation('location').mutateAsync(id); },
+    createLocation: async (location: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>) => { await createLocationMutation.mutateAsync(location); },
+    updateLocation: async (id: string, updates: Partial<Location>) => { await updateLocationMutation.mutateAsync({ id, updates }); },
+    deleteLocation: async (id: string) => { await deleteLocationMutation.mutateAsync(id); },
     
     items: itemsQuery.data || [],
-    createItem: async (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('item').mutateAsync(item); },
-    updateItem: async (id: string, updates: Partial<Item>) => { await useUpdateEntityMutation('item').mutateAsync({ id, updates }); },
-    deleteItem: async (id: string) => { await useDeleteEntityMutation('item').mutateAsync(id); },
+    createItem: async (item: Omit<Item, 'id' | 'createdAt' | 'updatedAt'>) => { await createItemMutation.mutateAsync(item); },
+    updateItem: async (id: string, updates: Partial<Item>) => { await updateItemMutation.mutateAsync({ id, updates }); },
+    deleteItem: async (id: string) => { await deleteItemMutation.mutateAsync(id); },
     
     factions: factionsQuery.data || [],
-    createFaction: async (faction: Omit<Faction, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('faction').mutateAsync(faction); },
-    updateFaction: async (id: string, updates: Partial<Faction>) => { await useUpdateEntityMutation('faction').mutateAsync({ id, updates }); },
-    deleteFaction: async (id: string) => { await useDeleteEntityMutation('faction').mutateAsync(id); },
+    createFaction: async (faction: Omit<Faction, 'id' | 'createdAt' | 'updatedAt'>) => { await createFactionMutation.mutateAsync(faction); },
+    updateFaction: async (id: string, updates: Partial<Faction>) => { await updateFactionMutation.mutateAsync({ id, updates }); },
+    deleteFaction: async (id: string) => { await deleteFactionMutation.mutateAsync(id); },
     
     timelines: timelinesQuery.data || [],
-    createTimeline: async (timeline: Omit<Timeline, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('timeline').mutateAsync(timeline); },
-    updateTimeline: async (id: string, updates: Partial<Timeline>) => { await useUpdateEntityMutation('timeline').mutateAsync({ id, updates }); },
-    deleteTimeline: async (id: string) => { await useDeleteEntityMutation('timeline').mutateAsync(id); },
+    createTimeline: async (timeline: Omit<Timeline, 'id' | 'createdAt' | 'updatedAt'>) => { await createTimelineMutation.mutateAsync(timeline); },
+    updateTimeline: async (id: string, updates: Partial<Timeline>) => { await updateTimelineMutation.mutateAsync({ id, updates }); },
+    deleteTimeline: async (id: string) => { await deleteTimelineMutation.mutateAsync(id); },
     
     loreNotes: loreNotesQuery.data || [],
-    createLoreNote: async (note: Omit<LoreNote, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('lore').mutateAsync(note); },
-    updateLoreNote: async (id: string, updates: Partial<LoreNote>) => { await useUpdateEntityMutation('lore').mutateAsync({ id, updates }); },
-    deleteLoreNote: async (id: string) => { await useDeleteEntityMutation('lore').mutateAsync(id); },
+    createLoreNote: async (note: Omit<LoreNote, 'id' | 'createdAt' | 'updatedAt'>) => { await createLoreNoteMutation.mutateAsync(note); },
+    updateLoreNote: async (id: string, updates: Partial<LoreNote>) => { await updateLoreNoteMutation.mutateAsync({ id, updates }); },
+    deleteLoreNote: async (id: string) => { await deleteLoreNoteMutation.mutateAsync(id); },
     
     magicSystems: magicSystemsQuery.data || [],
-    createMagicSystem: async (magicSystem: Omit<MagicSystem, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('magicSystem').mutateAsync(magicSystem); },
-    updateMagicSystem: async (id: string, updates: Partial<MagicSystem>) => { await useUpdateEntityMutation('magicSystem').mutateAsync({ id, updates }); },
-    deleteMagicSystem: async (id: string) => { await useDeleteEntityMutation('magicSystem').mutateAsync(id); },
+    createMagicSystem: async (magicSystem: Omit<MagicSystem, 'id' | 'createdAt' | 'updatedAt'>) => { await createMagicSystemMutation.mutateAsync(magicSystem); },
+    updateMagicSystem: async (id: string, updates: Partial<MagicSystem>) => { await updateMagicSystemMutation.mutateAsync({ id, updates }); },
+    deleteMagicSystem: async (id: string) => { await deleteMagicSystemMutation.mutateAsync(id); },
     
     mythologies: mythologiesQuery.data || [],
-    createMythology: async (mythology: Omit<Mythology, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('mythology').mutateAsync(mythology); },
-    updateMythology: async (id: string, updates: Partial<Mythology>) => { await useUpdateEntityMutation('mythology').mutateAsync({ id, updates }); },
-    deleteMythology: async (id: string) => { await useDeleteEntityMutation('mythology').mutateAsync(id); },
+    createMythology: async (mythology: Omit<Mythology, 'id' | 'createdAt' | 'updatedAt'>) => { await createMythologyMutation.mutateAsync(mythology); },
+    updateMythology: async (id: string, updates: Partial<Mythology>) => { await updateMythologyMutation.mutateAsync({ id, updates }); },
+    deleteMythology: async (id: string) => { await deleteMythologyMutation.mutateAsync(id); },
     
     series: seriesQuery.data || [],
-    createSeries: async (series: Omit<Series, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('series').mutateAsync(series); },
-    updateSeries: async (id: string, updates: Partial<Series>) => { await useUpdateEntityMutation('series').mutateAsync({ id, updates }); },
-    deleteSeries: async (id: string) => { await useDeleteEntityMutation('series').mutateAsync(id); },
+    createSeries: async (series: Omit<Series, 'id' | 'createdAt' | 'updatedAt'>) => { await createSeriesMutation.mutateAsync(series); },
+    updateSeries: async (id: string, updates: Partial<Series>) => { await updateSeriesMutation.mutateAsync({ id, updates }); },
+    deleteSeries: async (id: string) => { await deleteSeriesMutation.mutateAsync(id); },
     
     books: booksQuery.data || [],
-    createBook: async (book: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>) => { await useCreateEntityMutation('book').mutateAsync(book); },
-    updateBook: async (id: string, updates: Partial<Book>) => { await useUpdateEntityMutation('book').mutateAsync({ id, updates }); },
-    deleteBook: async (id: string) => { await useDeleteEntityMutation('book').mutateAsync(id); },
+    createBook: async (book: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>) => { await createBookMutation.mutateAsync(book); },
+    updateBook: async (id: string, updates: Partial<Book>) => { await updateBookMutation.mutateAsync({ id, updates }); },
+    deleteBook: async (id: string) => { await deleteBookMutation.mutateAsync(id); },
     
     voiceCaptures: voiceCapturesQuery.data || [],
-    createVoiceCapture: async (capture: Omit<VoiceCapture, 'id' | 'createdAt'>) => { await useCreateEntityMutation('voiceCapture').mutateAsync(capture); },
-    updateVoiceCapture: async (id: string, updates: Partial<VoiceCapture>) => { await useUpdateEntityMutation('voiceCapture').mutateAsync({ id, updates }); },
-    deleteVoiceCapture: async (id: string) => { await useDeleteEntityMutation('voiceCapture').mutateAsync(id); },
+    createVoiceCapture: async (capture: Omit<VoiceCapture, 'id' | 'createdAt'>) => { await createVoiceCaptureMutation.mutateAsync(capture); },
+    updateVoiceCapture: async (id: string, updates: Partial<VoiceCapture>) => { await updateVoiceCaptureMutation.mutateAsync({ id, updates }); },
+    deleteVoiceCapture: async (id: string) => { await deleteVoiceCaptureMutation.mutateAsync(id); },
     
     snapshots: snapshotsQuery.data || [],
     createSnapshot: async (name: string) => { await createSnapshotMutation.mutateAsync(name); },
     restoreSnapshot: async (snapshotId: string) => { await restoreSnapshotMutation.mutateAsync(snapshotId); },
-    deleteSnapshot: async (id: string) => { await useDeleteEntityMutation('snapshot').mutateAsync(id); },
+    deleteSnapshot: async (id: string) => { await deleteSnapshotMutation.mutateAsync(id); },
     
     searchQuery,
     setSearchQuery,
@@ -890,7 +937,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.locations) {
         for (const loc of data.locations) {
           if (loc.name) {
-            await useCreateEntityMutation('location').mutateAsync({
+            await createLocationMutation.mutateAsync({
               worldId: currentWorld.id,
               name: loc.name,
               type: loc.type || '',
@@ -907,7 +954,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.items) {
         for (const item of data.items) {
           if (item.name) {
-            await useCreateEntityMutation('item').mutateAsync({
+            await createItemMutation.mutateAsync({
               worldId: currentWorld.id,
               name: item.name,
               type: item.type || '',
@@ -924,7 +971,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.factions) {
         for (const faction of data.factions) {
           if (faction.name) {
-            await useCreateEntityMutation('faction').mutateAsync({
+            await createFactionMutation.mutateAsync({
               worldId: currentWorld.id,
               name: faction.name,
               type: faction.type || '',
@@ -943,7 +990,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.magicSystems) {
         for (const magic of data.magicSystems) {
           if (magic.name) {
-            await useCreateEntityMutation('magicSystem').mutateAsync({
+            await createMagicSystemMutation.mutateAsync({
               worldId: currentWorld.id,
               name: magic.name,
               type: magic.type || '',
@@ -963,7 +1010,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.mythologies) {
         for (const myth of data.mythologies) {
           if (myth.name) {
-            await useCreateEntityMutation('mythology').mutateAsync({
+            await createMythologyMutation.mutateAsync({
               worldId: currentWorld.id,
               name: myth.name,
               type: myth.type || 'belief',
@@ -984,7 +1031,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.series) {
         for (const series of data.series) {
           if (series.title) {
-            await useCreateEntityMutation('series').mutateAsync({
+            await createSeriesMutation.mutateAsync({
               worldId: currentWorld.id,
               title: series.title,
               description: series.description || '',
@@ -1002,7 +1049,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.books) {
         for (const book of data.books) {
           if (book.title) {
-            await useCreateEntityMutation('book').mutateAsync({
+            await createBookMutation.mutateAsync({
               worldId: currentWorld.id,
               title: book.title,
               seriesId: book.seriesId || null,
@@ -1021,7 +1068,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.voiceCaptures) {
         for (const voice of data.voiceCaptures) {
           if (voice.title) {
-            await useCreateEntityMutation('voiceCapture').mutateAsync({
+            await createVoiceCaptureMutation.mutateAsync({
               worldId: currentWorld.id,
               title: voice.title,
               transcript: voice.transcript || '',
@@ -1035,7 +1082,7 @@ export const [WorldProvider, useWorld] = createContextHook<WorldContextType>(() 
       if (data.loreNotes) {
         for (const note of data.loreNotes) {
           if (note.title) {
-            await useCreateEntityMutation('lore').mutateAsync({
+            await createLoreNoteMutation.mutateAsync({
               worldId: currentWorld.id,
               title: note.title,
               content: note.content || '',

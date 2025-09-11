@@ -21,6 +21,7 @@ import {
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { CrashLog } from '@/utils/crash-logger';
 import { securityManager } from '@/utils/security';
+import { checkInternetConnection } from '@/utils/network';
 import { firestore, auth, storage } from '@/firebase.config';
 import type { World, Character, Location, Faction, Item, MagicSystem, Mythology, LoreNote, Timeline, Series, Book, Chapter, AppSettings, AISettings, VoiceCapture } from '@/types/world';
 
@@ -46,9 +47,9 @@ export interface SyncMetadata {
   conflictResolved?: boolean;
 }
 
-export interface DocumentWithSync<T> extends T {
+export type DocumentWithSync<T extends Record<string, any>> = T & {
   _sync: SyncMetadata;
-}
+};
 
 export interface UserData {
   settings: AppSettings;
@@ -90,6 +91,10 @@ export class AdvancedFirebaseService {
     return collection(firestore, 'users', this.userId, collectionName);
   }
 
+  private generateId(): string {
+    return Date.now().toString() + Math.random().toString(36).substring(2);
+  }
+
   private createSyncMetadata(): SyncMetadata {
     return {
       lastModified: serverTimestamp() as Timestamp,
@@ -104,7 +109,47 @@ export class AdvancedFirebaseService {
     return `${this.deviceId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private async getDocumentWithConflictCheck<T>(
+  private async ensureNetworkConnection(): Promise<void> {
+    const isConnected = await checkInternetConnection();
+    if (!isConnected) {
+      throw new Error('Network connection required for sync operations. Please check your internet connection.');
+    }
+  }
+
+  private async retryOperation<T>(
+    operation: () => Promise<T>, 
+    maxRetries: number = 3,
+    baseDelay: number = 1000
+  ): Promise<T> {
+    let lastError: Error = new Error('Unknown error');
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error as Error;
+        
+        if (attempt === maxRetries) {
+          break;
+        }
+        
+        // Exponential backoff
+        const delay = baseDelay * Math.pow(2, attempt);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        // Check network connection before retry
+        try {
+          await this.ensureNetworkConnection();
+        } catch (networkError) {
+          throw networkError; // Don't retry if network is down
+        }
+      }
+    }
+    
+    throw new Error(`Operation failed after ${maxRetries + 1} attempts: ${lastError.message}`);
+  }
+
+  private async getDocumentWithConflictCheck<T extends Record<string, any>>(
     docRef: DocumentReference, 
     expectedVersion?: number
   ): Promise<DocumentWithSync<T> | null> {
@@ -123,26 +168,33 @@ export class AdvancedFirebaseService {
 
   // Advanced CRUD Operations with Conflict Detection
 
-  async createDocument<T extends { id: string }>(
+  async createDocument<T extends Record<string, any> & { id: string }>(
     collectionName: string, 
     data: T
   ): Promise<DocumentWithSync<T>> {
-    const docRef = doc(this.getUserCollection(collectionName), data.id);
-    const docWithSync: DocumentWithSync<T> = {
-      ...data,
-      _sync: this.createSyncMetadata()
-    };
+    await this.ensureNetworkConnection();
+    
+    return await this.retryOperation(async () => {
+      const docRef = doc(this.getUserCollection(collectionName), data.id);
+      const docWithSync: DocumentWithSync<T> = {
+        ...data,
+        _sync: this.createSyncMetadata()
+      };
 
-    await setDoc(docRef, docWithSync);
-    return docWithSync;
+      await setDoc(docRef, docWithSync);
+      return docWithSync;
+    });
   }
 
-  async updateDocument<T extends { id: string }>(
+  async updateDocument<T extends Record<string, any> & { id: string }>(
     collectionName: string, 
     data: Partial<T> & { id: string },
     expectedVersion?: number
   ): Promise<DocumentWithSync<T>> {
-    const docRef = doc(this.getUserCollection(collectionName), data.id);
+    await this.ensureNetworkConnection();
+    
+    return await this.retryOperation(async () => {
+      const docRef = doc(this.getUserCollection(collectionName), data.id);
     
     return await runTransaction(firestore, async (transaction) => {
       const docSnap = await transaction.get(docRef);
@@ -174,19 +226,28 @@ export class AdvancedFirebaseService {
       transaction.set(docRef, updatedData);
       return updatedData;
     });
+    });
   }
 
   async deleteDocument(collectionName: string, id: string): Promise<void> {
-    const docRef = doc(this.getUserCollection(collectionName), id);
-    await deleteDoc(docRef);
+    await this.ensureNetworkConnection();
+    
+    return await this.retryOperation(async () => {
+      const docRef = doc(this.getUserCollection(collectionName), id);
+      await deleteDoc(docRef);
+    });
   }
 
-  async getDocument<T>(collectionName: string, id: string): Promise<DocumentWithSync<T> | null> {
-    const docRef = doc(this.getUserCollection(collectionName), id);
-    return await this.getDocumentWithConflictCheck<T>(docRef);
+  async getDocument<T extends Record<string, any>>(collectionName: string, id: string): Promise<DocumentWithSync<T> | null> {
+    await this.ensureNetworkConnection();
+    
+    return await this.retryOperation(async () => {
+      const docRef = doc(this.getUserCollection(collectionName), id);
+      return await this.getDocumentWithConflictCheck<T>(docRef);
+    });
   }
 
-  async getCollection<T>(
+  async getCollection<T extends Record<string, any>>(
     collectionName: string, 
     orderByField?: string,
     filters?: Array<{ field: string; operator: any; value: any }>
@@ -211,7 +272,7 @@ export class AdvancedFirebaseService {
 
   // Real-time Listeners with Advanced Features
 
-  subscribeToCollection<T>(
+  subscribeToCollection<T extends Record<string, any>>(
     collectionName: string,
     callback: (data: DocumentWithSync<T>[], changes: { type: string; doc: DocumentWithSync<T> }[]) => void,
     options?: { includeMetadataChanges?: boolean }
@@ -240,7 +301,7 @@ export class AdvancedFirebaseService {
     return listenerId;
   }
 
-  subscribeToDocument<T>(
+  subscribeToDocument<T extends Record<string, any>>(
     collectionName: string,
     id: string,
     callback: (data: DocumentWithSync<T> | null) => void
@@ -309,7 +370,7 @@ export class AdvancedFirebaseService {
 
   // Conflict Resolution Helpers
 
-  async detectConflicts<T>(
+  async detectConflicts<T extends Record<string, any> & { id: string }>(
     collectionName: string, 
     localData: DocumentWithSync<T>[]
   ): Promise<Array<{
@@ -431,8 +492,7 @@ export class AdvancedFirebaseService {
     
     const newSeries: Series = {
       ...series,
-      id: crypto.randomUUID(),
-      userId: this.userId,
+      id: this.generateId(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -442,10 +502,12 @@ export class AdvancedFirebaseService {
   }
 
   async updateSeries(id: string, updates: Partial<Series>): Promise<void> {
-    await this.updateDocument('series', id, {
+    const updateData = {
+      id,
       ...updates,
       updatedAt: new Date().toISOString()
-    });
+    };
+    await this.updateDocument('series', updateData);
   }
 
   async deleteSeries(id: string): Promise<void> {
@@ -455,13 +517,10 @@ export class AdvancedFirebaseService {
   async getUserSeries(): Promise<Series[]> {
     if (!this.userId) return [];
     
-    const q = query(
-      collection(firestore, 'series'),
-      where('userId', '==', this.userId),
-      orderBy('updatedAt', 'desc')
+    const querySnapshot = await getDocs(
+      collection(firestore, 'users', this.userId, 'series')
     );
     
-    const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Series));
   }
 
@@ -471,8 +530,7 @@ export class AdvancedFirebaseService {
     
     const newBook: Book = {
       ...book,
-      id: crypto.randomUUID(),
-      userId: this.userId,
+      id: this.generateId(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -482,10 +540,12 @@ export class AdvancedFirebaseService {
   }
 
   async updateBook(id: string, updates: Partial<Book>): Promise<void> {
-    await this.updateDocument('books', id, {
+    const updateData = {
+      id,
       ...updates,
       updatedAt: new Date().toISOString()
-    });
+    };
+    await this.updateDocument('books', updateData);
   }
 
   async deleteBook(id: string): Promise<void> {
@@ -587,145 +647,21 @@ export class AdvancedFirebaseService {
     });
   }
 
-  // Security Helpers
-  private async encryptSensitiveData(data: AISettings): Promise<any> {
-    // Simple XOR encryption for demo - in production use proper encryption
-    const encrypted = { ...data };
-    
-    if (encrypted.providers) {
-      for (const [provider, config] of Object.entries(encrypted.providers)) {
-        if (config.apiKey && !config.apiKey.startsWith('demo_') && !config.apiKey.startsWith('free_')) {
-          encrypted.providers[provider] = {
-            ...config,
-            apiKey: this.simpleEncrypt(config.apiKey)
-          };
-        }
-      }
-    }
-    
-    return encrypted;
-  }
-
-  private async decryptSensitiveData(data: any): Promise<any> {
-    const decrypted = { ...data };
-    
-    if (decrypted.providers) {
-      for (const [provider, config] of Object.entries(decrypted.providers)) {
-        if ((config as any).apiKey && (config as any).apiKey.includes('enc:')) {
-          decrypted.providers[provider] = {
-            ...config,
-            apiKey: this.simpleDecrypt((config as any).apiKey)
-          };
-        }
-      }
-    }
-    
-    return decrypted;
-  }
-
-  // Export Preferences Management
-  async syncExportPreferences(preferences: ExportPreferences): Promise<void> {
-    if (!this.userId) throw new Error('User not authenticated');
-    
-    await setDoc(doc(firestore, 'users', this.userId, 'data', 'exportPreferences'), {
-      ...preferences,
-      _sync: this.createSyncMetadata()
-    });
-  }
-
-  async getExportPreferences(): Promise<ExportPreferences | null> {
-    if (!this.userId) return null;
-    
-    const docRef = doc(firestore, 'users', this.userId, 'data', 'exportPreferences');
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      delete data._sync;
-      return data as ExportPreferences;
-    }
-    return null;
-  }
-
-  // AI Settings with Enhanced Encryption
-  async syncAISettings(aiSettings: AISettings): Promise<void> {
-    if (!this.userId) throw new Error('User not authenticated');
-    
-    // Validate API keys before encryption
-    if (aiSettings.providers) {
-      for (const [provider, config] of Object.entries(aiSettings.providers)) {
-        if (config && typeof config === 'object' && (config as any).apiKey) {
-          const apiKey = (config as any).apiKey;
-          if (!securityManager.validateApiKey(apiKey)) {
-            console.warn(`Invalid API key detected for provider: ${provider}`);
-          }
-        }
-      }
-    }
-    
-    // Encrypt sensitive API keys
-    const encryptedSettings = await this.encryptSensitiveData(aiSettings);
-    
-    await setDoc(doc(firestore, 'users', this.userId, 'data', 'aiSettings'), {
-      ...encryptedSettings,
-      _sync: this.createSyncMetadata()
-    });
-  }
-
-  async getAISettings(): Promise<AISettings | null> {
-    if (!this.userId) return null;
-    
-    const docRef = doc(firestore, 'users', this.userId, 'data', 'aiSettings');
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      delete data._sync;
-      
-      // Decrypt sensitive data
-      return await this.decryptSensitiveData(data as AISettings);
-    }
-    return null;
-  }
-
-  // Crash Logs Management
-  async syncCrashLog(crashLog: CrashLog): Promise<void> {
-    if (!this.userId) throw new Error('User not authenticated');
-    
-    await setDoc(doc(firestore, 'users', this.userId, 'crashLogs', crashLog.id), {
-      ...crashLog,
-      _sync: this.createSyncMetadata()
-    });
-  }
-
-  async getCrashLogs(): Promise<CrashLog[]> {
+  async getCrashLogs(): Promise<any[]> {
     if (!this.userId) return [];
     
     const querySnapshot = await getDocs(
-      collection(firestore, 'users', this.userId, 'crashLogs')
+      query(collection(firestore, 'crashLogs'), where('userId', '==', this.userId))
     );
     
     return querySnapshot.docs.map(doc => {
       const data = doc.data();
       delete data._sync;
-      return data as CrashLog;
+      return data;
     });
   }
 
-  async clearCrashLogs(): Promise<void> {
-    if (!this.userId) throw new Error('User not authenticated');
-    
-    const querySnapshot = await getDocs(
-      collection(firestore, 'users', this.userId, 'crashLogs')
-    );
-    
-    const batch = writeBatch(firestore);
-    querySnapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-    
-    await batch.commit();
-  }
+
 
   // Enhanced encryption for sensitive data
   async encryptSensitiveData(data: any): Promise<any> {

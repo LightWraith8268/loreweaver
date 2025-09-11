@@ -26,7 +26,7 @@ export interface FieldConflict<T> {
 export class ConflictResolver {
   
   // Main conflict resolution entry point
-  async resolveConflict<T extends { id: string }>(
+  async resolveConflict<T extends Record<string, any> & { id: string }>(
     local: DocumentWithSync<T>,
     remote: DocumentWithSync<T>,
     base?: T, // Original version before conflicts
@@ -48,7 +48,7 @@ export class ConflictResolver {
   }
 
   // Analyze conflicts between local and remote versions
-  private analyzeFieldConflicts<T extends { id: string }>(
+  private analyzeFieldConflicts<T extends Record<string, any> & { id: string }>(
     local: DocumentWithSync<T>,
     remote: DocumentWithSync<T>,
     base?: T
@@ -87,7 +87,7 @@ export class ConflictResolver {
   }
 
   // Determine if a field can be automatically merged
-  private canFieldAutoMerge<T>(
+  private canFieldAutoMerge<T extends Record<string, any>>(
     field: keyof T, 
     localValue: any, 
     remoteValue: any, 
@@ -117,7 +117,7 @@ export class ConflictResolver {
   }
 
   // Auto-merge strategy
-  private async resolveAutoMerge<T extends { id: string }>(
+  private async resolveAutoMerge<T extends Record<string, any> & { id: string }>(
     local: DocumentWithSync<T>,
     remote: DocumentWithSync<T>,
     base: T | undefined,
@@ -161,7 +161,7 @@ export class ConflictResolver {
         } else {
           // Prefer remote for string conflicts
           (merged as any)[field] = remoteValue;
-          discardedChanges[field] = localValue;
+          (discardedChanges as any)[field] = localValue;
         }
       } else if (typeof localValue === 'object' && typeof remoteValue === 'object') {
         (merged as any)[field] = this.mergeObjects(localValue, remoteValue);
@@ -182,7 +182,7 @@ export class ConflictResolver {
   }
 
   // Simple resolution strategies
-  private resolveLocalWins<T extends { id: string }>(
+  private resolveLocalWins<T extends Record<string, any> & { id: string }>(
     local: DocumentWithSync<T>,
     remote: DocumentWithSync<T>,
     conflicts: FieldConflict<T>[]
@@ -199,7 +199,7 @@ export class ConflictResolver {
     };
   }
 
-  private resolveRemoteWins<T extends { id: string }>(
+  private resolveRemoteWins<T extends Record<string, any> & { id: string }>(
     local: DocumentWithSync<T>,
     remote: DocumentWithSync<T>,
     conflicts: FieldConflict<T>[]
@@ -216,7 +216,7 @@ export class ConflictResolver {
     };
   }
 
-  private prepareManualResolution<T extends { id: string }>(
+  private prepareManualResolution<T extends Record<string, any> & { id: string }>(
     local: DocumentWithSync<T>,
     remote: DocumentWithSync<T>,
     conflicts: FieldConflict<T>[]
@@ -235,7 +235,7 @@ export class ConflictResolver {
 
   // Helper methods for merge logic
 
-  private getFieldImportance<T>(field: keyof T): 'low' | 'medium' | 'high' | 'critical' {
+  private getFieldImportance<T extends Record<string, any>>(field: keyof T): 'low' | 'medium' | 'high' | 'critical' {
     const fieldStr = field as string;
     
     // Critical fields that should never be auto-merged
@@ -274,7 +274,7 @@ export class ConflictResolver {
     return merged;
   }
 
-  private isNonCriticalObject<T>(field: keyof T): boolean {
+  private isNonCriticalObject<T extends Record<string, any>>(field: keyof T): boolean {
     const fieldStr = field as string;
     // Objects that are safe to deep merge
     return ['metadata', 'properties', 'attributes', 'stats'].includes(fieldStr);
@@ -288,7 +288,7 @@ export class ConflictResolver {
     return value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)));
   }
 
-  private canConcatenateStrings<T>(field: keyof T, str1: string, str2: string): boolean {
+  private canConcatenateStrings<T extends Record<string, any>>(field: keyof T, str1: string, str2: string): boolean {
     const fieldStr = field as string;
     // Only concatenate for certain fields like descriptions or notes
     return ['notes', 'description', 'content'].includes(fieldStr) && 
@@ -303,7 +303,7 @@ export class ConflictResolver {
     return `${str1}\n\n---\n\n${str2}`;
   }
 
-  private extractConflictValues<T>(
+  private extractConflictValues<T extends Record<string, any>>(
     doc: DocumentWithSync<T>, 
     conflicts: FieldConflict<T>[], 
     source: 'local' | 'remote'

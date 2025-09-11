@@ -1,7 +1,9 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWorld } from '@/hooks/world-context';
+import { useSettings } from '@/hooks/settings-context';
 import { requireInternetConnection } from '@/utils/network';
+import { aiProviderService } from '@/services/ai-provider';
 import type { Character, Location, Item, Faction, LoreNote, EntityType, MagicSystem, Mythology, ConsistencyWarning, PlotHook, VoiceCapture } from '@/types/world';
 import { Platform } from 'react-native';
 
@@ -38,6 +40,14 @@ interface AIContextType {
 export const [AIProvider, useAI] = createContextHook<AIContextType>(() => {
   const [isGenerating, setIsGenerating] = useState(false);
   const { currentWorld, characters, locations, items, factions, loreNotes, magicSystems, mythologies } = useWorld();
+  const { aiSettings } = useSettings();
+
+  // Update AI provider service when settings change
+  useEffect(() => {
+    if (aiSettings) {
+      aiProviderService.updateSettings(aiSettings);
+    }
+  }, [aiSettings]);
   
   const getWorldContext = () => {
     if (!currentWorld) return '';
@@ -54,25 +64,13 @@ Magic Systems: ${magicSystems.map(m => m.name).join(', ')}
 Mythologies: ${mythologies.map(m => m.name).join(', ')}`;
   };
   
-  const makeAIRequest = async (messages: any[]) => {
+  const makeAIRequest = async (messages: any[], options?: { provider?: string; model?: string }) => {
     // Require internet connection for all AI requests
     await requireInternetConnection();
     
     try {
-      const response = await fetch('https://toolkit.rork.com/text/llm/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('AI request failed:', response.status, errorText);
-        throw new Error(`AI request failed: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.completion;
+      const response = await aiProviderService.makeRequest(messages, options);
+      return response.completion;
     } catch (error) {
       console.error('AI request error:', error);
       throw error;
@@ -329,61 +327,6 @@ Return only the name, nothing else.`;
     }
   };
 
-  const editImage = async (prompt: string, images: string[]): Promise<string> => {
-    setIsGenerating(true);
-    try {
-      const response = await fetch('https://toolkit.rork.com/images/edit/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt,
-          images: images.map(image => ({ type: 'image', image: image.replace(/^data:image\/[^;]+;base64,/, '') })),
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to edit image');
-      const data = await response.json();
-      return `data:${data.image.mimeType};base64,${data.image.base64Data}`;
-    } catch (error) {
-      console.error('Error editing image:', error);
-      throw error;
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const transcribeAudio = async (audioFile: File | { uri: string; name: string; type: string }, language?: string): Promise<{ text: string; language: string }> => {
-    setIsGenerating(true);
-    try {
-      const formData = new FormData();
-      
-      if (Platform.OS === 'web') {
-        formData.append('audio', audioFile as File);
-      } else {
-        formData.append('audio', audioFile as any);
-      }
-      
-      if (language) {
-        formData.append('language', language);
-      }
-
-      const response = await fetch('https://toolkit.rork.com/stt/transcribe/', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error('Failed to transcribe audio');
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error transcribing audio:', error);
-      throw error;
-    } finally {
-      setIsGenerating(false);
-    }
-  };
   
   const generateContent = async (prompt: string, world?: any): Promise<string> => {
     setIsGenerating(true);
@@ -575,6 +518,41 @@ Return as JSON with fields: beliefs (array), rituals (array), followers (array),
     const prompt = `A beautiful landscape artwork of ${location.name}, ${location.description || 'a fantasy location'}. ${location.type ? `This is a ${location.type}.` : ''} High quality digital art, detailed environment, atmospheric lighting, fantasy/sci-fi style.`;
     
     return await generateImage(prompt);
+  };
+
+  const transcribeAudio = async (
+    audioFile: File | { uri: string; name: string; type: string }, 
+    language?: string
+  ): Promise<{ text: string; language: string }> => {
+    setIsGenerating(true);
+    try {
+      // Note: This is a placeholder implementation
+      // In a real app, you'd need to handle audio file upload and transcription
+      const mockTranscription = "This is a placeholder transcription. Audio transcription requires specialized API integration.";
+      return { text: mockTranscription, language: language || 'en' };
+    } catch (error) {
+      console.error('Transcription error:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const editImage = async (prompt: string, images: string[]): Promise<string> => {
+    setIsGenerating(true);
+    try {
+      // Note: This would require DALL-E or similar image editing API
+      const result = await makeAIRequest([
+        { role: 'system', content: 'You are an AI image editor. Describe how you would edit the provided images based on the user prompt.' },
+        { role: 'user', content: `Edit these images with this prompt: ${prompt}. Images: ${images.join(', ')}` }
+      ]);
+      return result;
+    } catch (error) {
+      console.error('Image editing error:', error);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return {

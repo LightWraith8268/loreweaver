@@ -97,7 +97,12 @@
       "Bash(git reset:*)",
       "Bash(keytool:*)",
       "Bash(npx expo install:*)",
-      "Bash(npx expo:*)"
+      "Bash(npx expo:*)",
+      "Bash(npx @expo/cli:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(wc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(git init:*)"
     ],
     "deny": [],
     "ask": []
