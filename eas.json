@@ -21,7 +21,15 @@
       "android": {
         "buildType": "apk",
         "autoIncrement": true,
-        "credentialsSource": "local"
+        "credentialsSource": "local",
+        "gradle": {
+          "buildType": "release",
+          "minSdkVersion": 24,
+          "compileSdkVersion": 34,
+          "targetSdkVersion": 34,
+          "buildToolsVersion": "34.0.0"
+        },
+        "image": "latest"
       }
     },
     "standalone-apk": {
@@ -39,7 +47,15 @@
       "android": {
         "buildType": "app-bundle",
         "autoIncrement": true,
-        "credentialsSource": "local"
+        "credentialsSource": "local",
+        "gradle": {
+          "buildType": "release",
+          "minSdkVersion": 24,
+          "compileSdkVersion": 34,
+          "targetSdkVersion": 34,
+          "buildToolsVersion": "34.0.0"
+        },
+        "image": "latest"
       }
     }
   },

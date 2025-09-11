@@ -87,7 +87,8 @@ export class AIProviderService {
     
     switch (providerName) {
       case 'rork':
-        return this.makeRorkRequest(messages, options);
+        // Rork provider temporarily disabled
+        throw new Error('Rork provider temporarily unavailable');
       
       case 'openai':
         return this.makeOpenAIRequest(provider, messages, options);
@@ -136,25 +137,7 @@ export class AIProviderService {
     }
   }
 
-  private async makeRorkRequest(messages: AIMessage[], options?: any): Promise<AIResponse> {
-    const response = await fetch('https://toolkit.rork.com/text/llm/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        messages,
-        model: options?.model || 'gpt-4o-mini',
-        temperature: options?.temperature || 0.7,
-        max_tokens: options?.maxTokens || 1000
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Rork API failed: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return { completion: data.completion };
-  }
+  // Rork provider method removed
 
   private async makeOpenAIRequest(provider: ProviderConfig, messages: AIMessage[], options?: any): Promise<AIResponse> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -520,7 +503,7 @@ export class AIProviderService {
       .map(([name, _]) => name)
       .sort((a, b) => {
         // Prioritize free providers
-        const freePriority = ['rork', 'huggingface', 'groq', 'cohere', 'google', 'mistral'];
+        const freePriority = ['huggingface', 'groq', 'cohere', 'google', 'mistral'];
         const aIndex = freePriority.indexOf(a);
         const bIndex = freePriority.indexOf(b);
         

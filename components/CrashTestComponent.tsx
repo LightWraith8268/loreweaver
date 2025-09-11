@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { Bug, Zap, AlertTriangle } from 'lucide-react-native';
 import { theme } from '@/constants/theme';
-import { logError } from '@/utils/crash-logger';
+import { logError, logWarning, logNetworkError, logPerformanceIssue, logReactError } from '@/utils/crash-logger';
 
 interface CrashTestComponentProps {
   onClose?: () => void;
@@ -64,13 +64,67 @@ export default function CrashTestComponent({ onClose }: CrashTestComponentProps)
     }
   };
 
+  const triggerWarning = () => {
+    logWarning('This is a test warning message', { 
+      userAction: 'triggerWarning',
+      additionalInfo: 'Testing non-fatal warning logging'
+    }, 'warning');
+    
+    if (Platform.OS === 'web') {
+      alert('Warning logged! Check the crash logs in Settings.');
+    } else {
+      Alert.alert('Warning Logged', 'Warning logged! Check the crash logs in Settings.');
+    }
+  };
+
+  const triggerNetworkError = () => {
+    const mockError = new Error('Network timeout after 30 seconds');
+    logNetworkError('https://api.example.com/test', mockError, {
+      method: 'POST',
+      timeout: 30000,
+      userAction: 'triggerNetworkError'
+    });
+    
+    if (Platform.OS === 'web') {
+      alert('Network error logged! Check the crash logs in Settings.');
+    } else {
+      Alert.alert('Network Error Logged', 'Network error logged! Check the crash logs in Settings.');
+    }
+  };
+
+  const triggerPerformanceIssue = () => {
+    logPerformanceIssue('Slow component render detected', {
+      renderTime: 2500,
+      component: 'CrashTestComponent',
+      threshold: 1000,
+      userAction: 'triggerPerformanceIssue'
+    });
+    
+    if (Platform.OS === 'web') {
+      alert('Performance issue logged! Check the crash logs in Settings.');
+    } else {
+      Alert.alert('Performance Issue Logged', 'Performance issue logged! Check the crash logs in Settings.');
+    }
+  };
+
+  const triggerConsoleWarning = () => {
+    console.warn('This is a test console warning that should be captured');
+    console.error('This is a test console error that should be captured');
+    
+    if (Platform.OS === 'web') {
+      alert('Console messages logged! Check the crash logs in Settings.');
+    } else {
+      Alert.alert('Console Logged', 'Console messages logged! Check the crash logs in Settings.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Bug size={32} color={theme.colors.error} />
         <Text style={styles.title}>Crash Test Component</Text>
         <Text style={styles.subtitle}>
-          Test the crash logging system by triggering different types of errors
+          Test the enhanced crash logging system by triggering different types of errors, warnings, and issues
         </Text>
       </View>
 
@@ -88,6 +142,26 @@ export default function CrashTestComponent({ onClose }: CrashTestComponentProps)
         <TouchableOpacity style={styles.testButton} onPress={triggerAsyncError}>
           <Bug size={20} color={theme.colors.background} />
           <Text style={styles.testButtonText}>Trigger Async Error</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.testButton, styles.warningButton]} onPress={triggerWarning}>
+          <AlertTriangle size={20} color={theme.colors.background} />
+          <Text style={styles.testButtonText}>Trigger Warning</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.testButton, styles.networkButton]} onPress={triggerNetworkError}>
+          <Zap size={20} color={theme.colors.background} />
+          <Text style={styles.testButtonText}>Trigger Network Error</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.testButton, styles.performanceButton]} onPress={triggerPerformanceIssue}>
+          <Bug size={20} color={theme.colors.background} />
+          <Text style={styles.testButtonText}>Trigger Performance Issue</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.testButton, styles.consoleButton]} onPress={triggerConsoleWarning}>
+          <AlertTriangle size={20} color={theme.colors.background} />
+          <Text style={styles.testButtonText}>Trigger Console Messages</Text>
         </TouchableOpacity>
 
         <View style={styles.infoBox}>
@@ -151,6 +225,18 @@ const styles = StyleSheet.create({
     color: theme.colors.background,
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
+  },
+  warningButton: {
+    backgroundColor: '#f59e0b', // Amber color for warnings
+  },
+  networkButton: {
+    backgroundColor: '#3b82f6', // Blue color for network errors
+  },
+  performanceButton: {
+    backgroundColor: '#8b5cf6', // Purple color for performance issues
+  },
+  consoleButton: {
+    backgroundColor: '#6b7280', // Gray color for console messages
   },
   infoBox: {
     backgroundColor: theme.colors.surface,

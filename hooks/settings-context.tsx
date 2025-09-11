@@ -7,8 +7,8 @@ import type { AppSettings, AISettings } from '@/types/world';
 
 const DEFAULT_AI_SETTINGS: AISettings = {
   providers: {
-    // Rork's own free AI API
-    rork: { apiKey: 'free-tier-access', enabled: true },
+    // Rork's API key kept but provider disabled
+    rork: { apiKey: 'free-tier-access', enabled: false },
     // Hugging Face - Free tier with generous limits
     huggingface: { apiKey: 'hf_QLbfBXAiELMhyRumxlNEpinzjH', enabled: true },
     // Cohere - Free trial with good limits
@@ -39,12 +39,12 @@ const DEFAULT_AI_SETTINGS: AISettings = {
     lmstudio: { apiKey: 'local_lmstudio_instance', enabled: true },
   },
   defaultModels: {
-    textGeneration: 'rork/gpt-4o-mini',
-    imageGeneration: 'rork/dall-e-3',
-    speechToText: 'rork/whisper-large-v3',
-    textToSpeech: 'rork/tts-1',
-    translation: 'rork/gpt-4o-mini',
-    summarization: 'rork/gpt-4o-mini',
+    textGeneration: 'openai/gpt-4o-mini',
+    imageGeneration: 'openai/dall-e-3',
+    speechToText: 'openai/whisper-large-v3',
+    textToSpeech: 'openai/tts-1',
+    translation: 'openai/gpt-4o-mini',
+    summarization: 'openai/gpt-4o-mini',
   },
   freeKeys: {
     rork: 'free-tier-access',

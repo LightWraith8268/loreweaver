@@ -34,6 +34,8 @@ export interface CrashLog {
     jsHeapSizeLimit?: number;
   };
   nativeStackTrace?: string;
+  severity: 'fatal' | 'error' | 'warning' | 'info';
+  category: 'crash' | 'error' | 'warning' | 'network' | 'performance' | 'react';
 }
 
 export interface JSError {
@@ -58,6 +60,15 @@ class CrashLogger {
     this.sessionId = Date.now().toString();
     this.setupGlobalErrorHandlers();
     this.setupNativeErrorHandlers();
+    this.setupConsoleInterception();
+    this.setupUnhandledRejectionHandler();
+    
+    // Always enable file logging on non-web platforms
+    if (Platform.OS !== 'web') {
+      this.enableFileLogging = true;
+      this.logFileDirectory = `${FileSystem.documentDirectory}crash-logs/`;
+      this.ensureLogDirectoryExists();
+    }
   }
 
   public static getInstance(): CrashLogger {
@@ -112,21 +123,11 @@ class CrashLogger {
 
       ErrorUtils.setGlobalHandler((error: Error, isFatal: boolean) => {
         console.error('Global Error Handler:', error, 'isFatal:', isFatal);
-        this.logError(error, { isFatal, source: 'global' });
+        this.logError(error, { isFatal, source: 'global' }, {}, isFatal ? 'fatal' : 'error', 'crash');
         originalGlobalHandler(error, isFatal);
       });
 
-      // Also capture console.error for additional logging
-      const originalConsoleError = console.error;
-      console.error = (...args) => {
-        if (args.length > 0 && typeof args[0] === 'string') {
-          const message = args.join(' ');
-          if (message.includes('Error:') || message.includes('TypeError:') || message.includes('ReferenceError:')) {
-            this.logError(new Error(message), { source: 'console' });
-          }
-        }
-        originalConsoleError.apply(console, args);
-      };
+      // This will be handled by setupConsoleInterception
     }
   }
 
@@ -140,7 +141,7 @@ class CrashLogger {
               source: 'native',
               level: log.level,
               tag: log.tag 
-            });
+            }, {}, log.level === 'fatal' ? 'fatal' : 'error', 'crash');
           }
         });
 
@@ -152,7 +153,129 @@ class CrashLogger {
     }
   }
 
-  public async logError(error: Error, errorInfo?: any, additionalData?: Record<string, any>) {
+  private setupConsoleInterception() {
+    // Intercept console.error
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      this.logConsoleMessage('error', args);
+      originalConsoleError.apply(console, args);
+    };
+
+    // Intercept console.warn
+    const originalConsoleWarn = console.warn;
+    console.warn = (...args) => {
+      this.logConsoleMessage('warn', args);
+      originalConsoleWarn.apply(console, args);
+    };
+
+    // Store original methods for potential restoration
+    (this as any).originalConsoleError = originalConsoleError;
+    (this as any).originalConsoleWarn = originalConsoleWarn;
+  }
+
+  private setupUnhandledRejectionHandler() {
+    if (Platform.OS === 'web') {
+      // Already handled in setupGlobalErrorHandlers
+      return;
+    }
+
+    // Set up tracking for unhandled promise rejections in React Native
+    const originalConsoleWarn = console.warn;
+    console.warn = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('Possible Unhandled Promise Rejection')) {
+        this.logError(
+          new Error(`Unhandled Promise Rejection: ${message}`),
+          { source: 'unhandledRejection', args },
+          {},
+          'warning',
+          'error'
+        );
+      }
+      originalConsoleWarn.apply(console, args);
+    };
+  }
+
+  private logConsoleMessage(level: 'error' | 'warn', args: any[]) {
+    try {
+      const message = args.join(' ');
+      
+      // Skip logging our own crash logger messages to avoid recursion
+      if (message.includes('Crash logged:') || 
+          message.includes('Crash log written to file:') ||
+          message.includes('Created crash log directory:')) {
+        return;
+      }
+
+      // Determine if this looks like an error or just a regular log
+      const isError = level === 'error' || 
+        message.includes('Error:') || 
+        message.includes('TypeError:') || 
+        message.includes('ReferenceError:') ||
+        message.includes('SyntaxError:') ||
+        message.includes('RangeError:') ||
+        message.includes('Cannot read property') ||
+        message.includes('Cannot access before initialization') ||
+        message.includes('is not a function') ||
+        message.includes('is not defined');
+
+      const isWarning = level === 'warn' ||
+        message.includes('Warning:') ||
+        message.includes('deprecated') ||
+        message.includes('will be removed') ||
+        message.includes('Performance warning') ||
+        message.includes('Memory warning');
+
+      // Only log significant console messages
+      if (isError || isWarning) {
+        const error = new Error(`Console ${level}: ${message}`);
+        const severity = isError ? 'error' : 'warning';
+        const category = this.categorizeConsoleMessage(message);
+
+        this.logError(
+          error,
+          { 
+            source: 'console',
+            level,
+            originalArgs: args,
+            consoleMessage: true
+          },
+          {},
+          severity,
+          category
+        );
+      }
+    } catch (error) {
+      // Avoid infinite recursion if logging itself fails
+    }
+  }
+
+  private categorizeConsoleMessage(message: string): 'crash' | 'error' | 'warning' | 'network' | 'performance' | 'react' {
+    if (message.includes('Network') || message.includes('fetch') || message.includes('XMLHttpRequest')) {
+      return 'network';
+    }
+    if (message.includes('Performance') || message.includes('Memory') || message.includes('slow')) {
+      return 'performance';
+    }
+    if (message.includes('React') || message.includes('Component') || message.includes('Hook') || message.includes('render')) {
+      return 'react';
+    }
+    if (message.includes('Error:') || message.includes('TypeError:') || message.includes('ReferenceError:')) {
+      return 'error';
+    }
+    if (message.includes('Warning:') || message.includes('deprecated')) {
+      return 'warning';
+    }
+    return 'error';
+  }
+
+  public async logError(
+    error: Error, 
+    errorInfo?: any, 
+    additionalData?: Record<string, any>,
+    severity: 'fatal' | 'error' | 'warning' | 'info' = 'error',
+    category: 'crash' | 'error' | 'warning' | 'network' | 'performance' | 'react' = 'error'
+  ) {
     try {
       const crashLog: CrashLog = {
         id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -173,13 +296,15 @@ class CrashLogger {
         sessionId: this.sessionId,
         appVersion: this.appVersion,
         buildNumber: this.buildNumber,
+        severity,
+        category,
         ...additionalData,
       };
 
       await this.storeCrashLog(crashLog);
       
-      // Write to log file if enabled
-      if (this.enableFileLogging && Platform.OS !== 'web') {
+      // Always write to log file on mobile platforms
+      if (Platform.OS !== 'web') {
         await this.writeToLogFile(crashLog);
       }
       
@@ -210,6 +335,43 @@ class CrashLogger {
     };
     
     return this.logError(error, null, additionalData);
+  }
+
+  public async logWarning(message: string, context?: any, category: 'warning' | 'network' | 'performance' | 'react' = 'warning') {
+    const warning = new Error(message);
+    warning.name = 'Warning';
+    return this.logError(warning, context, {}, 'warning', category);
+  }
+
+  public async logInfo(message: string, context?: any, category: 'error' | 'warning' | 'network' | 'performance' | 'react' = 'warning') {
+    const info = new Error(message);
+    info.name = 'Info';
+    return this.logError(info, context, {}, 'info', category);
+  }
+
+  public async logNetworkError(url: string, error: Error, requestInfo?: any) {
+    const networkError = new Error(`Network Error: ${error.message} [${url}]`);
+    networkError.name = 'NetworkError';
+    return this.logError(
+      networkError, 
+      { url, requestInfo, originalError: error }, 
+      {}, 
+      'error', 
+      'network'
+    );
+  }
+
+  public async logPerformanceIssue(message: string, metrics?: any) {
+    const perfError = new Error(`Performance Issue: ${message}`);
+    perfError.name = 'PerformanceIssue';
+    return this.logError(perfError, { metrics }, {}, 'warning', 'performance');
+  }
+
+  public async logReactError(component: string, error: Error, errorInfo?: any) {
+    const reactError = new Error(`React Error in ${component}: ${error.message}`);
+    reactError.name = 'ReactError';
+    reactError.stack = error.stack;
+    return this.logError(reactError, { component, errorInfo }, {}, 'error', 'react');
   }
 
   private async storeCrashLog(crashLog: CrashLog) {
@@ -378,7 +540,12 @@ class CrashLogger {
   }
 
   private async ensureLogDirectoryExists() {
-    if (!this.logFileDirectory || Platform.OS === 'web') return;
+    if (Platform.OS === 'web') return;
+    
+    // Set up directory if not already set
+    if (!this.logFileDirectory) {
+      this.logFileDirectory = `${FileSystem.documentDirectory}crash-logs/`;
+    }
     
     try {
       const dirInfo = await FileSystem.getInfoAsync(this.logFileDirectory);
@@ -392,7 +559,13 @@ class CrashLogger {
   }
 
   private async writeToLogFile(crashLog: CrashLog) {
-    if (!this.logFileDirectory || Platform.OS === 'web') return;
+    if (Platform.OS === 'web') return;
+    
+    // Ensure file logging is set up
+    if (!this.logFileDirectory) {
+      this.logFileDirectory = `${FileSystem.documentDirectory}crash-logs/`;
+      await this.ensureLogDirectoryExists();
+    }
     
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -418,7 +591,7 @@ class CrashLogger {
     
     try {
       const masterLogPath = `${this.logFileDirectory}crash-log-master.log`;
-      const shortEntry = `${crashLog.timestamp} | ${crashLog.error.name}: ${crashLog.error.message} | ${crashLog.buildType} | ${crashLog.deviceInfo.platform} ${crashLog.deviceInfo.version}\n`;
+      const shortEntry = `${crashLog.timestamp} | ${crashLog.severity.toUpperCase()} | ${crashLog.category} | ${crashLog.error.name}: ${crashLog.error.message} | ${crashLog.buildType} | ${crashLog.deviceInfo.platform} ${crashLog.deviceInfo.version}\n`;
       
       // Check if master log exists and append or create
       const masterLogInfo = await FileSystem.getInfoAsync(masterLogPath);
@@ -427,7 +600,7 @@ class CrashLogger {
         await FileSystem.writeAsStringAsync(masterLogPath, existingContent + shortEntry);
       } else {
         // Create new master log with header
-        const header = `# LoreWeaver Crash Log Master File\n# Generated on ${new Date().toISOString()}\n# Format: Timestamp | Error | Build Type | Platform\n\n`;
+        const header = `# LoreWeaver Crash Log Master File\n# Generated on ${new Date().toISOString()}\n# Format: Timestamp | Severity | Category | Error | Build Type | Platform\n\n`;
         await FileSystem.writeAsStringAsync(masterLogPath, header + shortEntry);
       }
     } catch (error) {
@@ -439,10 +612,12 @@ class CrashLogger {
     const sections = [];
     
     // Header
-    sections.push(`========== CRASH LOG ==========`);
+    sections.push(`========== ${crashLog.severity.toUpperCase()} LOG ==========`);
     sections.push(`ID: ${crashLog.id}`);
     sections.push(`Timestamp: ${crashLog.timestamp}`);
     sections.push(`Session ID: ${crashLog.sessionId}`);
+    sections.push(`Severity: ${crashLog.severity}`);
+    sections.push(`Category: ${crashLog.category}`);
     sections.push('');
     
     // Error Information
@@ -560,4 +735,24 @@ export const getLogFilesDirectory = () => {
 
 export const clearLogFiles = () => {
   return crashLogger.clearLogFiles();
+};
+
+export const logWarning = (message: string, context?: any, category?: 'warning' | 'network' | 'performance' | 'react') => {
+  return crashLogger.logWarning(message, context, category);
+};
+
+export const logInfo = (message: string, context?: any, category?: 'error' | 'warning' | 'network' | 'performance' | 'react') => {
+  return crashLogger.logInfo(message, context, category);
+};
+
+export const logNetworkError = (url: string, error: Error, requestInfo?: any) => {
+  return crashLogger.logNetworkError(url, error, requestInfo);
+};
+
+export const logPerformanceIssue = (message: string, metrics?: any) => {
+  return crashLogger.logPerformanceIssue(message, metrics);
+};
+
+export const logReactError = (component: string, error: Error, errorInfo?: any) => {
+  return crashLogger.logReactError(component, error, errorInfo);
 };

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert } from 'react
 import { AlertTriangle, RefreshCw, Send, X } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createTheme } from '@/constants/theme';
+import { logReactError } from '@/utils/crash-logger';
 
 interface Props {
   children: ReactNode;
@@ -62,7 +63,10 @@ class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Log the crash
+    // Log the React error using the enhanced crash logger
+    logReactError('ErrorBoundary', error, errorInfo);
+    
+    // Also log using the old method for backward compatibility
     this.logCrash(error, errorInfo);
   }
 

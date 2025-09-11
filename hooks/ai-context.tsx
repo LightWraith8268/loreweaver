@@ -307,18 +307,8 @@ Return only the name, nothing else.`;
   const generateImage = async (prompt: string): Promise<string> => {
     setIsGenerating(true);
     try {
-      const response = await fetch('https://toolkit.rork.com/images/generate/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          prompt: `${currentWorld?.genre || 'fantasy'} style: ${prompt}`,
-          size: '1024x1024'
-        }),
-      });
-      
-      if (!response.ok) throw new Error('Image generation failed');
-      const data = await response.json();
-      return `data:${data.image.mimeType};base64,${data.image.base64Data}`;
+      // Image generation temporarily disabled - Rork dependency removed
+      throw new Error('Image generation feature temporarily unavailable');
     } catch (error) {
       console.error('Error generating image:', error);
       throw error;
