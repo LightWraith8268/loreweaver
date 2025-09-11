@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.lightwraith8268.loreweaver",
+      "bundleIdentifier": "com.lightwraith8268.loreweaver",
       "requireFullScreen": false,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.lightwraith8268.loreweaver",
+      "package": "com.lightwraith8268.loreweaver",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
