@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+env:
+  npm_config_legacy_peer_deps: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install (root)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --legacy-peer-deps
+          elif [ -f package.json ]; then
+            npm install --legacy-peer-deps
+          else
+            echo "No package.json at repo root; skipping"
+          fi
+
+      - name: Type check (root)
+        run: |
+          if [ -f tsconfig.json ]; then
+            npx tsc --noEmit
+          else
+            echo "No tsconfig.json at repo root; skipping typecheck"
+          fi
+
+      - name: Lint (root)
+        run: |
+          if [ -f package.json ]; then
+            npx eslint . --max-warnings=0
+          else
+            echo "No package.json at repo root; skipping lint"
+          fi
+
+      - name: Install (loreweaver)
+        working-directory: loreweaver
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --legacy-peer-deps
+          elif [ -f package.json ]; then
+            npm install --legacy-peer-deps
+          else
+            echo "No package.json in loreweaver/; skipping"
+          fi
+
+      - name: Type check (loreweaver)
+        working-directory: loreweaver
+        run: |
+          if [ -f tsconfig.json ]; then
+            npx tsc --noEmit
+          else
+            echo "No tsconfig.json in loreweaver/; skipping typecheck"
+          fi
+
+      - name: Lint (loreweaver)
+        working-directory: loreweaver
+        run: |
+          if [ -f package.json ]; then
+            npx eslint . --max-warnings=0
+          else
+            echo "No package.json in loreweaver/; skipping lint"
+          fi
+
+

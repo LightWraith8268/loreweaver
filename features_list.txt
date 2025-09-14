@@ -1,0 +1,399 @@
+### 1. Core Application Features
+*   **Worldbuilding Suite**
+    *   14 specialized tabs for world creation
+*   **Cross-Platform Optimization**
+    *   Responsive design for phones, tablets, and web
+    *   Responsive design for Windows, macOS, and Linux
+    *   Rotation support
+*   **Offline Functionality**
+    *   Core worldbuilding works without internet
+*   **Local Data Storage**
+    *   All data stored securely on device
+*   **User Interface**
+    *   Modern, intuitive interface
+    *   Multiple themes
+    *   Font customization
+*   **World Selection**
+    *   Unified "Select World" experience across all screens
+*   **User Authentication**
+    *   Sign in with Google
+    *   Sign in with Apple
+    *   Sign in with email
+*   **Auto-save**
+    *   Automatic saving of all changes
+*   **Backup & Sync Options**
+    *   Data backup
+    *   Data synchronization
+*   **Version Control**
+    *   Track changes and revisions
+*   **Error Recovery**
+    *   Comprehensive crash logging
+    *   Error boundaries
+
+### 2. World-Building Content Management
+*   **Characters**
+    *   **Character Profiles**
+        *   Name
+        *   Role
+        *   Traits
+        *   Appearance
+        *   Backstory
+    *   **Relationship Mapping**
+    *   **Faction Associations**
+    *   **Location Connections** (where characters live/visit)
+    *   **AI Portrait Generation**
+    *   **AI-generated Voice Patterns** (character-specific)
+    *   **Automatic Cross-References** (for character mentions)
+*   **Locations**
+    *   **Location Builder**
+        *   Detailed descriptions
+        *   Significance
+    *   **Customizable Location Types**
+        *   Cities
+        *   Forests
+        *   Dungeons
+        *   Custom categories
+    *   **Interactive Maps**
+        *   Visual location mapping
+        *   Coordinates
+    *   **Connected Geography** (for world navigation)
+    *   **Inhabitant Tracking**
+    *   **AI Artwork Generation** (for locations)
+    *   **Environmental Details**
+        *   Weather
+        *   Climate
+        *   Atmosphere
+*   **Factions**
+    *   **Organization Management**
+        *   Guilds
+        *   Governments
+        *   Cults
+        *   Companies
+    *   **Ideology & Goals Definition**
+    *   **Leadership Hierarchy & Roles**
+    *   **Member Management**
+    *   **Alliance System** (between factions)
+    *   **Pre-built Government Templates**
+    *   **Conflict Mapping** (tensions and wars)
+*   **Items**
+    *   **Magical Items**
+        *   Weapons
+        *   Armor
+        *   Artifacts
+        *   Trinkets
+    *   **Item History Tracking**
+    *   **Power Descriptions** (abilities and limitations)
+    *   **Current Owner Tracking**
+    *   **Item Categories** (type and rarity)
+    *   **Pre-built Legendary Item Templates**
+*   **Magic Systems**
+    *   **Magic System Designer**
+        *   Rules
+        *   Limitations
+        *   Mechanics
+    *   **Magic Schools & Disciplines**
+    *   **Practitioner Tracking**
+    *   **Artifact Integration** (link magical items)
+    *   **Framework Templates**
+        *   Hard magic
+        *   Soft magic
+    *   **Spell Database**
+*   **Mythology**
+    *   **Pantheon Builder**
+        *   Gods
+        *   Deities
+    *   **Religion Designer**
+        *   Belief systems
+        *   Organizations
+    *   **Ritual Tracker**
+    *   **Holy Texts Management**
+    *   **Follower Management**
+    *   **Divine Relationships Mapping**
+    *   **Pre-built Mythological Elements**
+*   **Timeline**
+    *   **Interactive Timeline**
+        *   Multiple zoom levels
+    *   **Event Management**
+        *   Historical events
+        *   Significance levels
+    *   **Parallel Timelines** (for different regions)
+    *   **Timeline Branching** (for "what-if" scenarios)
+    *   **Era Organization**
+    *   **Auto-linking to Entities**
+    *   **Event Categories**
+        *   Wars
+        *   Discoveries
+        *   Births
+        *   Deaths
+*   **Lore**
+    *   **Lore Notes** (detailed world background)
+    *   **Organization**
+        *   Category-based
+        *   Tag-based
+    *   **Entity Linking** (connect lore to characters, locations)
+    *   **Research Integration**
+    *   **AI-powered Consistency Checker**
+    *   **Pre-built Lore Templates**
+*   **Foundational Elements Management**
+*   **World Systems Management** (e.g., political, economic)
+
+### 3. Advanced Tools & Systems
+*   **Relationship Network Visualization**
+    *   Interactive graphs of entity connections
+    *   Visual intensity indicators for relationship strength
+    *   Conflict mapping
+    *   Specialized family tree views
+    *   Organizational charts for factions
+    *   Dynamic tracking of relationship evolution
+*   **Cross-Reference System**
+    *   Automatic detection of entity mentions (auto-linking)
+    *   Bidirectional references
+    *   Dependency tracking
+    *   AI-powered contradiction detection (consistency warnings)
+    *   Reference Types
+        *   Mentioned
+        *   Related
+        *   Dependent
+        *   Conflicted
+*   **Advanced Search & Discovery**
+    *   Multi-criteria search across all entities and content
+    *   Tag-based organization
+    *   Smart filters (by type, relationships, tags)
+    *   Search history
+    *   Saved searches
+
+### 4. AI-Powered Features
+*   **AI Ideas Generator**
+    *   Generates creative ideas globally or with world context
+    *   14 idea categories
+        *   Story concepts
+        *   Characters
+        *   Plot hooks
+        *   Titles
+    *   Genre-aware suggestions (40+ genres supported)
+    *   Author influence system for style inspiration
+    *   Custom prompts
+*   **World Consistency Checker** (AI analyzes for contradictions)
+*   **AI Character Generation** (complete character profiles)
+*   **AI Location Creation** (detailed locations)
+*   **AI Item Generation** (magical items with powers and backstories)
+*   **AI Name Generator** (context-appropriate names for all entity types)
+*   **AI Content Enhancement** (suggestions for improvements)
+*   **AI Writing Assistant** (content generation within rich text editor)
+*   **AI Chapter Generator** (AI-assisted chapter creation)
+*   **AI Provider Integration**
+    *   **Multiple AI Providers Supported**
+        *   OpenAI
+        *   Anthropic
+        *   Rork
+        *   Hugging Face
+        *   Groq
+        *   Google AI
+        *   Mistral AI
+        *   Cohere
+        *   Together AI
+        *   Fireworks AI
+        *   DeepSeek
+        *   Perplexity
+    *   **Pre-configured Demo Keys** (for 15+ free-tier providers)
+    *   **Local AI Providers Supported**
+        *   Ollama
+        *   LM Studio
+        *   Text Generation WebUI
+        *   KoboldCpp
+    *   **Custom API Key Support** (for premium providers)
+    *   **Automatic Fallback** (between providers for reliability)
+    *   **Internet Connection Requirement** (for cloud AI features)
+
+### 5. Content Management & Organization
+*   **Templates & Frameworks**
+    *   Genre Templates
+        *   High fantasy
+        *   Space opera
+        *   Urban fantasy
+    *   Character Archetypes
+    *   Government Structures
+    *   Magic Frameworks (hard vs. soft magic)
+    *   Cultural Templates
+*   **Series & Book Management**
+    *   Create and manage multiple book series within worlds
+    *   Individual book management with status tracking
+    *   Detailed chapter management
+    *   Story and chapter outline creation
+    *   Word count tracking
+    *   Status management (planning to published)
+*   **Rich Text Editor**
+    *   WYSIWYG editor
+    *   Formatting Options
+        *   Bold
+        *   Italic
+        *   Lists
+        *   Headers
+    *   Content Templates
+
+### 6. Import/Export & Integration
+*   **Enhanced Import/Export System**
+    *   Generate professional PDF World Bibles
+    *   Export for campaign integration
+        *   Roll20
+        *   Foundry VTT
+    *   Export for novel writing applications
+    *   JSON export of complete world data
+    *   DOCX import of existing documents and novels
+    *   Multi-format support for import/export
+*   **Novel Extraction & Analysis**
+    *   Upload completed novels (DOCX) for analysis
+    *   AI extracts world components (characters, locations)
+    *   Combine multiple novels into one world
+    *   AI creates world entities from content
+    *   Extract plot points
+
+### 7. Mobile & Accessibility Features
+*   **Voice Capture**
+    *   Voice-to-text for rapid idea capture
+*   **Quick Entry**
+    *   Fast entity creation on mobile
+*   **Offline Mode**
+    *   Full functionality without internet (core features)
+*   **Touch-Optimized UI**
+    *   Mobile-friendly interface design
+*   **Responsive Layout**
+    *   Adapts to different screen sizes and orientations
+*   **Voice & Audio Features**
+    *   Record and transcribe voice notes
+    *   Speech-to-text for all content
+    *   AI transcription with multiple languages
+    *   Audio playback of recorded notes
+
+### 8. Settings & Customization
+*   **Theme Customization**
+    *   Dark/light mode
+    *   Custom themes
+*   **Typography Settings**
+    *   Font family
+    *   Font size
+    *   Line height
+*   **Font Support**
+    *   System fonts
+    *   Premium options
+*   **AI Configuration**
+    *   Multiple AI provider support
+*   **Offline Mode**
+    *   Work without internet with local storage
+
+### 9. Gaming & Campaign Tools
+*   **RPG Campaign Support**
+    *   Export worlds for tabletop RPGs
+    *   Direct export to Roll20 platform
+    *   Support for Foundry Virtual Tabletop
+    *   Detailed NPC creation and management
+    *   AI-generated adventure hooks
+    *   Session and campaign planning tools
+
+### 10. Analytics & Insights
+*   **World Analytics**
+    *   Count and analyze world entities
+    *   Relationship analysis
+    *   Content metrics (track world-building progress)
+    *   Completion status (see areas needing development)
+    *   Growth tracking (monitor world expansion)
+
+### 11. Data & Security
+*   **Local Storage**
+    *   All data stored locally on device
+*   **Privacy Protection**
+    *   No data sent to external servers (except AI features)
+*   **Secure Key Management**
+    *   Multi-layer API key obfuscation
+        *   XOR encryption
+        *   Base64 encoding
+        *   Caesar cipher
+    *   Automatic key rotation every 15 minutes
+    *   Checksum validation
+    *   Support for key variants
+    *   Local keys remain unobfuscated
+    *   Secure key storage via `utils/secure-key-manager.ts`
+    *   Free provider keys pre-configured for 15+ AI providers
+    *   Never commit real production API keys to repository
+    *   Secure storage for sensitive user data
+    *   Validate all user inputs
+    *   Sanitize exported data
+*   **Backup Options**
+    *   Multiple backup and export options
+*   **Data Portability**
+    *   Easy export and migration of world data
+*   **Version Control**
+    *   Track changes and revisions
+*   **Error Recovery**
+    *   Comprehensive crash logging
+    *   Error boundaries
+
+### 12. Enhanced Crash Logging & Error Reporting
+*   **Automatic Crash Detection & Logging**
+    *   Captures and logs all errors, crashes, and issues
+*   **Logged Items**
+    *   Fatal crashes
+    *   JavaScript errors
+    *   Console warnings/errors
+    *   Network failures
+    *   Performance issues
+    *   React component errors
+    *   Unhandled promise rejections
+    *   Native platform errors
+*   **Automatic Log File Generation**
+    *   Individual crash files (`crash-{timestamp}-{id}.log`)
+    *   Master summary log (`crash-log-master.log`)
+*   **Log File Contents**
+    *   Error ID
+    *   Timestamp
+    *   Severity
+    *   Category
+    *   Error details (type, message, stack trace)
+    *   Environment (platform, build type, app version)
+    *   Device info
+    *   Error context
+*   **Severity Levels**
+    *   Fatal
+    *   Error
+    *   Warning
+    *   Info
+*   **Categories**
+    *   Crash
+    *   Error
+    *   Warning
+    *   Network
+    *   Performance
+    *   React
+*   **Crash Test Component**
+    *   Accessible from Settings to test various error types
+        *   JavaScript Error
+        *   Reference Error
+        *   Async Error
+        *   Warning Messages
+        *   Network Error
+        *   Performance Issues
+        *   Console Messages
+*   **Accessing Crash Logs**
+    *   Via USB connection
+    *   File manager app
+    *   Export via settings
+    *   Email logs
+    *   Cloud storage
+*   **Log Management**
+    *   Automatic directory creation
+    *   File organization
+    *   Master summary
+    *   No size limits
+    *   Manual clearing of log files
+*   **Privacy & Security**
+    *   Logs only error/device info, NOT personal data, world content, API keys, location, or private user info
+    *   Logs are completely local
+    *   User-controlled
+    *   Easy to clean up
+*   **Custom Error Logging**
+    *   Functions for logging custom errors
+    *   Functions for logging warnings
+    *   Functions for logging network issues
+    *   Functions for logging performance issues
+*   **Integration with Error Boundaries**
+    *   Automatic React component error capture with enhanced context

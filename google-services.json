@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "770712942389",
+    "project_id": "loreweaver-f6f31",
+    "storage_bucket": "loreweaver-f6f31.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770712942389:android:a5e312ab2a530b3b9ebe7c",
+        "android_client_info": {
+          "package_name": "com.lightwraith8268.loreweaver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5XFsWx60jK9Dt2BcD1ETrBvle05ewfrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,67 @@
+# Platform-specific exclusions for EAS builds (mobile only)
+
+# Exclude all desktop/Electron-specific files
+public/
+scripts/
+electron.js
+preload.js
+
+# Exclude all desktop build artifacts  
+dist/
+dist-fixed/
+dist-new/
+web-build/
+web-build-old/
+
+# Exclude desktop dependencies and configs
+electron-builder.yml
+forge.config.js
+
+# Exclude platform-specific directories
+# (These will be excluded from mobile builds)
+windows/
+macos/
+linux/
+
+# Exclude development and build artifacts
+.expo/
+.git/
+.vscode/
+.idea/
+coverage/
+
+# Exclude environment and config files not needed for mobile
+.env.local
+.env.production
+metro.cache/
+.next/
+
+# Exclude temporary and cache files
+*.log
+*.tmp
+*.cache
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude documentation and development files
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+docs/
+*.md
+
+# Exclude build logs and cache
+logs/
+.npm/
+.yarn/
+
+# Exclude large files that aren't needed for mobile build
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.msi
+*.appimage
