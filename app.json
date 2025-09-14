@@ -31,9 +31,9 @@
       "package": "com.lightwraith8268.loreweaver",
       "googleServicesFile": "./google-services.json",
       "versionCode": 17,
-      "compileSdkVersion": 34,
+      "compileSdkVersion": 35,
       "targetSdkVersion": 34,
-      "buildToolsVersion": "34.0.0",
+      "buildToolsVersion": "35.0.0",
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
@@ -67,9 +67,9 @@
           },
           "android": {
             "minSdkVersion": 24,
-            "compileSdkVersion": 34,
+            "compileSdkVersion": 35,
             "targetSdkVersion": 34,
-            "buildToolsVersion": "34.0.0"
+            "buildToolsVersion": "35.0.0"
           }
         }
       ]
