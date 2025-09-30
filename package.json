@@ -23,7 +23,8 @@
     "version:update": "node scripts/update-version.js",
     "build:win": "node scripts/build-windows.js",
     "test:win": "cd win/unpacked && LoreWeaver.exe",
-    "build:pwa": "cross-env EXPO_PUBLIC_URL=https://lightwraith8268.github.io/loreweaver expo export --platform web --output-dir web-dist --clear"
+    "build:pwa": "cross-env EXPO_PUBLIC_URL=https://lightwraith8268.github.io/loreweaver expo export --platform web --output-dir web-dist --clear",
+    "lint:ci": "eslint . --max-warnings=0 --ignore-pattern \\ dist/**\\ --ignore-pattern \\dist-fixed/**\\ --ignore-pattern \\dist-new/**\\ --ignore-pattern \\web-build/**\\ --ignore-pattern \\web-build-old/**\\ --ignore-pattern \\web-dist/**\\ --ignore-pattern \\win/**\\ --ignore-pattern \\public/**\\ --ignore-pattern \\scripts/**\\ --ignore-pattern \\metro.config.js\\"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -77,7 +78,7 @@
     "@expo/ngrok": "^4.1.0",
     "@types/react": "~19.0.10",
     "concurrently": "^8.2.2",
-    "cross-env": " ^7.0.3 ",
+    "cross-env": "^7.0.3",
     "electron": "^38.0.0",
     "electron-builder": "^24.9.1",
     "electron-is-dev": "^2.0.0",
@@ -121,3 +122,4 @@
     }
   }
 }
+

@@ -47,7 +47,7 @@ jobs:
       - name: Lint (root)
         run: |
           if [ -f package.json ]; then
-            npx eslint . --max-warnings=0
+            npm run lint:ci
           else
             echo "No package.json at repo root; skipping lint"
           fi
@@ -76,9 +76,10 @@ jobs:
         working-directory: loreweaver
         run: |
           if [ -f package.json ]; then
-            npx eslint . --max-warnings=0
+            npm run lint:ci
           else
             echo "No package.json in loreweaver/; skipping lint"
           fi
+
 
 
