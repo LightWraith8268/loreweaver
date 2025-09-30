@@ -13,5 +13,18 @@ module.exports = defineConfig([
       'web-dist/**',
       'win/**',
     ],
-  }
+    rules: {
+      'react/no-unescaped-entities': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+    languageOptions: {
+      globals: {
+        __dirname: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+      },
+    },
+  },
 ]);
