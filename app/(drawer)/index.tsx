@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -42,6 +42,7 @@ export default function DashboardScreen() {
     loreNotes,
     magicSystems,
     mythologies,
+    snapshots,
     createSnapshot,
     exportWorld,
     importData: importWorldData,
@@ -306,7 +307,59 @@ export default function DashboardScreen() {
   const getGenreColor = (genre: WorldGenre): string => {
     return genreColors[genre] || theme.colors.primary;
   };
-  
+
+  const latestSnapshotInfo = useMemo(() => {
+    if (!snapshots || snapshots.length === 0) {
+      return null;
+    }
+
+    const latest = snapshots[snapshots.length - 1];
+    let parsed: any = null;
+
+    try {
+      parsed = latest.data ? JSON.parse(latest.data) : null;
+    } catch {
+      parsed = null;
+    }
+
+    const entityCounts = (parsed ? [
+      { label: 'Characters', value: Array.isArray(parsed?.characters) ? parsed.characters.length : 0 },
+      { label: 'Locations', value: Array.isArray(parsed?.locations) ? parsed.locations.length : 0 },
+      { label: 'Items', value: Array.isArray(parsed?.items) ? parsed.items.length : 0 },
+      { label: 'Factions', value: Array.isArray(parsed?.factions) ? parsed.factions.length : 0 },
+      { label: 'Lore Notes', value: Array.isArray(parsed?.loreNotes) ? parsed.loreNotes.length : 0 },
+      { label: 'Magic Systems', value: Array.isArray(parsed?.magicSystems) ? parsed.magicSystems.length : 0 },
+      { label: 'Mythologies', value: Array.isArray(parsed?.mythologies) ? parsed.mythologies.length : 0 },
+      { label: 'Timelines', value: Array.isArray(parsed?.timelines) ? parsed.timelines.length : 0 },
+    ] : []).filter(row => typeof row.value === 'number');
+
+    const totalEntities = entityCounts.reduce((sum, row) => sum + (typeof row.value === 'number' ? row.value : 0), 0);
+
+    const capturedOn = (() => {
+      try {
+        return new Date(latest.createdAt).toLocaleString();
+      } catch {
+        return latest.createdAt;
+      }
+    })();
+
+    const meta = [
+      { label: 'Snapshot Name', value: latest.name || '—' },
+      { label: 'Captured On', value: capturedOn },
+      { label: 'World Name', value: parsed?.world?.name || currentWorld?.name || '—' },
+      { label: 'Total Entities', value: totalEntities.toLocaleString() },
+    ];
+
+    const descriptionSource = parsed?.world?.description;
+    const description = typeof descriptionSource === 'string' ? descriptionSource : null;
+
+    return {
+      meta,
+      entityCounts,
+      description,
+    };
+  }, [snapshots, currentWorld?.name]);
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -420,6 +473,45 @@ export default function DashboardScreen() {
               </View>
             </View>
             
+            {latestSnapshotInfo && (
+              <View style={styles.snapshotSection}>
+                <Text style={styles.sectionTitle}>Latest Snapshot</Text>
+                <View style={styles.snapshotColumns}>
+                  <View style={styles.snapshotColumn}>
+                    {latestSnapshotInfo.meta.map(row => (
+                      <View key={row.label} style={styles.snapshotDetailRow}>
+                        <Text style={styles.snapshotLabel}>{row.label}</Text>
+                        <Text style={styles.snapshotValue}>{row.value}</Text>
+                      </View>
+                    ))}
+                    {latestSnapshotInfo.description ? (
+                      <Text style={styles.snapshotDescription}>
+                        {latestSnapshotInfo.description}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.snapshotColumn}>
+                    <Text style={styles.snapshotLabel}>Entities Captured</Text>
+                    {latestSnapshotInfo.entityCounts.length > 0 ? (
+                      <View style={styles.snapshotStatsGrid}>
+                        {latestSnapshotInfo.entityCounts.map(row => (
+                          <View key={row.label} style={styles.snapshotStatPill}>
+                            <Text style={styles.snapshotStatText}>
+                              {row.label}: {row.value}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : (
+                      <Text style={styles.snapshotEmptyText}>
+                        No entities were included in this snapshot.
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+            )}
+
             {/* Quick Actions */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -998,6 +1090,77 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.xs,
+  },
+  snapshotSection: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: getResponsiveValue({
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl,
+      largeTablet: theme.spacing.xxl
+    }),
+    marginBottom: getResponsiveValue({
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl
+    }),
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  snapshotColumns: {
+    flexDirection: getResponsiveValue({
+      phone: 'column',
+      tablet: 'row'
+    }),
+    gap: getResponsiveValue({
+      phone: theme.spacing.lg,
+      tablet: theme.spacing.xl
+    }),
+  },
+  snapshotColumn: {
+    flex: 1,
+  },
+  snapshotDetailRow: {
+    marginBottom: theme.spacing.md,
+  },
+  snapshotLabel: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.xs * 0.5,
+  },
+  snapshotValue: {
+    fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
+  },
+  snapshotDescription: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.sm,
+    lineHeight: theme.fontSize.md,
+  },
+  snapshotStatsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+  },
+  snapshotStatPill: {
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  snapshotStatText: {
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.medium,
+    color: theme.colors.text,
+  },
+  snapshotEmptyText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.sm,
   },
   sectionTitle: {
     fontSize: theme.fontSize.lg,
