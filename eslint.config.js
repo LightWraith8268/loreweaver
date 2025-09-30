@@ -22,6 +22,8 @@ module.exports = defineConfig([
       'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/array-type': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
     },
     languageOptions: {
       globals: {
