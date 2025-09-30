@@ -12,11 +12,16 @@ module.exports = defineConfig([
       'web-build-old/**',
       'web-dist/**',
       'win/**',
+      'public/**',
+      'scripts/**',
+      'metro.config.js',
     ],
     rules: {
       'react/no-unescaped-entities': 'off',
       'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/array-type': 'off',
     },
     languageOptions: {
       globals: {
