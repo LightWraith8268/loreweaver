@@ -9,6 +9,7 @@ dist/
 dist-fixed/
 dist-temp/
 web-build/
+web-dist/
 expo-env.d.ts
 
 # Windows builds
