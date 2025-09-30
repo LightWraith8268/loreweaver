@@ -24,7 +24,7 @@
     "build:win": "node scripts/build-windows.js",
     "test:win": "cd win/unpacked && LoreWeaver.exe",
     "build:pwa": "cross-env EXPO_PUBLIC_URL=https://lightwraith8268.github.io/loreweaver expo export --platform web --output-dir web-dist --clear",
-    "lint:ci": "eslint . --max-warnings=0 --ignore-pattern \\ dist/**\\ --ignore-pattern \\dist-fixed/**\\ --ignore-pattern \\dist-new/**\\ --ignore-pattern \\web-build/**\\ --ignore-pattern \\web-build-old/**\\ --ignore-pattern \\web-dist/**\\ --ignore-pattern \\win/**\\ --ignore-pattern \\public/**\\ --ignore-pattern \\scripts/**\\ --ignore-pattern \\metro.config.js\\"
+    "lint:ci": "eslint . --max-warnings=0 --ignore-pattern dist/** --ignore-pattern dist-fixed/** --ignore-pattern dist-new/** --ignore-pattern web-build/** --ignore-pattern web-build-old/** --ignore-pattern web-dist/** --ignore-pattern win/** --ignore-pattern public/** --ignore-pattern scripts/** --ignore-pattern metro.config.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
