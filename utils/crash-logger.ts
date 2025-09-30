@@ -58,6 +58,10 @@ class CrashLogger {
 
   private constructor() {
     this.sessionId = Date.now().toString();
+    const isWebWithoutWindow = Platform.OS === 'web' && typeof window === 'undefined';
+    if (isWebWithoutWindow) {
+      return;
+    }
     this.setupGlobalErrorHandlers();
     this.setupNativeErrorHandlers();
     this.setupConsoleInterception();
@@ -127,6 +131,9 @@ class CrashLogger {
 
   private setupGlobalErrorHandlers() {
     if (Platform.OS === 'web') {
+      if (typeof window === 'undefined') {
+        return;
+      }
       window.addEventListener('error', (event) => {
         this.logJSError({
           message: event.message,
@@ -316,8 +323,8 @@ class CrashLogger {
         },
         errorInfo,
         platform: Platform.OS,
-        userAgent: Platform.OS === 'web' ? navigator.userAgent : undefined,
-        url: Platform.OS === 'web' ? window.location.href : undefined,
+        userAgent: Platform.OS === 'web' && typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+        url: Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.href : undefined,
         deviceInfo: await this.getDeviceInfo(),
         buildType: this.getBuildType(),
         memoryInfo: this.getMemoryInfo(),
@@ -495,7 +502,7 @@ class CrashLogger {
         return {
           platform: Platform.OS,
           version: Platform.Version?.toString(),
-          userAgent: navigator.userAgent,
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
         };
       } else if (Platform.OS === 'android') {
         // Try to get device info from React Native
@@ -554,7 +561,7 @@ class CrashLogger {
 
   private getMemoryInfo() {
     try {
-      if (Platform.OS === 'web' && (window as any).performance && (window as any).performance.memory) {
+      if (Platform.OS === 'web' && typeof window !== 'undefined' && (window as any).performance && (window as any).performance.memory) {
         const memory = (window as any).performance.memory;
         return {
           usedJSHeapSize: memory.usedJSHeapSize,
@@ -804,3 +811,4 @@ export const logPerformanceIssue = (message: string, metrics?: any) => {
 export const logReactError = (component: string, error: Error, errorInfo?: any) => {
   return crashLogger.logReactError(component, error, errorInfo);
 };
+

@@ -62,12 +62,19 @@ export class SyncManager {
   };
 
   constructor() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     this.loadSettings();
     this.startAutoSync();
   }
 
   // Settings Management
   async loadSettings(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
     try {
       const stored = await AsyncStorage.getItem('syncSettings');
       if (stored) {
@@ -82,6 +89,11 @@ export class SyncManager {
   async updateSettings(newSettings: Partial<SyncSettings>): Promise<void> {
     this.settings = { ...this.settings, ...newSettings };
     this.syncStatus.syncEnabled = this.settings.enabled;
+
+    if (typeof window === 'undefined') {
+      this.notifyListeners();
+      return;
+    }
     
     try {
       await AsyncStorage.setItem('syncSettings', JSON.stringify(this.settings));
@@ -499,3 +511,5 @@ export class SyncManager {
 }
 
 export const syncManager = new SyncManager();
+
+

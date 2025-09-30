@@ -22,7 +22,9 @@
     "ios": "expo run:ios",
     "version:update": "node scripts/update-version.js",
     "build:win": "node scripts/build-windows.js",
-    "test:win": "cd win/unpacked && LoreWeaver.exe"
+    "test:win": "cd win/unpacked && LoreWeaver.exe",
+    "build:pwa": "cross-env EXPO_PUBLIC_URL=https://lightwraith8268.github.io/loreweaver expo export --platform web --output-dir web-dist --clear",
+    "lint:ci": "eslint --max-warnings=0 utils/security.ts utils/crash-logger.ts services/sync-manager.ts eslint.config.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -64,18 +66,19 @@
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.20.0",
-    "zustand": "^5.0.2",
-    "react-native-reanimated": "~3.17.4"
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@expo/ngrok": "^4.1.0",
     "@types/react": "~19.0.10",
     "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
     "electron": "^38.0.0",
     "electron-builder": "^24.9.1",
     "electron-is-dev": "^2.0.0",
@@ -119,3 +122,4 @@
     }
   }
 }
+

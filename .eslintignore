@@ -1,0 +1,10 @@
+dist/
+dist-fixed/
+dist-new/
+web-build/
+web-build-old/
+web-dist/
+win/
+public/
+scripts/
+metro.config.js

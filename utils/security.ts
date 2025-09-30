@@ -22,6 +22,10 @@ class SecurityManager {
   private lockouts: Map<string, number> = new Map();
 
   private constructor() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     this.initializeKeys();
     this.setupKeyRotation();
   }
@@ -162,6 +166,9 @@ class SecurityManager {
   }
 
   public async getSecurityConfig(): Promise<SecurityConfig> {
+    if (typeof window === 'undefined') {
+      return DEFAULT_SECURITY_CONFIG;
+    }
     try {
       const config = await AsyncStorage.getItem('security_config');
       return config ? { ...DEFAULT_SECURITY_CONFIG, ...JSON.parse(config) } : DEFAULT_SECURITY_CONFIG;
@@ -177,6 +184,9 @@ class SecurityManager {
   }
 
   public async updateSecurityConfig(updates: Partial<SecurityConfig>): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
     try {
       const current = await this.getSecurityConfig();
       const updated = { ...current, ...updates };
